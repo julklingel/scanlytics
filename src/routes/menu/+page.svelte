@@ -1,9 +1,8 @@
 <script lang="ts">
-	import Card from '../../components/ui/card.svelte';
-	import AppHeader from '../../components/ui/file-header.svelte';
+	import Card from '../components/ui/card.svelte';
 </script>
 
-<AppHeader />
+
 
 <h1 class="m-4 text-4xl font-extrabold tracking-tight lg:text-5xl">Menu:</h1>
 

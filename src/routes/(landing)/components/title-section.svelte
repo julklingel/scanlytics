@@ -1,6 +1,6 @@
 <script lang="ts">
-	import DarkMode from '../../../components/ui/darkmode.svelte';
-	import Button from '../../../components/ui/button.svelte';
+	import DarkMode from '../../components/ui/darkmode.svelte';
+	import Button from '../../components/ui/button.svelte';
 	export let buttonText = 'Login';
 	export let link = './menu';
     export let variant: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" = "default";
