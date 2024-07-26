@@ -4,7 +4,8 @@
 </script>
 
 
-<ModeWatcher />
+
 <main class="h-screen w-screen">
+<ModeWatcher />
 <slot/>
 </main>
