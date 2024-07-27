@@ -5,8 +5,8 @@
 	import { invoke } from '@tauri-apps/api/core';
 
 	// Invoke example
-	async function callcrabby() {
-		invoke('crabby_print');
+	async function createPerson() {
+		invoke('create_person');
 	}
 
 	
@@ -15,6 +15,7 @@
 
 <HeaderSection />
 <TitleSection />
+
 
 
 
