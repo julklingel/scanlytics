@@ -1,8 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod db;
+mod testapi;
+
 use db::init::init_db;
 use db::api::create_person;
+use testapi::controller::test_db;
 use tauri::Manager;
 
 
@@ -26,7 +29,7 @@ fn main() {
             });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet, crabby_print, create_person])
+        .invoke_handler(tauri::generate_handler![greet, crabby_print, create_person, test_db])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

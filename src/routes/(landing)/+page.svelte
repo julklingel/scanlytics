@@ -5,8 +5,8 @@
 	import { invoke } from '@tauri-apps/api/core';
 
 	// Invoke example
-	async function createPerson() {
-		invoke('create_person');
+	async function testDB() {
+		invoke('test_db');
 	}
 
 	
@@ -15,7 +15,7 @@
 
 <HeaderSection />
 <TitleSection />
-
+<button on:click={testDB}>Test DB</button>
 
 
 
