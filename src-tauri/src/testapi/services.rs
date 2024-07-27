@@ -4,12 +4,12 @@ use surrealdb::engine::remote::ws::Client;
 use super::models::{ Testdata, Record};
 
 
-pub async fn test_db_service(db: &Surreal<Client>) -> Result<Vec<Record>, String> {
-    db.create("test_db")
-        .content(Testdata {
-            txt1: String::from("This is sample txt"),
-            bool1: true
-        })
+
+pub async fn test_db_service(db: &Surreal<Client>, data: Testdata) -> Result<Vec<Record>, String> {
+    let created: Vec<Record> = db
+        .create("test_db")
+        .content(data)
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+    Ok(created)
 }

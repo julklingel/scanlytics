@@ -5,15 +5,24 @@ use surrealdb::sql::Thing;
 
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Testdata {
+    pub id: Option<String>, // Optional if you want SurrealDB to generate IDs
+    pub txt1: String,
+    pub bool1: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Record {
-    #[allow(dead_code)]
-    id: Thing,
+    pub id: Thing,
+    pub txt1: String,
+    pub bool1: bool,
 }
 
 
-#[derive(Debug, Serialize)]
-pub struct Testdata {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TestdbResponse {
+    pub id: String,
+    pub bool1: bool,
     pub txt1: String,
-    pub bool1: bool
 }
