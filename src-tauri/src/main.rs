@@ -5,7 +5,7 @@ mod testapi;
 
 use db::init::init_db;
 use db::api::create_person;
-use testapi::controller::{test_db_write, test_db_read};
+use testapi::controller::{test_db_write, test_db_read, test_db_delete};
 use tauri::Manager;
 
 
@@ -29,7 +29,7 @@ fn main() {
             });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![test_db_read, greet, crabby_print, create_person, test_db_write])
+        .invoke_handler(tauri::generate_handler![test_db_read, test_db_delete, greet, crabby_print, create_person, test_db_write])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

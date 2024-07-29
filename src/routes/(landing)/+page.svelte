@@ -33,6 +33,18 @@
             console.error("Read Error:", error);
         }
     }
+
+	let deleteId = "";
+    let deleteResult: TestdbResponse | null = null;
+
+    async function testDbDelete() {
+        try {
+            deleteResult = await invoke("test_db_delete", { id: deleteId });
+            console.log("Delete result:", deleteResult);
+        } catch (error) {
+            console.error("Delete Error:", error);
+        }
+    }
 </script>
 
 <HeaderSection />
@@ -57,3 +69,17 @@
     <h3>Read Result:</h3>
     <pre>{JSON.stringify(readResult, null, 2)}</pre>
 {/if}
+
+<h2>Delete from DB</h2>
+<input bind:value={deleteId} placeholder="Enter ID to delete" />
+<button on:click={testDbDelete}>Delete from DB</button>
+
+{#if deleteResult !== null}
+    <h3>Delete Result:</h3>
+    {#if deleteResult}
+        <pre>{JSON.stringify(deleteResult, null, 2)}</pre>
+    {:else}
+        <p>No record found to delete</p>
+    {/if}
+{/if}
+

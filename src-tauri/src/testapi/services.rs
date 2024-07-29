@@ -33,3 +33,13 @@ pub async fn test_db_service_read(db: &Surreal<Client>, id: Option<String>) -> R
         }
     }
 }
+
+
+
+pub async fn test_db_service_delete(db: &Surreal<Client>, id: String) -> Result<Option<Record>, String> {
+    let deleted: Option<Record> = db
+        .delete(("test_db", &id))
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(deleted)
+}
