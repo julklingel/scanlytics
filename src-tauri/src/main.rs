@@ -3,9 +3,11 @@
 mod db;
 mod testapi;
 
+use tauri::Manager;
 use db::init::init_db;
 use testapi::controller::{test_db_write, test_db_read, test_db_delete};
-use tauri::Manager;
+
+
 
 
 fn main() {
@@ -18,7 +20,15 @@ fn main() {
             });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![test_db_read, test_db_delete, test_db_write])
+        .invoke_handler(tauri::generate_handler![
+
+            // Test APIs
+            test_db_read,
+            test_db_delete,
+            test_db_write
+            
+            
+            ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
