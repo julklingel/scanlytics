@@ -1,40 +1,59 @@
 <script lang="ts">
-	import HeaderSection from "../(landing)/components/header-section.svelte";
-	import TitleSection from "../(landing)/components/title-section.svelte";
+    import HeaderSection from "../(landing)/components/header-section.svelte";
+    import TitleSection from "../(landing)/components/title-section.svelte";
+    import { invoke } from "@tauri-apps/api/core";
 
-	import { invoke } from "@tauri-apps/api/core";
+    interface TestdbResponse {
+        id: string;
+        bool1: boolean;
+        txt1: string;
+    }
 
-	interface TestdbResponse {
-		id: string;
-		bool1: boolean;
-		txt1: string;
-	}
+    let writeId = "";
+    let bool1 = false;
+    let txt1 = "";
+    let readId = "";
+    let writeResult: TestdbResponse | null = null;
+    let readResult: TestdbResponse | null = null;
 
-	let id = "";
-	let bool1 = false;
-	let txt1 = "";
-	let result: TestdbResponse | null = null;
+    async function testDbWrite() {
+        try {
+            writeResult = await invoke("test_db_write", { id: writeId, bool1, txt1 });
+            console.log("Write result:", writeResult);
+        } catch (error) {
+            console.error("Write Error:", error);
+        }
+    }
 
-	async function testDb() {
-		try {
-			result = await invoke("test_db", { id, bool1, txt1 });
-			console.log(result);
-		} catch (error) {
-			console.error("Error:", error);
-		}
-	}
+    async function testDbRead() {
+        try {
+            readResult = await invoke("test_db_read", { id: readId });
+            console.log("Read result:", readResult);
+        } catch (error) {
+            console.error("Read Error:", error);
+        }
+    }
 </script>
 
 <HeaderSection />
 <TitleSection />
 
-
-<input bind:value={id} placeholder="Enter ID" />
+<h2>Write to DB</h2>
+<input bind:value={writeId} placeholder="Enter ID for writing" />
 <input type="checkbox" bind:checked={bool1} />
 <input bind:value={txt1} placeholder="Enter text" />
+<button on:click={testDbWrite}>Write to DB</button>
 
-<button on:click={testDb}>Test DB</button>
+{#if writeResult}
+    <h3>Write Result:</h3>
+    <pre>{JSON.stringify(writeResult, null, 2)}</pre>
+{/if}
 
-{#if result}
-	<pre>{JSON.stringify(result, null, 2)}</pre>
+<h2>Read from DB</h2>
+<input bind:value={readId} placeholder="Enter ID for reading" />
+<button on:click={testDbRead}>Read from DB</button>
+
+{#if readResult}
+    <h3>Read Result:</h3>
+    <pre>{JSON.stringify(readResult, null, 2)}</pre>
 {/if}
