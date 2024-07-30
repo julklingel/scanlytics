@@ -22,13 +22,14 @@ import DataTableCheckbox from "./data-table-checkbox.svelte";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { cn } from "$lib/utils.js";
   import { Input } from "$lib/components/ui/input/index.js";
+  import PlusIcon from "lucide-svelte/icons/plus";
 
 
 
 
 
    
-  type PatientNote = {
+type PatientNote = {
   id: string;
   patientName: string;
   patientId: string;
@@ -44,7 +45,10 @@ import DataTableCheckbox from "./data-table-checkbox.svelte";
   attendingDoctor: string;
 }
 
+function handleCreateNewNote() {
+        alert('Create');
 
+    }
 
 export const samplePatientNotes: PatientNote[] = [
   {
@@ -235,7 +239,11 @@ const table = createTable(readable(samplePatientNotes), {
 </script>
  
 <div class="w-full">
-  <div class="flex items-center py-4">
+  <div class="flex gap-4 items-center py-4">
+    <Button on:click={handleCreateNewNote} class="flex items-center gap-2">
+        <PlusIcon class="w-4 h-4" />
+        New Note
+    </Button>
     <Input
       class="max-w-sm"
       placeholder="Filter patient names..."
@@ -304,8 +312,10 @@ const table = createTable(readable(samplePatientNotes), {
               data-state={$selectedDataIds[row.id] && "selected"}
             >
               {#each row.cells as cell (cell.id)}
+            
                 <Subscribe attrs={cell.attrs()} let:attrs>
                   <Table.Cell class="[&:has([role=checkbox])]:pl-3" {...attrs}>
+                    <a href="./notes/{cell.id}">
                     {#if cell.id === "severity"}
                       <div class="capitalize font-medium">
                         <Render of={cell.render()} />
@@ -317,8 +327,10 @@ const table = createTable(readable(samplePatientNotes), {
                     {:else}
                       <Render of={cell.render()} />
                     {/if}
+                </a>
                   </Table.Cell> 
                 </Subscribe>
+                
               {/each}
             </Table.Row>
           </Subscribe>

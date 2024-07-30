@@ -1,5 +1,6 @@
 <script lang="ts">
     import NoteTable from './components/data-table.svelte'
+    import NoteForm from './components/new-note-modal.svelte'
 
 </script>
 
@@ -7,4 +8,6 @@
 
 <div class="container mx-auto py-10">
     <NoteTable />
+    <NoteForm/>
+    
   </div>
