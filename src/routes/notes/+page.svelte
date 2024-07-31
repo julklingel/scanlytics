@@ -1,6 +1,5 @@
 <script lang="ts">
     import NoteTable from "./components/data-table.svelte";
-    import NoteForm from "./components/new-note.svelte";
 </script>
 
 

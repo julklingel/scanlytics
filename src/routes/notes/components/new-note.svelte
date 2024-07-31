@@ -6,6 +6,7 @@
   import Input from "$lib/components/ui/input/input.svelte";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import * as Select from "$lib/components/ui/select/index.js";
+  import { invoke } from '@tauri-apps/api/core'
 
   import CalendarIcon from "lucide-svelte/icons/calendar";
   import {
@@ -28,9 +29,43 @@
     { value: "Medium", label: "Medium" },
     { value: "High", label: "High" },
   ];
+
+  let patientName: string =""
+  let patientId: string =""
+  let symptoms: string =""
+  let diagnosis: string =""
+  let treatment: string =""
+  let isUrgent: boolean = false
+  let department: string =""
+  let attendingDoctor: string =""
+  let severity: string =""
+
+
+  async function handleSubmit() {
+    const formData = {
+      patientName,
+      patientId,
+      symptoms,
+      diagnosis,
+      treatment,
+      followUpDate: value ? df.format(value.toDate(getLocalTimeZone())) : null,
+      severity,
+      isUrgent,
+      department,
+      attendingDoctor
+    };
+
+    try {
+      const response = await invoke('submit_patient_note', { patientNote: formData });
+      console.log('Response from backend:', response);
+    
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
+  }
 </script>
 
-<form id="patientNoteForm" class=" p-6 bg-white rounded-lg shadow-md">
+<form id="patientNoteForm" class="p-6 bg-white rounded-lg shadow-md" on:submit|preventDefault={handleSubmit}>
   <div class="grid grid-cols-1 gap-6">
     <div>
       <Label for="patientName" class="block text-sm font-medium text-gray-700"
