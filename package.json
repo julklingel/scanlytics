@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "test": "playwright test"
   },
   "license": "MIT",
   "dependencies": {
@@ -20,15 +21,18 @@
     "clsx": "^2.1.1",
     "lucide-svelte": "^0.416.0",
     "mode-watcher": "^0.4.1",
+    "playwright": "^1.45.3",
     "tailwind-merge": "^2.4.0",
     "tailwind-variants": "^0.2.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.45.3",
     "@sveltejs/adapter-static": "^3.0.2",
     "@sveltejs/kit": "^2.5.18",
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
     "@tailwindcss/typography": "^0.5.13",
     "@tauri-apps/cli": "2.0.0-beta.23",
+    "@types/node": "^22.0.0",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.40",
     "svelte": "^4.2.18",

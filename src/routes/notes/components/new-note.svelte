@@ -77,56 +77,46 @@
 >
   <div class="grid grid-cols-1 gap-6">
     <div>
-      <Label for="patientName" class="block text-sm font-medium text-gray-700"
-        >Patient Name</Label
-      >
+      <Label for="patientName" class="block text-sm font-medium text-gray-700">Patient Name</Label>
       <Input
         type="text"
         id="patientName"
         name="patientName"
+        bind:value={patientName}
         required
         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
       />
     </div>
 
     <div>
-      <Label for="patientId" class="block text-sm font-medium text-gray-700"
-        >Patient ID</Label
-      >
+      <Label for="patientId" class="block text-sm font-medium text-gray-700">Patient ID</Label>
       <Input
         type="text"
         id="patientId"
         name="patientId"
+        bind:value={patientId}
         required
         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
       />
     </div>
 
     <div>
-      <Label for="symptoms" class="block text-sm font-medium text-gray-700"
-        >Symptoms</Label
-      >
-      <Textarea placeholder="Type your message here." />
+      <Label for="symptoms" class="block text-sm font-medium text-gray-700">Symptoms</Label>
+      <Textarea name="symptoms" bind:value={symptoms} placeholder="Type your message here." />
     </div>
 
     <div>
-      <Label for="diagnosis" class="block text-sm font-medium text-gray-700"
-        >Diagnosis</Label
-      >
-      <Textarea placeholder="Type your message here." />
+      <Label for="diagnosis" class="block text-sm font-medium text-gray-700">Diagnosis</Label>
+      <Textarea name="diagnosis" bind:value={diagnosis} placeholder="Type your message here." />
     </div>
 
     <div>
-      <Label for="treatment" class="block text-sm font-medium text-gray-700"
-        >Treatment</Label
-      >
-      <Textarea placeholder="Type your message here." />
+      <Label for="treatment" class="block text-sm font-medium text-gray-700">Treatment</Label>
+      <Textarea name="treatment" bind:value={treatment} placeholder="Type your message here." />
     </div>
 
-    <div class=" ">
-      <Label for="followupDate" class="block text-sm font-medium text-gray-700"
-        >Follow Up Date</Label
-      >
+    <div>
+      <Label for="followupDate" class="block text-sm font-medium text-gray-700">Follow Up Date</Label>
       <Popover.Root openFocus>
         <Popover.Trigger asChild let:builder>
           <Button
@@ -172,33 +162,28 @@
     </div>
 
     <div class="flex items-center space-x-2">
-      <Switch id="urgent-mode" class="urgent-switch" />
-      <Label for="urgent-mode" class="text-sm font-medium text-gray-900"
-        >Is Urgent</Label
-      >
+      <Switch id="urgent-mode" bind:checked={isUrgent} class="urgent-switch" />
+      <Label for="urgent-mode" class="text-sm font-medium text-gray-900">Is Urgent</Label>
     </div>
 
     <div>
-      <Label for="department" class="block text-sm font-medium text-gray-700"
-        >Department</Label
-      >
+      <Label for="department" class="block text-sm font-medium text-gray-700">Department</Label>
       <Input
         type="text"
         id="department"
         name="department"
+        bind:value={department}
         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
       />
     </div>
 
     <div>
-      <Label
-        for="attendingDoctor"
-        class="block text-sm font-medium text-gray-700">Attending Doctor</Label
-      >
+      <Label for="attendingDoctor" class="block text-sm font-medium text-gray-700">Attending Doctor</Label>
       <Input
         type="text"
         id="attendingDoctor"
         name="attendingDoctor"
+        bind:value={attendingDoctor}
         required
         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
       />
