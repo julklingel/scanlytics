@@ -6,7 +6,7 @@
   import Input from "$lib/components/ui/input/input.svelte";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import * as Select from "$lib/components/ui/select/index.js";
-  import { invoke } from '@tauri-apps/api/core'
+  import { invoke } from "@tauri-apps/api/core";
 
   import CalendarIcon from "lucide-svelte/icons/calendar";
   import {
@@ -30,45 +30,51 @@
     { value: "High", label: "High" },
   ];
 
-  let patientName: string =""
-  let patientId: string =""
-  let symptoms: string =""
-  let diagnosis: string =""
-  let treatment: string =""
-  let isUrgent: boolean = false
-  let department: string =""
-  let attendingDoctor: string =""
-  let severity: string =""
-
+  let patientName: string = "";
+  let patientId: string = "";
+  let symptoms: string = "";
+  let diagnosis: string = "";
+  let treatment: string = "";
+  let isUrgent: boolean = false;
+  let department: string = "";
+  let attendingDoctor: string = "";
+  let severity: string = "";
 
   async function handleSubmit() {
     const formData = {
-      patientName,
-      patientId,
+      patient_name: patientName,
+      patient_id: patientId,
       symptoms,
       diagnosis,
       treatment,
-      followUpDate: value ? df.format(value.toDate(getLocalTimeZone())) : null,
+      follow_up_date: value
+        ? df.format(value.toDate(getLocalTimeZone()))
+        : null,
       severity,
-      isUrgent,
+      is_urgent: isUrgent,
       department,
-      attendingDoctor
+      attending_doctor: attendingDoctor
     };
 
     try {
-      const response = await invoke('submit_patient_note', { patientNote: formData });
-      console.log('Response from backend:', response);
-      alert(response)
-    
+      const response = await invoke("create_patient_note", {
+        patientNoteRequest: formData,
+      });
+      console.log("Response from backend:", response);
+      alert(JSON.stringify(response));
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert("ERROR")
-      alert( error)
+      console.error("Error submitting form:", error);
+      alert("ERROR");
+      alert(JSON.stringify(error));
     }
   }
 </script>
 
-<form id="patientNoteForm" class="p-6 bg-white rounded-lg shadow-md" on:submit|preventDefault={handleSubmit}>
+<form
+  id="patientNoteForm"
+  class="p-6 bg-white rounded-lg shadow-md"
+  on:submit|preventDefault={handleSubmit}
+>
   <div class="grid grid-cols-1 gap-6">
     <div>
       <Label for="patientName" class="block text-sm font-medium text-gray-700"

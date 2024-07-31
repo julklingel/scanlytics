@@ -1,7 +1,8 @@
 
 
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::sql::{Datetime, Thing};
+
 
 
 
@@ -12,12 +13,12 @@ pub struct PatientNoteRequest {
     pub symptoms: String,
     pub diagnosis: String,
     pub treatment: String,
+    pub follow_up_date: Option<String>,
+    pub severity: String,
     pub is_urgent: bool,
     pub department: String,
     pub attending_doctor: String,
-    pub severity: String,
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PatientNoteRecord {
@@ -31,6 +32,7 @@ pub struct PatientNoteRecord {
     pub department: String,
     pub attending_doctor: String,
     pub severity: String,
+    pub created_at: Datetime,
 }
 
 
@@ -46,4 +48,5 @@ pub struct PatientNoteResponse {
     pub department: String,
     pub attending_doctor: String,
     pub severity: String,
+    pub created_at: Datetime,
 }

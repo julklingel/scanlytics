@@ -2,11 +2,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod db;
 mod testapi;
+mod notes;
 
 use tauri::Manager;
 use db::init::init_db;
 use testapi::controller::{test_db_write, test_db_read, test_db_delete};
-use notes::controller::{};
+use notes::controller::{create_patient_note};
 
 
 
@@ -26,7 +27,10 @@ fn main() {
             // Test APIs
             test_db_read,
             test_db_delete,
-            test_db_write
+            test_db_write,
+
+            //Notes APIs
+            create_patient_note
             
             
             ])
