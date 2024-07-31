@@ -6,7 +6,7 @@ use tauri::State;
 use tokio::sync::RwLock;
 
 #[tauri::command]
-pub async fn test_db_write(
+pub async fn create_note(
     db: State<'_, RwLock<Surreal<Client>>>,
     id: Option<String>,
     bool1: bool,

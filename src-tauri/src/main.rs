@@ -6,6 +6,7 @@ mod testapi;
 use tauri::Manager;
 use db::init::init_db;
 use testapi::controller::{test_db_write, test_db_read, test_db_delete};
+use notes::controller::{};
 
 
 
