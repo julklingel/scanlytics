@@ -58,9 +58,12 @@
     try {
       const response = await invoke('submit_patient_note', { patientNote: formData });
       console.log('Response from backend:', response);
+      alert(response)
     
     } catch (error) {
       console.error('Error submitting form:', error);
+      alert("ERROR")
+      alert( error)
     }
   }
 </script>
@@ -177,7 +180,6 @@
         type="text"
         id="department"
         name="department"
-        required
         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
       />
     </div>
