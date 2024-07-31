@@ -23,6 +23,7 @@ import DataTableCheckbox from "./data-table-checkbox.svelte";
   import { cn } from "$lib/utils.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import PlusIcon from "lucide-svelte/icons/plus";
+  import { goto } from "$app/navigation";
 
 
 
@@ -46,7 +47,7 @@ type PatientNote = {
 }
 
 function handleCreateNewNote() {
-        alert('Create');
+        goto('./notes/new')
 
     }
 
