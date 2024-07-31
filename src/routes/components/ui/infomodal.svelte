@@ -8,7 +8,7 @@
 
 <Alert.Root>
     <Terminal class="h-4 w-4" />
-    <Alert.Title>{title}</Alert.Title>
+    <Alert.Title class="font-semibold">{title}</Alert.Title>
     <Alert.Description>{description}</Alert.Description>
 </Alert.Root>
 

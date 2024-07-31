@@ -1,5 +1,9 @@
 <script lang="ts">
 	import Card from "../components/ui/card.svelte";
+	import ErrorModal from "../components/ui/errormodal.svelte";
+
+	let title = "ohoho"
+	let description = "that didnt work "
 </script>
 
 <div class="container mx-auto py-10">
@@ -8,6 +12,7 @@
 	</h1>
 
 	<div class="flex flex-wrap gap-4">
+		<ErrorModal {title} {description} />
 		<Card
 			title="Patienten"
 			description="Verwalte deine Patienten"
@@ -30,3 +35,5 @@
 		/>
 	</div>
 </div>
+
+
