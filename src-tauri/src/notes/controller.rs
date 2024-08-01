@@ -8,8 +8,12 @@ use tokio::sync::RwLock;
 #[tauri::command]
 pub async fn create_patient_note(
     db: State<'_, RwLock<Surreal<Client>>>,
-    patient_note_request: models::PatientNoteRequest,
+    patient_note_request: String,
 ) -> Result<models::PatientNoteResponse, String> {
+    let patient_note_request: models::PatientNoteRequest = serde_json::from_str(&patient_note_request)
+        .map_err(|e| format!("Failed to parse patient note request: {}", e))?;
+
+
     println!("Raw record: {:?}", patient_note_request);
     let db = db.write().await;
     let mut records = services::create_patient_note_service(&db, patient_note_request).await?;

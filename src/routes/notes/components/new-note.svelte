@@ -7,6 +7,7 @@
   import { Switch } from "$lib/components/ui/switch/index.js";
   import * as Select from "$lib/components/ui/select/index.js";
   import { invoke } from "@tauri-apps/api/core";
+  import ErrorMsg from "../../components/ui/errormodal.svelte"
 
   import CalendarIcon from "lucide-svelte/icons/calendar";
   import {
@@ -24,6 +25,10 @@
 
   let value: DateValue | undefined = undefined;
 
+  let title:string = "Error"
+  let description:string | null = ""
+
+
   let patientName: string = "";
   let patientId: string = "";
   let symptoms: string = "";
@@ -32,11 +37,7 @@
   let isUrgent: boolean = false;
   let department: string = "";
   let attendingDoctor: string = "";
-  let severity = [
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
-  ];
+  let severity: string = "Low"; // Default value
 
   async function handleSubmit() {
     const formData = {
@@ -55,17 +56,19 @@
     };
 
     try {
-      const response = await invoke("create_patient_note", {
-        patientNoteRequest: JSON.stringify(formData),
-      });
-      console.log("Response from backend:", response);
-      alert(JSON.stringify(response));
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("ERROR");
-      alert(JSON.stringify(error));
-    }
+      console.log("hello world")
+      console.log(formData.severity)
+    const response = await invoke("create_patient_note", {
+      patientNoteRequest: JSON.stringify(formData), 
+    });
+    console.log("Response from backend:", response);
+    alert(JSON.stringify(response));
+    description = null;
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    description = error instanceof Error ? error.message : String(error);
   }
+}
 </script>
 
 <form
@@ -165,7 +168,7 @@
       <Label for="severity" class="block text-sm font-medium text-gray-700"
         >Severity</Label
       >
-      <Select.Root bind:severity>
+      <Select.Root bind:value={severity}>
         <Select.Trigger class="w-[180px]">
           <Select.Value placeholder="Select a Severity" />
         </Select.Trigger>
@@ -177,7 +180,6 @@
             <Select.Item value="high">High</Select.Item>
           </Select.Group>
         </Select.Content>
-        <Select.Input name="favoriteFruit" />
       </Select.Root>
     </div>
 
@@ -216,6 +218,10 @@
       />
     </div>
   </div>
+
+  {#if description}
+  <ErrorMsg {title} {description}/>
+  {/if}
 
   <div class="mt-6">
     <Button type="submit" class="w-full px-4 py-2 font-semibold">Submit</Button>
