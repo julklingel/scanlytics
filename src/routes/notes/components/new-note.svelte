@@ -7,7 +7,7 @@
   import { Switch } from "$lib/components/ui/switch/index.js";
   import * as Select from "$lib/components/ui/select/index.js";
   import { invoke } from "@tauri-apps/api/core";
-  import ErrorMsg from "../../components/ui/errormodal.svelte"
+  import ErrorMsg from "../../components/ui/errormodal.svelte";
 
   import CalendarIcon from "lucide-svelte/icons/calendar";
   import {
@@ -25,9 +25,8 @@
 
   let value: DateValue | undefined = undefined;
 
-  let title:string = "Error"
-  let description:string | null = ""
-
+  let title: string = "Error";
+  let description: string | null = "";
 
   let patientName: string = "";
   let patientId: string = "";
@@ -37,7 +36,7 @@
   let isUrgent: boolean = false;
   let department: string = "";
   let attendingDoctor: string = "";
-  let severity: string = "Low"; // Default value
+  let severity: string = "low";
 
   async function handleSubmit() {
     const formData = {
@@ -56,19 +55,19 @@
     };
 
     try {
-      console.log("hello world")
-      console.log(formData.severity)
-    const response = await invoke("create_patient_note", {
-      patientNoteRequest: JSON.stringify(formData), 
-    });
-    console.log("Response from backend:", response);
-    alert(JSON.stringify(response));
-    description = null;
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    description = error instanceof Error ? error.message : String(error);
+      console.log("hello world");
+      console.log(formData.severity);
+      const response = await invoke("create_patient_note", {
+        patientNoteRequest: JSON.stringify(formData),
+      });
+      console.log("Response from backend:", response);
+      alert(JSON.stringify(response));
+      description = null;
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      description = error instanceof Error ? error.message : String(error);
+    }
   }
-}
 </script>
 
 <form
@@ -165,24 +164,21 @@
     </div>
 
     <div>
-      <Label for="severity" class="block text-sm font-medium text-gray-700"
-        >Severity</Label
+      <label for="severity" class="block text-sm font-medium text-gray-700"
+        >Severity</label
       >
-      <Select.Root bind:value={severity}>
-        <Select.Trigger class="w-[180px]">
-          <Select.Value placeholder="Select a Severity" />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Group>
-            <Select.Label>Severity</Select.Label>
-            <Select.Item value="low">Low</Select.Item>
-            <Select.Item value="medium">Medium</Select.Item>
-            <Select.Item value="high">High</Select.Item>
-          </Select.Group>
-        </Select.Content>
-      </Select.Root>
+      <select
+        id="severity"
+        name="severity"
+        bind:value={severity}
+        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+      >
+        <option value="" disabled>Select a Severity</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
     </div>
-
     <div class="flex items-center space-x-2">
       <Switch id="urgent-mode" bind:checked={isUrgent} class="urgent-switch" />
       <Label for="urgent-mode" class="text-sm font-medium text-gray-900"
@@ -220,7 +216,7 @@
   </div>
 
   {#if description}
-  <ErrorMsg {title} {description}/>
+    <ErrorMsg {title} {description} />
   {/if}
 
   <div class="mt-6">
