@@ -24,12 +24,6 @@
 
   let value: DateValue | undefined = undefined;
 
-  const severitylvls = [
-    { value: "low", label: "Low" },
-    { value: "Medium", label: "Medium" },
-    { value: "High", label: "High" },
-  ];
-
   let patientName: string = "";
   let patientId: string = "";
   let symptoms: string = "";
@@ -38,7 +32,11 @@
   let isUrgent: boolean = false;
   let department: string = "";
   let attendingDoctor: string = "";
-  let severity: string = "";
+  let severity = [
+    { value: "low", label: "Low" },
+    { value: "medium", label: "Medium" },
+    { value: "high", label: "High" },
+  ];
 
   async function handleSubmit() {
     const formData = {
@@ -53,12 +51,12 @@
       severity,
       is_urgent: isUrgent,
       department,
-      attending_doctor: attendingDoctor
+      attending_doctor: attendingDoctor,
     };
 
     try {
       const response = await invoke("create_patient_note", {
-        patientNoteRequest: formData,
+        patientNoteRequest: JSON.stringify(formData),
       });
       console.log("Response from backend:", response);
       alert(JSON.stringify(response));
@@ -77,7 +75,9 @@
 >
   <div class="grid grid-cols-1 gap-6">
     <div>
-      <Label for="patientName" class="block text-sm font-medium text-gray-700">Patient Name</Label>
+      <Label for="patientName" class="block text-sm font-medium text-gray-700"
+        >Patient Name</Label
+      >
       <Input
         type="text"
         id="patientName"
@@ -89,7 +89,9 @@
     </div>
 
     <div>
-      <Label for="patientId" class="block text-sm font-medium text-gray-700">Patient ID</Label>
+      <Label for="patientId" class="block text-sm font-medium text-gray-700"
+        >Patient ID</Label
+      >
       <Input
         type="text"
         id="patientId"
@@ -101,22 +103,42 @@
     </div>
 
     <div>
-      <Label for="symptoms" class="block text-sm font-medium text-gray-700">Symptoms</Label>
-      <Textarea name="symptoms" bind:value={symptoms} placeholder="Type your message here." />
+      <Label for="symptoms" class="block text-sm font-medium text-gray-700"
+        >Symptoms</Label
+      >
+      <Textarea
+        name="symptoms"
+        bind:value={symptoms}
+        placeholder="Type your message here."
+      />
     </div>
 
     <div>
-      <Label for="diagnosis" class="block text-sm font-medium text-gray-700">Diagnosis</Label>
-      <Textarea name="diagnosis" bind:value={diagnosis} placeholder="Type your message here." />
+      <Label for="diagnosis" class="block text-sm font-medium text-gray-700"
+        >Diagnosis</Label
+      >
+      <Textarea
+        name="diagnosis"
+        bind:value={diagnosis}
+        placeholder="Type your message here."
+      />
     </div>
 
     <div>
-      <Label for="treatment" class="block text-sm font-medium text-gray-700">Treatment</Label>
-      <Textarea name="treatment" bind:value={treatment} placeholder="Type your message here." />
+      <Label for="treatment" class="block text-sm font-medium text-gray-700"
+        >Treatment</Label
+      >
+      <Textarea
+        name="treatment"
+        bind:value={treatment}
+        placeholder="Type your message here."
+      />
     </div>
 
     <div>
-      <Label for="followupDate" class="block text-sm font-medium text-gray-700">Follow Up Date</Label>
+      <Label for="followupDate" class="block text-sm font-medium text-gray-700"
+        >Follow Up Date</Label
+      >
       <Popover.Root openFocus>
         <Popover.Trigger asChild let:builder>
           <Button
@@ -143,31 +165,33 @@
       <Label for="severity" class="block text-sm font-medium text-gray-700"
         >Severity</Label
       >
-      <Select.Root portal={null}>
+      <Select.Root bind:severity>
         <Select.Trigger class="w-[180px]">
           <Select.Value placeholder="Select a Severity" />
         </Select.Trigger>
         <Select.Content>
           <Select.Group>
             <Select.Label>Severity</Select.Label>
-            {#each severitylvls as s}
-              <Select.Item value={s.value} label={s.label}
-                >{s.label}</Select.Item
-              >
-            {/each}
+            <Select.Item value="low">Low</Select.Item>
+            <Select.Item value="medium">Medium</Select.Item>
+            <Select.Item value="high">High</Select.Item>
           </Select.Group>
         </Select.Content>
-        <Select.Input name="pick" />
+        <Select.Input name="favoriteFruit" />
       </Select.Root>
     </div>
 
     <div class="flex items-center space-x-2">
       <Switch id="urgent-mode" bind:checked={isUrgent} class="urgent-switch" />
-      <Label for="urgent-mode" class="text-sm font-medium text-gray-900">Is Urgent</Label>
+      <Label for="urgent-mode" class="text-sm font-medium text-gray-900"
+        >Is Urgent</Label
+      >
     </div>
 
     <div>
-      <Label for="department" class="block text-sm font-medium text-gray-700">Department</Label>
+      <Label for="department" class="block text-sm font-medium text-gray-700"
+        >Department</Label
+      >
       <Input
         type="text"
         id="department"
@@ -178,7 +202,10 @@
     </div>
 
     <div>
-      <Label for="attendingDoctor" class="block text-sm font-medium text-gray-700">Attending Doctor</Label>
+      <Label
+        for="attendingDoctor"
+        class="block text-sm font-medium text-gray-700">Attending Doctor</Label
+      >
       <Input
         type="text"
         id="attendingDoctor"
