@@ -137,7 +137,8 @@
       />
     </div>
 
-    <div>
+    <!-- TO BE DISCUSSED -->
+    <!-- <div>
       <Label for="followupDate" class="block text-sm font-medium text-gray-700"
         >Follow Up Date</Label
       >
@@ -161,7 +162,7 @@
           <Calendar bind:value initialFocus />
         </Popover.Content>
       </Popover.Root>
-    </div>
+    </div> -->
 
     <div>
       <label for="severity" class="block text-sm font-medium text-gray-700"
