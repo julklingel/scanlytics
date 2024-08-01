@@ -38,7 +38,7 @@ pub struct PatientNoteRecord {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteResponse {
-    pub id: String,
+    pub id: Thing,
     pub patient_name: String,
     pub patient_id: String,
     pub symptoms: String,

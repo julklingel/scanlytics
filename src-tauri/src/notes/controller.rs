@@ -10,14 +10,16 @@ pub async fn create_patient_note(
     db: State<'_, RwLock<Surreal<Client>>>,
     patient_note_request: models::PatientNoteRequest,
 ) -> Result<models::PatientNoteResponse, String> {
+    println!("Raw record: {:?}", patient_note_request);
     let db = db.write().await;
     let mut records = services::create_patient_note_service(&db, patient_note_request).await?;
     if records.is_empty() {
         return Err("No record created".to_string());
     }
     let record = records.pop().unwrap();
+    println!("Raw record: {:?}", record);
     let response = models::PatientNoteResponse {
-        id: format!("{}:{}", record.id.tb, record.id.id),
+        id: record.id,
         patient_name: record.patient_name,
         patient_id: record.patient_id,
         symptoms: record.symptoms,
