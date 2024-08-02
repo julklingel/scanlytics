@@ -1,5 +1,4 @@
 use super::models;
-use super::models::PatientNoteRecord;
 use super::services;
 use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
