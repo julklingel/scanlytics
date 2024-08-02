@@ -35,8 +35,8 @@
   };
 
   let filteredNotes: PatientNote[] = [];
-  const infoTitle = "Uupps, no patient notes found";
-  const infoDescription =
+  const infoTitle: string | null | never  = "Uupps, no patient notes found";
+  const infoDescription: string | null | never  =
     "There are no patient notes available. Please create a new note.";
   let dataAvailable:boolean;
 

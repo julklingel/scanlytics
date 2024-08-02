@@ -30,8 +30,8 @@
 
   let value: DateValue | undefined = undefined;
 
-  let errorTitle: string = "Error";
-  let errorDescription: string | null = "";
+  let errorTitle: string | null | never = "";
+  let errorDescription: string | null | never = "";
 
   let patientName: string = selectedNote ? selectedNote.patientName : "";
   let patientId: string = selectedNote ? selectedNote.patientId : "";

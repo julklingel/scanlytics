@@ -61,9 +61,6 @@ pub async fn get_patient_notes(
     Ok(response)
 }
 
-
-
-
 #[tauri::command]
 pub async fn update_patient_note(
     db: State<'_, RwLock<Surreal<Client>>>,
