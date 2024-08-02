@@ -7,10 +7,7 @@
   import { Switch } from "$lib/components/ui/switch/index.js";
   import { invoke } from "@tauri-apps/api/core";
 
-  
   import ErrorMsg from "../../components/ui/errormodal.svelte";
-  import SuccMsg from "../../components/ui/succuessmodal.svelte"
-
 
   import {
     DateFormatter,
@@ -18,13 +15,12 @@
     getLocalTimeZone,
   } from "@internationalized/date";
 
-
   import CalendarIcon from "lucide-svelte/icons/calendar";
   import { cn } from "$lib/utils.js";
   import { Calendar } from "$lib/components/ui/calendar/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
-    import Succuessmodal from "../../components/ui/succuessmodal.svelte";
-    import { goto } from "$app/navigation";
+  import { goto } from "$app/navigation";
+  export let create: boolean
 
   const df = new DateFormatter("en-US", {
     dateStyle: "long",
@@ -35,7 +31,6 @@
   let errorTitle: string = "Error";
   let errorDescription: string | null = "";
 
- 
   let patientName: string = "";
   let patientId: string = "";
   let symptoms: string = "";
@@ -62,22 +57,36 @@
       attending_doctor: attendingDoctor,
     };
 
-    try {
-      const response = await invoke("create_patient_note", {
-        patientNoteRequest: JSON.stringify(formData),
-        sucuess:  true,
-        
-        
+    if (create) {
+      try {
+        const response = await invoke("create_patient_note", {
+          patientNoteRequest: JSON.stringify(formData),
+          sucuess: true,
+        });
+        goto("/notes");
+        toast(`Note created successfully!`);
 
-        
-      });
-      goto("/notes");
-      toast("Note created successfully");
+        errorDescription = null;
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        errorDescription =
+          error instanceof Error ? error.message : String(error);
+      }
+    } else {
+      try {
+        const response = await invoke("update_patient_note", {
+          patientNoteRequest: JSON.stringify(formData),
+          sucuess: true,
+        });
+        goto("/notes");
+        toast(`Note updated successfully!`);
 
-      errorDescription = null;
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      errorDescription = error instanceof Error ? error.message : String(error);
+        errorDescription = null;
+      } catch (error) {
+        console.error("Error updating form:", error);
+        errorDescription =
+          error instanceof Error ? error.message : String(error);
+      }
     }
   }
 </script>
@@ -231,7 +240,6 @@
   {#if errorDescription}
     <ErrorMsg {errorTitle} {errorDescription} />
   {/if}
-
 
   <div class="mt-6">
     <Button type="submit" class="w-full px-4 py-2 font-semibold">Submit</Button>

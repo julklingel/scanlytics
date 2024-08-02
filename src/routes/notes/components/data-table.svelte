@@ -9,6 +9,7 @@
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import InfoMsg from "../../components/ui/infomodal.svelte";
+  import { patientNotes } from "../../../stores/patientNote";
 
   type PatientNote = {
     id: string;
@@ -26,24 +27,33 @@
   };
 
   type Options = {
-  year: 'numeric' | '2-digit';
-  month: 'numeric' | '2-digit' | 'long' | 'short' | 'narrow';
-  day: 'numeric' | '2-digit';
-  hour: 'numeric' | '2-digit';
-  minute: 'numeric' | '2-digit';
-}
-  let patientNotes: PatientNote[] = [];
+    year: "numeric" | "2-digit";
+    month: "numeric" | "2-digit" | "long" | "short" | "narrow";
+    day: "numeric" | "2-digit";
+    hour: "numeric" | "2-digit";
+    minute: "numeric" | "2-digit";
+  };
+
   let filteredNotes: PatientNote[] = [];
   const infoTitle = "Uupps, no patient notes found";
   const infoDescription =
     "There are no patient notes available. Please create a new note.";
+  let dataAvailable:boolean;
+
+  $: dataAvailable
+  
 
   const filterValue = writable("");
 
   onMount(async () => {
     try {
       const data = await invoke<any[]>("get_patient_notes");
-      patientNotes = data.map((note) => ({
+      if (data.length === 0) {
+        dataAvailable = false;
+      } else {
+        dataAvailable = true;
+      }
+      const notes = data.map((note) => ({
         id: note.id.id.String,
         patientName: note.patient_name,
         patientId: note.patient_id,
@@ -57,22 +67,25 @@
         department: note.department,
         attendingDoctor: note.attending_doctor,
       }));
-      patientNotes.sort((a, b) => {
+      notes.sort((a, b) => {
         return (
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
       });
-      filteredNotes = patientNotes;
+      patientNotes.set(notes);
+      filteredNotes = notes;
     } catch (error) {
       console.error("Failed to load patient notes:", error);
     }
   });
 
   $: filteredNotes = $filterValue
-    ? patientNotes.filter((note) =>
+    ? $patientNotes.filter((note) =>
         note.patientName.toLowerCase().includes($filterValue.toLowerCase()),
       )
-    : patientNotes;
+    : $patientNotes;
+
+  
 
   function handleCreateNewNote() {
     goto("./notes/new");
@@ -88,9 +101,14 @@
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   }
+
+  function handleNoteView(id: string) {
+    goto(`./notes/${id}`);
+  }
+
 </script>
 
-{#if patientNotes.length === 0}
+{#if !dataAvailable}
   <div class="flex flex-col gap-4">
     <InfoMsg {infoTitle} {infoDescription} />
 
@@ -129,7 +147,7 @@
       </Table.TableHeader>
       <Table.TableBody>
         {#each filteredNotes as note}
-          <Table.TableRow>
+          <Table.TableRow on:click={() => handleNoteView(note.id)}>
             <Table.TableCell>{formatDate(note.createdAt)}</Table.TableCell>
             <Table.TableCell>{note.patientName}</Table.TableCell>
             <Table.TableCell>{note.patientId}</Table.TableCell>
