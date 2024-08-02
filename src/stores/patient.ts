@@ -3,7 +3,6 @@ import { writable } from "svelte/store";
 type Patient = {
   id: string;
   name: string;
-  patient_id: string;
   date_of_birth: string;
   gender: string;
   contact_number: string;
@@ -16,4 +15,4 @@ type Patient = {
   updated_at: string;
 };
 
-export const patients = writable<Patient[]>([]);
+export const PatientStore = writable<Patient[]>([]);

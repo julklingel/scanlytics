@@ -22,7 +22,6 @@ pub async fn create_patient(
     let response = models::PatientResponse {
         id: record.id,
         name: record.name,
-        patient_id: record.patient_id,
         date_of_birth: record.date_of_birth,
         gender: record.gender,
         contact_number: record.contact_number,
@@ -48,7 +47,6 @@ pub async fn get_patients(
         .map(|record| models::PatientResponse {
             id: record.id.clone(),
             name: record.name.clone(),
-            patient_id: record.patient_id.clone(),
             date_of_birth: record.date_of_birth.clone(),
             gender: record.gender.clone(),
             contact_number: record.contact_number.clone(),
@@ -79,7 +77,6 @@ pub async fn update_patient(
         let response = models::PatientResponse {
             id: record.id,
             name: record.name,
-            patient_id: record.patient_id,
             date_of_birth: record.date_of_birth,
             gender: record.gender,
             contact_number: record.contact_number,
@@ -101,6 +98,7 @@ pub async fn delete_patient(
     db: State<'_, RwLock<Surreal<Client>>>,
     id: String,
 ) -> Result<models::PatientResponse, String> {
+    println!("delete_patient: id: {}", id);
     let db = db.write().await;
     let deleted_record = services::delete_patient_service(&db, id).await?;
     
@@ -108,7 +106,6 @@ pub async fn delete_patient(
         let response = models::PatientResponse {
             id: record.id,
             name: record.name,
-            patient_id: record.patient_id,
             date_of_birth: record.date_of_birth,
             gender: record.gender,
             contact_number: record.contact_number,

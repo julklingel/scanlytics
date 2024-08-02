@@ -9,12 +9,11 @@
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import InfoMsg from "../../components/ui/infomodal.svelte";
-  import { patients } from "../../../stores/patient";
+  import { PatientStore } from "../../../stores/patient";
 
   type Patient = {
     id: string;
     name: string;
-    patient_id: string;
     date_of_birth: string;
     gender: string;
     contact_number: string;
@@ -44,18 +43,39 @@
       } else {
         dataAvailable = true;
       }
-      patients.set(data);
-      filteredPatients = data;
+      const patients = data.map((patient) => ({
+        
+        id: patient.id.id.String,
+        name: patient.name,
+        date_of_birth: patient.date_of_birth,
+        gender: patient.gender,
+        contact_number: patient.contact_number,
+        address: patient.address,
+        primary_doctor: {
+          id: patient.primary_doctor.id,
+          name: patient.primary_doctor.name,
+        },
+        created_at: patient.created_at,
+        updated_at: patient.updated_at,
+      }));
+      patients.sort((a, b) => {
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      });
+      PatientStore.set(patients)
+
+      filteredPatients = patients;
     } catch (error) {
       console.error("Failed to load patients:", error);
     }
   });
 
   $: filteredPatients = $filterValue
-    ? $patients.filter((patient) =>
+    ? $PatientStore.filter((patient) =>
         patient.name.toLowerCase().includes($filterValue.toLowerCase())
       )
-    : $patients;
+    : $PatientStore;
 
   function handleCreateNewPatient() {
     goto("./patients/new");
@@ -110,14 +130,14 @@
         {#each filteredPatients as patient}
           <Table.TableRow>
             <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.name}</Table.TableCell>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.patient_id}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.id}</Table.TableCell>
             <Table.TableCell on:click={() => handlePatientView(patient.id)}>{formatDate(patient.date_of_birth)}</Table.TableCell>
             <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.gender}</Table.TableCell>
             <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.contact_number}</Table.TableCell>
             <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.primary_doctor.name}</Table.TableCell>
             <Table.TableCell on:click={() => handlePatientView(patient.id)}>{formatDate(patient.created_at)}</Table.TableCell>
             <Table.TableCell>
-              <DataTableActions id={patient.id} patientId={patient.patient_id} />
+              <DataTableActions id={patient.id} />
             </Table.TableCell>
           </Table.TableRow>
         {/each}

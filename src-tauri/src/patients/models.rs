@@ -9,7 +9,6 @@ use surrealdb::sql::{Datetime, Thing};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientRequest {
     pub name: String,
-    pub patient_id: String,
     pub date_of_birth: Datetime,
     pub gender: String,
     pub contact_number: String,
@@ -29,7 +28,6 @@ pub struct PatientRequest {
 pub struct PatientRecord {
     pub id: Thing,
     pub name: String,
-    pub patient_id: String,
     pub date_of_birth: Datetime,
     pub gender: String,
     pub contact_number: String,
@@ -45,7 +43,6 @@ pub struct PatientRecord {
 pub struct PatientResponse {
     pub id: Thing,
     pub name: String,
-    pub patient_id: String,
     pub date_of_birth: Datetime,
     pub gender: String,
     pub contact_number: String,
