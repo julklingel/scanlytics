@@ -3,11 +3,13 @@
 mod db;
 mod testapi;
 mod notes;
+mod patients;
 
 use tauri::Manager;
 use db::init::init_db;
 use testapi::controller::{test_db_write, test_db_read, test_db_delete};
 use notes::controller::{create_patient_note, get_patient_notes, update_patient_note, delete_patient_note};	
+use patients::controller::{create_patient, get_patients, update_patient, delete_patient};	
 
 
 
@@ -33,7 +35,14 @@ fn main() {
             create_patient_note,
             get_patient_notes,
             update_patient_note,
-            delete_patient_note
+            delete_patient_note,
+
+            //Patients APIs
+            create_patient,
+            get_patients,
+            update_patient,
+            delete_patient
+
             
             
             ])
