@@ -36,5 +36,6 @@
       <DropdownMenu.Item>Schedule follow-up</DropdownMenu.Item>
       <DropdownMenu.Separator />
       <DropdownMenu.Item class="text-red-600">Mark as urgent</DropdownMenu.Item>
+      <DropdownMenu.Item class="text-red-600">Delete Note</DropdownMenu.Item>
     </DropdownMenu.Content>
 </DropdownMenu.Root>
