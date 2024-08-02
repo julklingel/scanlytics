@@ -2,6 +2,11 @@
     import Ellipsis from "lucide-svelte/icons/ellipsis";
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
     import { Button } from "$lib/components/ui/button";
+    import { invoke } from "@tauri-apps/api/core";
+    import { patientNotes } from "../../../stores/patientNote";
+    import { toast } from "svelte-sonner";
+
+
    
     export let id: string;
     export let patientId: string;
@@ -9,7 +14,16 @@
 
 
     function deleteNote() {
-        alert("Delete note");
+      try {
+        invoke("delete_patient_note", { id });
+        patientNotes.update((notes) => notes.filter((note) => note.id !== id));
+        toast("Note deleted successfully");
+
+      } catch (error) {
+        console.error(error);
+        toast(`Something went wrong: ${error}`);
+      }
+      
     }
 </script>
    
