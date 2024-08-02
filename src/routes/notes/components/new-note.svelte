@@ -1,23 +1,28 @@
 <script lang="ts">
-  import Card from "../../components/ui/card.svelte";
   import { Label } from "$lib/components/ui/label/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { Switch } from "$lib/components/ui/switch/index.js";
-  import * as Select from "$lib/components/ui/select/index.js";
   import { invoke } from "@tauri-apps/api/core";
-  import ErrorMsg from "../../components/ui/errormodal.svelte";
 
-  import CalendarIcon from "lucide-svelte/icons/calendar";
+  
+  import ErrorMsg from "../../components/ui/errormodal.svelte";
+  import SuccMsg from "../../components/ui/succuessmodal.svelte"
+
+
   import {
     DateFormatter,
     type DateValue,
     getLocalTimeZone,
   } from "@internationalized/date";
+
+
+  import CalendarIcon from "lucide-svelte/icons/calendar";
   import { cn } from "$lib/utils.js";
   import { Calendar } from "$lib/components/ui/calendar/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
+    import Succuessmodal from "../../components/ui/succuessmodal.svelte";
 
   const df = new DateFormatter("en-US", {
     dateStyle: "long",
@@ -25,9 +30,10 @@
 
   let value: DateValue | undefined = undefined;
 
-  let title: string = "Error";
-  let description: string | null = "";
+  let errorTitle: string = "Error";
+  let errorDescription: string | null = "";
 
+ 
   let patientName: string = "";
   let patientId: string = "";
   let symptoms: string = "";
@@ -59,13 +65,14 @@
       console.log(formData.severity);
       const response = await invoke("create_patient_note", {
         patientNoteRequest: JSON.stringify(formData),
+        sucuess:  true
+        
       });
-      console.log("Response from backend:", response);
-      alert(JSON.stringify(response));
-      description = null;
+    
+      errorDescription = null;
     } catch (error) {
       console.error("Error submitting form:", error);
-      description = error instanceof Error ? error.message : String(error);
+      errorDescription = error instanceof Error ? error.message : String(error);
     }
   }
 </script>
@@ -216,9 +223,10 @@
     </div>
   </div>
 
-  {#if description}
-    <ErrorMsg {title} {description} />
+  {#if errorDescription}
+    <ErrorMsg {errorTitle} {errorDescription} />
   {/if}
+
 
   <div class="mt-6">
     <Button type="submit" class="w-full px-4 py-2 font-semibold">Submit</Button>

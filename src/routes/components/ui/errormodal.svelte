@@ -4,8 +4,8 @@
     import CircleAlert from "lucide-svelte/icons/circle-alert";
 
 
-    export let title: string = "";
-    export let description: string = "";
+    export let errorTitle: string = "";
+    export let errorDescription: string = "";
 </script>
 
 
@@ -13,8 +13,8 @@
    
   <Alert.Root variant="destructive">
     <CircleAlert class="h-4 w-4" />
-    <Alert.Title class=" font-semibold">{title}</Alert.Title>
-    <Alert.Description>{description}</Alert.Description>
+    <Alert.Title class=" font-semibold">{errorTitle}</Alert.Title>
+    <Alert.Description>{errorDescription}</Alert.Description>
   </Alert.Root>
   
   

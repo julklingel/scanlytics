@@ -12,16 +12,13 @@ pub async fn create_patient_note(
 ) -> Result<models::PatientNoteResponse, String> {
     let patient_note_request: models::PatientNoteRequest = serde_json::from_str(&patient_note_request)
         .map_err(|e| format!("Failed to parse patient note request: {}", e))?;
-
-
-    println!("Raw record: {:?}", patient_note_request);
     let db = db.write().await;
     let mut records = services::create_patient_note_service(&db, patient_note_request).await?;
     if records.is_empty() {
         return Err("No record created".to_string());
     }
     let record = records.pop().unwrap();
-    println!("Raw record: {:?}", record);
+    
     let response = models::PatientNoteResponse {
         id: record.id,
         patient_name: record.patient_name,
@@ -35,6 +32,31 @@ pub async fn create_patient_note(
         severity: record.severity,
         created_at: record.created_at
     };
-    println!("Created: {:?}", response);
+    
+    Ok(response)
+}
+
+#[tauri::command]
+pub async fn get_patient_notes(
+    db: State<'_, RwLock<Surreal<Client>>>,
+) -> Result<Vec<models::PatientNoteResponse>, String> {
+    let db = db.write().await;
+    let records = services::get_patient_notes_service(&db).await?;
+    let response = records
+        .iter()
+        .map(|record| models::PatientNoteResponse {
+            id: record.id.clone(),
+            patient_name: record.patient_name.clone(),
+            patient_id: record.patient_id.clone(),
+            symptoms: record.symptoms.clone(),
+            diagnosis: record.diagnosis.clone(),
+            treatment: record.treatment.clone(),
+            is_urgent: record.is_urgent,
+            department: record.department.clone(),
+            attending_doctor: record.attending_doctor.clone(),
+            severity: record.severity.clone(),
+            created_at: record.created_at.clone()
+        })
+        .collect();
     Ok(response)
 }
