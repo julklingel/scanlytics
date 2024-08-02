@@ -23,3 +23,14 @@ pub async fn get_patient_notes_service(db: &Surreal<Client>) -> Result<Vec<Patie
         .map_err(|e| e.to_string())?;
     Ok(records)
 }
+
+
+pub async fn update_patient_note_service(db: &Surreal<Client>, id: String, data: PatientNoteRequest) -> Result<Option<PatientNoteRecord>, String> {
+    let updated: Option<PatientNoteRecord> = db
+        .update(("PatientNote", id))
+        .merge(data)
+        .await
+        .map_err(|e| e.to_string())?;
+   
+    Ok(updated)
+}

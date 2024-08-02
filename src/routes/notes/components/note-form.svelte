@@ -20,7 +20,9 @@
   import { Calendar } from "$lib/components/ui/calendar/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import { goto } from "$app/navigation";
-  export let create: boolean
+  export let create: boolean;
+  export let selectedNote: any;
+
 
   const df = new DateFormatter("en-US", {
     dateStyle: "long",
@@ -31,15 +33,17 @@
   let errorTitle: string = "Error";
   let errorDescription: string | null = "";
 
-  let patientName: string = "";
-  let patientId: string = "";
-  let symptoms: string = "";
-  let diagnosis: string = "";
-  let treatment: string = "";
-  let isUrgent: boolean = false;
-  let department: string = "";
-  let attendingDoctor: string = "";
-  let severity: string = "low";
+  let patientName: string = selectedNote ? selectedNote.patientName : "";
+  let patientId: string = selectedNote ? selectedNote.patientId : "";
+  let symptoms: string = selectedNote ? selectedNote.symptoms : "";
+  let diagnosis: string = selectedNote ? selectedNote.diagnosis : "";
+  let treatment: string = selectedNote ? selectedNote.treatment : "";
+  let isUrgent: boolean = selectedNote ? selectedNote.isUrgent : false;
+  let department: string = selectedNote ? selectedNote.department : "";
+  let attendingDoctor: string = selectedNote
+    ? selectedNote.attendingDoctor
+    : "";
+  let severity: string = selectedNote ? selectedNote.severity : "";
 
   async function handleSubmit() {
     const formData = {
@@ -58,36 +62,37 @@
     };
 
     if (create) {
-      try {
-        const response = await invoke("create_patient_note", {
-          patientNoteRequest: JSON.stringify(formData),
-          sucuess: true,
-        });
-        goto("/notes");
-        toast(`Note created successfully!`);
+  try {
+    const response = await invoke("create_patient_note", {
+      patientNoteRequest: JSON.stringify(formData),
+      success: true,
+    });
+    goto("/notes");
+    toast(`Note created successfully!`);
 
-        errorDescription = null;
-      } catch (error) {
-        console.error("Error submitting form:", error);
-        errorDescription =
-          error instanceof Error ? error.message : String(error);
-      }
-    } else {
-      try {
-        const response = await invoke("update_patient_note", {
-          patientNoteRequest: JSON.stringify(formData),
-          sucuess: true,
-        });
-        goto("/notes");
-        toast(`Note updated successfully!`);
+    errorDescription = null;
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    errorDescription =
+      error instanceof Error ? error.message : String(error);
+  }
+} else {
+  try {
+    const response = await invoke("update_patient_note", {
+      id: selectedNote.id, 
+      patientNoteRequest: JSON.stringify(formData), 
+      success: true,
+    });
+    goto("/notes");
+    toast(`Note updated successfully!`);
 
-        errorDescription = null;
-      } catch (error) {
-        console.error("Error updating form:", error);
-        errorDescription =
-          error instanceof Error ? error.message : String(error);
-      }
-    }
+    errorDescription = null;
+  } catch (error) {
+    console.error("Error updating form:", error);
+    errorDescription =
+      error instanceof Error ? error.message : String(error);
+  }
+}
   }
 </script>
 
@@ -242,7 +247,13 @@
   {/if}
 
   <div class="mt-6">
-    <Button type="submit" class="w-full px-4 py-2 font-semibold">Submit</Button>
+    <Button type="submit" class="w-full px-4 py-2 font-semibold">
+      {#if create}
+        Create
+      {:else}
+        Update
+      {/if}
+    </Button>
   </div>
 </form>
 
