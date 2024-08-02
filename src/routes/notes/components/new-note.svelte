@@ -3,6 +3,7 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import { toast } from "svelte-sonner";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import { invoke } from "@tauri-apps/api/core";
 
@@ -23,6 +24,7 @@
   import { Calendar } from "$lib/components/ui/calendar/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
     import Succuessmodal from "../../components/ui/succuessmodal.svelte";
+    import { goto } from "$app/navigation";
 
   const df = new DateFormatter("en-US", {
     dateStyle: "long",
@@ -61,14 +63,17 @@
     };
 
     try {
-      console.log("hello world");
-      console.log(formData.severity);
       const response = await invoke("create_patient_note", {
         patientNoteRequest: JSON.stringify(formData),
-        sucuess:  true
+        sucuess:  true,
+        
+        
+
         
       });
-    
+      goto("/notes");
+      toast("Note created successfully");
+
       errorDescription = null;
     } catch (error) {
       console.error("Error submitting form:", error);
