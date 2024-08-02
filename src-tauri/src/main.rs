@@ -7,7 +7,7 @@ mod notes;
 use tauri::Manager;
 use db::init::init_db;
 use testapi::controller::{test_db_write, test_db_read, test_db_delete};
-use notes::controller::{create_patient_note, get_patient_notes, update_patient_note};	
+use notes::controller::{create_patient_note, get_patient_notes, update_patient_note, delete_patient_note};	
 
 
 
@@ -32,7 +32,8 @@ fn main() {
             //Notes APIs
             create_patient_note,
             get_patient_notes,
-            update_patient_note
+            update_patient_note,
+            delete_patient_note
             
             
             ])

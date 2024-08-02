@@ -34,3 +34,12 @@ pub async fn update_patient_note_service(db: &Surreal<Client>, id: String, data:
    
     Ok(updated)
 }
+
+
+pub async fn delete_patient_note_service(db: &Surreal<Client>, id: String) -> Result<Option<PatientNoteRecord>, String> {
+    let deleted: Option<PatientNoteRecord> = db
+        .delete(("PatientNote", id))
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(deleted)
+}

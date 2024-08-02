@@ -147,14 +147,14 @@
       </Table.TableHeader>
       <Table.TableBody>
         {#each filteredNotes as note}
-          <Table.TableRow on:click={() => handleNoteView(note.id)}>
-            <Table.TableCell>{formatDate(note.createdAt)}</Table.TableCell>
-            <Table.TableCell>{note.patientName}</Table.TableCell>
-            <Table.TableCell>{note.patientId}</Table.TableCell>
-            <Table.TableCell>{note.department}</Table.TableCell>
-            <Table.TableCell>{note.attendingDoctor}</Table.TableCell>
-            <Table.TableCell>{note.severity}</Table.TableCell>
-            <Table.TableCell>
+          <Table.TableRow >
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{formatDate(note.createdAt)}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.patientName}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.patientId}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.department}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.attendingDoctor}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.severity}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>
               {#if note.isUrgent}
                 <span class="text-red-600 font-semibold">Yes</span>
               {:else}
@@ -162,7 +162,9 @@
               {/if}
             </Table.TableCell>
             <Table.TableCell>
+             
               <DataTableActions id={note.id} patientId={note.patientId} />
+      
             </Table.TableCell>
           </Table.TableRow>
         {/each}

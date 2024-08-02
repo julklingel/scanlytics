@@ -98,3 +98,33 @@ pub async fn update_patient_note(
         Err("No record updated".to_string())
     }
 }
+
+
+#[tauri::command]
+pub async fn delete_patient_note(
+    db: State<'_, RwLock<Surreal<Client>>>,
+    id: String,
+) -> Result<models::PatientNoteResponse, String> {
+    let db = db.write().await;
+    let deleted_record = services::delete_patient_note_service(&db, id).await?;
+    
+    if let Some(record) = deleted_record {
+        let response = models::PatientNoteResponse {
+            id: record.id,
+            patient_name: record.patient_name,
+            patient_id: record.patient_id,
+            symptoms: record.symptoms,
+            diagnosis: record.diagnosis,
+            treatment: record.treatment,
+            is_urgent: record.is_urgent,
+            department: record.department,
+            attending_doctor: record.attending_doctor,
+            severity: record.severity,
+            created_at: record.created_at
+        };
+        
+        Ok(response)
+    } else {
+        Err("No record deleted".to_string())
+    }
+}

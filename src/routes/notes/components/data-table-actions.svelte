@@ -5,6 +5,12 @@
    
     export let id: string;
     export let patientId: string;
+
+
+
+    function deleteNote() {
+        alert("Delete note");
+    }
 </script>
    
 <DropdownMenu.Root>
@@ -36,6 +42,6 @@
       <DropdownMenu.Item>Schedule follow-up</DropdownMenu.Item>
       <DropdownMenu.Separator />
       <DropdownMenu.Item class="text-red-600">Mark as urgent</DropdownMenu.Item>
-      <DropdownMenu.Item class="text-red-600">Delete Note</DropdownMenu.Item>
+      <DropdownMenu.Item on:click={deleteNote} class="text-red-600">Delete Note</DropdownMenu.Item>
     </DropdownMenu.Content>
 </DropdownMenu.Root>
