@@ -30,49 +30,54 @@
   const infoTitle: string | null | never = "No patients found";
   const infoDescription: string | null | never = "There are no patients available. Please add a new patient.";
   let dataAvailable: boolean;
-
+  
   $: dataAvailable;
 
   const filterValue = writable("");
 
   onMount(async () => {
-    try {
-      const data = await invoke<Patient[]>("get_patients");
-      if (data.length === 0) {
-        dataAvailable = false;
-      } else {
-        dataAvailable = true;
-      }
-      const patients = data.map((patient) => ({
-        
-        id: patient.id.id.String,
-        name: patient.name,
-        date_of_birth: patient.date_of_birth,
-        gender: patient.gender,
-        contact_number: patient.contact_number,
-        address: patient.address,
-        primary_doctor: {
-          id: patient.primary_doctor.id,
-          name: patient.primary_doctor.name,
-        },
-        created_at: patient.created_at,
-        updated_at: patient.updated_at,
-      }));
-      patients.sort((a, b) => {
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-      });
-      PatientStore.set(patients)
+  try {
+    const data = await invoke<Patient[]>("get_patients");
+    console.log("Fetched data:", data); // Log the fetched data
 
-      filteredPatients = patients;
-    } catch (error) {
-      console.error("Failed to load patients:", error);
+    if (data.length === 0) {
+      dataAvailable = false;
+    } else {
+      dataAvailable = true;
     }
-  });
+
+    const patients = data.map((patient) => ({
+  id: patient.id.id.String,
+  name: patient.name,
+  date_of_birth: patient.date_of_birth,
+  gender: patient.gender,
+  contact_number: patient.contact_number,
+  address: patient.address,
+  primary_doctor: {
+    id: patient.primary_doctor?.id || '',
+    name: patient.primary_doctor?.name || 'No doctor assigned',
+  },
+  created_at: patient.created_at,
+  updated_at: patient.updated_at,
+}));
+    console.log("Mapped patients:", patients); // Log the mapped patients
+
+    patients.sort((a, b) => {
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    });
+
+    PatientStore.set(patients);
+    filteredPatients = patients;
+  } catch (error) {
+    console.error("Failed to load patients:", error);
+  }
+});
 
   $: filteredPatients = $filterValue
     ? $PatientStore.filter((patient) =>
+  
         patient.name.toLowerCase().includes($filterValue.toLowerCase())
       )
     : $PatientStore;
@@ -134,7 +139,7 @@
             <Table.TableCell on:click={() => handlePatientView(patient.id)}>{formatDate(patient.date_of_birth)}</Table.TableCell>
             <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.gender}</Table.TableCell>
             <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.contact_number}</Table.TableCell>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.primary_doctor.name}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.primary_doctor.id.String}</Table.TableCell>
             <Table.TableCell on:click={() => handlePatientView(patient.id)}>{formatDate(patient.created_at)}</Table.TableCell>
             <Table.TableCell>
               <DataTableActions id={patient.id} />
