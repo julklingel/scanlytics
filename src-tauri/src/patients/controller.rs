@@ -10,6 +10,7 @@ pub async fn create_patient(
     db: State<'_, RwLock<Surreal<Client>>>,
     patient_request: String,
 ) -> Result<models::PatientResponse, String> {
+    println!("create_patient: patient_request: {}", patient_request);
     let patient_request: models::PatientRequest = serde_json::from_str(&patient_request)
         .map_err(|e| format!("Failed to parse patient note request: {}", e))?;
     let db = db.write().await;
@@ -28,13 +29,13 @@ pub async fn create_patient(
         address: record.address,
         primary_doctor: record.primary_doctor,
         notes: record.notes,
-        created_at: record.created_at,	
+        created_at: record.created_at,
         updated_at: record.updated_at,
-
     };
     
     Ok(response)
 }
+
 
 #[tauri::command]
 pub async fn get_patients(

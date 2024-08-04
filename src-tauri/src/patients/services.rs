@@ -5,6 +5,9 @@ use super::models::{ PatientRequest, PatientRecord  };
 
 
 
+
+
+
 pub async fn create_patient_service(db: &Surreal<Client>, data: PatientRequest) -> Result<Vec<PatientRecord>, String> {
     let created: Vec<PatientRecord> = db
         .create("Patient")
@@ -13,8 +16,6 @@ pub async fn create_patient_service(db: &Surreal<Client>, data: PatientRequest) 
         .map_err(|e| e.to_string())?;
     Ok(created)
 }
-
-
 
 pub async fn get_patient_service(db: &Surreal<Client>) -> Result<Vec<PatientRecord>, String> {
     let records: Vec<PatientRecord> = db

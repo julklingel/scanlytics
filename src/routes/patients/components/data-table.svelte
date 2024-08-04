@@ -46,7 +46,7 @@
       dataAvailable = true;
     }
 
-    const patients = data.map((patient) => ({
+  const patients = data.map((patient) => ({
   id: patient.id.id.String,
   name: patient.name,
   date_of_birth: patient.date_of_birth,

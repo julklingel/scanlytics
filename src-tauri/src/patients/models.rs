@@ -13,10 +13,9 @@ pub struct PatientRequest {
     pub gender: String,
     pub contact_number: String,
     pub address: String,
-    pub primary_doctor: Thing,  
-    pub notes: Vec<Thing>,  
-    pub created_at: Datetime,
-    pub updated_at: Datetime,
+    pub primary_doctor: String, 
+    pub notes: Option<Vec<Thing>>,
+
 }
 
 
@@ -33,7 +32,7 @@ pub struct PatientRecord {
     pub contact_number: String,
     pub address: String,
     pub primary_doctor: Thing,  
-    pub notes: Vec<Thing>, 
+    pub notes: Option<Vec<Thing>>,
     pub created_at: Datetime,
     pub updated_at: Datetime,
 }
@@ -48,7 +47,7 @@ pub struct PatientResponse {
     pub contact_number: String,
     pub address: String,
     pub primary_doctor: Thing,  
-    pub notes: Vec<Thing>,  
+    pub notes: Option<Vec<Thing>>, 
     pub created_at: Datetime,
     pub updated_at: Datetime,
 }
