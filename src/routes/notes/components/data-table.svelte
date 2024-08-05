@@ -9,7 +9,7 @@
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import InfoMsg from "../../components/ui/infomodal.svelte";
-  import { patientNotes } from "../../../stores/patientNote";
+  import { patientNotes } from "../../../stores/PatientNote";
 
   type PatientNote = {
     id: string;

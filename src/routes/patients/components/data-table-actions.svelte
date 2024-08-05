@@ -3,21 +3,20 @@
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
     import { Button } from "$lib/components/ui/button";
     import { invoke } from "@tauri-apps/api/core";
-    import { patientNotes } from "../../../stores/PatientNote";
+    import { PatientStore } from "../../../stores/Patient";
     import { toast } from "svelte-sonner";
 
 
    
     export let id: string;
-    export let patientId: string;
 
 
 
-    function deleteNote() {
+    function deletePatient() {
       try {
-        invoke("delete_patient_note", { id });
-        patientNotes.update((notes) => notes.filter((note) => note.id !== id));
-        toast("Note deleted successfully");
+        invoke("delete_patient", { id });
+        PatientStore.update((p:any) => p.filter((p:any) => p.id !== id));
+        toast("Patient deleted successfully");
 
       } catch (error) {
         console.error(error);
@@ -43,19 +42,15 @@
       <DropdownMenu.Group>
         <DropdownMenu.Label>Actions</DropdownMenu.Label>
         <DropdownMenu.Item on:click={() => navigator.clipboard.writeText(id)}>
-          Copy note ID
-        </DropdownMenu.Item>
-        <DropdownMenu.Item on:click={() => navigator.clipboard.writeText(patientId)}>
           Copy patient ID
         </DropdownMenu.Item>
       </DropdownMenu.Group>
       <DropdownMenu.Separator />
       <DropdownMenu.Item>View patient details</DropdownMenu.Item>
-      <DropdownMenu.Item>Edit note</DropdownMenu.Item>
+      <DropdownMenu.Item>Edit Patient</DropdownMenu.Item>
       <DropdownMenu.Item>View full medical history</DropdownMenu.Item>
-      <DropdownMenu.Item>Schedule follow-up</DropdownMenu.Item>
       <DropdownMenu.Separator />
-      <DropdownMenu.Item class="text-red-600">Mark as urgent</DropdownMenu.Item>
-      <DropdownMenu.Item on:click={deleteNote} class="text-red-600">Delete Note</DropdownMenu.Item>
+    
+      <DropdownMenu.Item on:click={deletePatient} class="text-red-600">Delete Patient</DropdownMenu.Item>
     </DropdownMenu.Content>
 </DropdownMenu.Root>
