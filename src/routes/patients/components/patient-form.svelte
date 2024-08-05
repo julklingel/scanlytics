@@ -11,55 +11,74 @@
   import {
     DateFormatter,
     type DateValue,
-    getLocalTimeZone
+    getLocalTimeZone,
   } from "@internationalized/date";
   import { cn } from "$lib/utils.js";
   import { Calendar } from "$lib/components/ui/calendar/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
- 
+
   const df = new DateFormatter("en-US", {
-    dateStyle: "long"
+    dateStyle: "long",
   });
- 
 
   export let create = true;
+  export let selectedPatient: any = null;
 
   let errorTitle: string | null | never = "";
   let errorDescription: string | null | never = "";
 
-  let name: string = "";
-  let gender: string = "";
-  let contactNumber: string = "";
-  let address: string = "";
-  let primaryDoctorId: string = "";
+  let name: string = selectedPatient ? selectedPatient.name : "";
+  let gender: string = selectedPatient;
+  let contactNumber: string = selectedPatient
+    ? selectedPatient.contact_number
+    : "";
+  let address: string = selectedPatient ? selectedPatient.address : "";
+  let primaryDoctorId: string = selectedPatient
+    ? selectedPatient.primary_doctor_id
+    : "";
   let value: DateValue | undefined = undefined;
 
   async function handleSubmit() {
-  const formData = {
-    name,
-    date_of_birth: value ? value.toDate(getLocalTimeZone()).toISOString() : null,
-    gender,
-    contact_number: contactNumber,
-    address,
-    primary_doctor_id: primaryDoctorId,
-  };
+    const formData = {
+      name,
+      date_of_birth: value
+        ? value.toDate(getLocalTimeZone()).toISOString()
+        : null,
+      gender,
+      contact_number: contactNumber,
+      address,
+      primary_doctor_id: primaryDoctorId,
+    };
 
-
-
-  try {
-
-    const response = await invoke("create_patient", {
-      patientRequest: JSON.stringify(formData),
-    });
-    goto("/patients");
-    toast(`Patient created successfully!`);
-    errorDescription = null;
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    errorDescription = error instanceof Error ? error.message : String(error);
+    if (create) {
+      try {
+        const response = await invoke("create_patient", {
+          patientRequest: JSON.stringify(formData),
+        });
+        goto("/patients");
+        toast(`Patient created successfully!`);
+        errorDescription = null;
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        errorDescription =
+          error instanceof Error ? error.message : String(error);
+      }
+    } else {
+      try {
+        const response = await invoke("update_patient", {
+          patientRequest: JSON.stringify(formData),
+          patientId: selectedPatient.id,
+        });
+        goto(`/patients/${selectedPatient.id}`);
+        toast(`Patient updated successfully!`);
+        errorDescription = null;
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        errorDescription =
+          error instanceof Error ? error.message : String(error);
+      }
+    }
   }
-}
-
 </script>
 
 <form
@@ -69,7 +88,9 @@
 >
   <div class="grid grid-cols-1 gap-6">
     <div>
-      <Label for="name" class="block text-sm font-medium text-gray-700">Name</Label>
+      <Label for="name" class="block text-sm font-medium text-gray-700"
+        >Name</Label
+      >
       <Input
         type="text"
         id="name"
@@ -80,19 +101,23 @@
     </div>
 
     <div>
-      <Label for="dateOfBirth" class="block text-sm font-medium text-gray-700">Date of Birth</Label>
+      <Label for="dateOfBirth" class="block text-sm font-medium text-gray-700"
+        >Date of Birth</Label
+      >
       <Popover.Root>
         <Popover.Trigger asChild let:builder>
           <Button
             variant="outline"
             class={cn(
               "w-[280px] justify-start text-left font-normal",
-              !value && "text-muted-foreground"
+              !value && "text-muted-foreground",
             )}
             builders={[builder]}
           >
             <CalendarIcon class="mr-2 h-4 w-4" />
-            {value ? df.format(value.toDate(getLocalTimeZone())) : "Pick a date"}
+            {value
+              ? df.format(value.toDate(getLocalTimeZone()))
+              : "Pick a date"}
           </Button>
         </Popover.Trigger>
         <Popover.Content class="w-auto p-0">
@@ -102,7 +127,9 @@
     </div>
 
     <div>
-      <Label for="gender" class="block text-sm font-medium text-gray-700">Gender</Label>
+      <Label for="gender" class="block text-sm font-medium text-gray-700"
+        >Gender</Label
+      >
       <select
         id="gender"
         bind:value={gender}
@@ -117,7 +144,9 @@
     </div>
 
     <div>
-      <Label for="contactNumber" class="block text-sm font-medium text-gray-700">Contact Number</Label>
+      <Label for="contactNumber" class="block text-sm font-medium text-gray-700"
+        >Contact Number</Label
+      >
       <Input
         type="tel"
         id="contactNumber"
@@ -128,7 +157,9 @@
     </div>
 
     <div>
-      <Label for="address" class="block text-sm font-medium text-gray-700">Address</Label>
+      <Label for="address" class="block text-sm font-medium text-gray-700"
+        >Address</Label
+      >
       <Input
         type="text"
         id="address"
@@ -139,7 +170,9 @@
     </div>
 
     <div>
-      <Label for="primaryDoctor" class="block text-sm font-medium text-gray-700">Primary Doctor</Label>
+      <Label for="primaryDoctor" class="block text-sm font-medium text-gray-700"
+        >Primary Doctor</Label
+      >
       <Input
         type="text"
         id="primaryDoctor"
