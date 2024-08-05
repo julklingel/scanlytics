@@ -10,15 +10,15 @@ pub async fn create_patient(
     db: State<'_, RwLock<Surreal<Client>>>,
     patient_request: String,
 ) -> Result<models::PatientResponse, String> {
-    println!("create_patient: patient_request: {}", patient_request);
+
     let patient_request: models::PatientRequest = serde_json::from_str(&patient_request)
-        .map_err(|e| format!("Failed to parse patient note request: {}", e))?;
+        .map_err(|e| format!("Failed to parse patient request: {}", e))?;
     let db = db.write().await;
-    let mut records = services::create_patient_service(&db, patient_request).await?;
-    if records.is_empty() {
+    let mut response: Vec<models::PatientResponse> = services::create_patient_service(&db, patient_request).await?;
+    if response.is_empty() {
         return Err("No record created".to_string());
     }
-    let record = records.pop().unwrap();
+    let record = response.pop().unwrap();
     
     let response = models::PatientResponse {
         id: record.id,
@@ -42,8 +42,7 @@ pub async fn get_patients(
     db: State<'_, RwLock<Surreal<Client>>>,
 ) -> Result<Vec<models::PatientResponse>, String> {
     let db = db.write().await;
-    let records = services::get_patient_service(&db).await?;
-    let response = records
+    let response:Vec<models::PatientResponse> = services::get_patient_service(&db).await?
         .iter()
         .map(|record| models::PatientResponse {
             id: record.id.clone(),

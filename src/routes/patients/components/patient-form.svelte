@@ -41,7 +41,7 @@
     gender,
     contact_number: contactNumber,
     address,
-    primary_doctor: primaryDoctorId,
+    primary_doctor_id: primaryDoctorId,
   };
 
 
