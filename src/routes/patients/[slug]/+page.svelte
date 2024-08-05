@@ -1,6 +1,6 @@
 <script lang="ts">
     import  PatientForm  from "../components/patient-form.svelte";
-    import { PatientStore } from "../../../stores/patient";
+    import { PatientStore } from "../../../stores/Patient";
     import { page } from "$app/stores";
 
     let create = false;

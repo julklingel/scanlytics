@@ -3,7 +3,7 @@
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
     import { Button } from "$lib/components/ui/button";
     import { invoke } from "@tauri-apps/api/core";
-    import { PatientStore } from "../../../stores/patient";
+    import { PatientStore } from "../../../stores/Patient";
     import { toast } from "svelte-sonner";
 
 

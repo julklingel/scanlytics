@@ -1,6 +1,6 @@
 <script lang="ts">
     import NoteForm from "../components/note-form.svelte";
-    import { patientNotes } from "../../../stores/patientNote";
+    import { patientNotes } from "../../../stores/PatientNote";
     import { page } from "$app/stores";
 
     let create = false;

@@ -9,7 +9,8 @@
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import InfoMsg from "../../components/ui/infomodal.svelte";
-  import { PatientStore } from "../../../stores/patient";
+  import { PatientStore } from "../../../stores/Patient";
+  import { UserStore } from "../../../stores/User";
 
   type Patient = {
     id: string;
@@ -36,9 +37,35 @@
   const filterValue = writable("");
 
   onMount(async () => {
+
+    try {
+      const userData:any = await invoke("get_users");
+      const users = userData.map((user:any) => ({
+        id: user.id.id.String,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+      }));
+      
+      users.sort((a:any, b:any) => {
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      });
+
+      UserStore.set(users);
+      
+      
+    } catch (error) {
+      console.error("Failed to load users:", error);
+      
+    }
+
   try {
     const data = await invoke<Patient[]>("get_patients");
-    console.log("Fetched data:", data); // Log the fetched data
+    
 
     if (data.length === 0) {
       dataAvailable = false;
@@ -60,13 +87,14 @@
   created_at: patient.created_at,
   updated_at: patient.updated_at,
 }));
-    console.log("Mapped patients:", patients); // Log the mapped patients
-
+   
     patients.sort((a, b) => {
       return (
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
     });
+
+    console.log(patients);
 
     PatientStore.set(patients);
     filteredPatients = patients;
