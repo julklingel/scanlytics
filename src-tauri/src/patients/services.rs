@@ -42,9 +42,26 @@ pub async fn update_patient_service(
     id: String,
     data: PatientRequest,
 ) -> Result<Option<PatientResponse>, String> {
+    let doctor: Option<DoctorRecord> = db
+        .select(("User", &data.primary_doctor_id))
+        .await
+        .map_err(|e| e.to_string())?;
+    let doctor = doctor.ok_or_else(|| "Doctor not found".to_string())?;
+
+    let patient_record = PatientRecord {
+        name: data.name,
+        date_of_birth: data.date_of_birth,
+        gender: data.gender,
+        contact_number: data.contact_number,
+        address: data.address,
+        primary_doctor: doctor.id,  
+        notes: data.notes,
+    };
+
+
     let updated: Option<PatientResponse> = db
         .update(("Patient", id))
-        .merge(data)
+        .merge(patient_record)
         .await
         .map_err(|e| e.to_string())?;
 

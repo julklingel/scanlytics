@@ -26,7 +26,7 @@
 
   export let create = true;
   export let selectedPatient: any = null;
-  export let selectedDoc: string = "";
+  export const selectedDoc: string = "";
 
   let errorTitle: string | null | never = "";
   let errorDescription: string | null | never = "";
@@ -38,8 +38,6 @@
   let primaryDoctorId: string = selectedPatient ? selectedPatient.primary_doctor_id : "";
 
   let value: DateValue | undefined = undefined;
-
-  $: console.log("sdoc", selectedDoc);
 
   async function handleSubmit() {
     const formData = {
@@ -54,7 +52,6 @@
     };
 
    
-
     if (create) {
       try {
        
@@ -72,11 +69,12 @@
       }
     } else {
       try {
+        
         const response = await invoke("update_patient", {
           patientRequest: JSON.stringify(formData),
-          patientId: selectedPatient.id,
+          id: selectedPatient.id,
         });
-        goto(`/patients/${selectedPatient.id}`);
+        goto(`/patients`);
         toast(`Patient updated successfully!`);
         errorDescription = null;
       } catch (error) {

@@ -66,7 +66,7 @@ pub async fn update_patient(
     id: String,
     patient_request: String,
 ) -> Result<models::PatientResponse, String> {
-    println!("update_patient: id: {}, patient_request: {}", id, patient_request);
+    
     let patient_request: models::PatientRequest = serde_json::from_str(&patient_request)
         .map_err(|e| format!("Failed to parse patient request: {}", e))?;
     
