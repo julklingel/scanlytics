@@ -12,6 +12,7 @@
   import { patientNotes } from "../../../stores/PatientNote";
   import { PatientStore } from "../../../stores/Patient";
   import { UserStore } from "../../../stores/User";
+  
 
   type PatientNote = {
     id: string;
@@ -71,10 +72,11 @@
       } else {
         dataAvailable = true;
       }
+
       const notes = data.map((note) => ({
         id: note.id.id.String,
-        patientName: note.patient_name,
-        patientId: note.patient_id,
+        patientName: note.patient.id.String,
+        patientId: note.patient.id.String,
         symptoms: note.symptoms,
         diagnosis: note.diagnosis,
         treatment: note.treatment,
@@ -83,7 +85,7 @@
         severity: note.severity,
         isUrgent: note.is_urgent,
         department: note.department,
-        attendingDoctor: note.attending_doctor,
+        attendingDoctor: note.attending_doctor.id.String,
       }));
       notes.sort((a, b) => {
         return (
@@ -155,7 +157,31 @@
       )
     : $patientNotes;
 
-  
+
+  function getDoctorName(doctorId: string) {
+    let doctorName = "No doctor assigned";
+    UserStore.subscribe(users => {
+      const doctor = users.find((d: any) => d.id === doctorId);
+      if (doctor) {
+        doctorName = doctor.name;
+      }
+    })();
+    return doctorName;
+  }
+
+  function getPatientName(patientId: string) {
+    let patientName = "No patient assigned";
+    PatientStore.subscribe(patients => {
+      const patient = patients.find((p: Patient) => p.id === patientId);
+      if (patient) {
+        patientName = patient.name;
+      }
+    })();
+    return patientName;
+  }
+
+
+
 
   function handleCreateNewNote() {
     goto("./notes/new");
@@ -175,6 +201,9 @@
   function handleNoteView(id: string) {
     goto(`./notes/${id}`);
   }
+
+
+
 
 </script>
 
@@ -206,7 +235,7 @@
         <Table.TableRow>
           <Table.TableHead>Created at</Table.TableHead>
           <Table.TableHead>Patient Name</Table.TableHead>
-          <Table.TableHead>Patient ID</Table.TableHead>
+       
           <Table.TableHead>Department</Table.TableHead>
           <Table.TableHead>Attending Doctor</Table.TableHead>
           <Table.TableHead>Severity</Table.TableHead>
@@ -219,10 +248,9 @@
         {#each filteredNotes as note}
           <Table.TableRow >
             <Table.TableCell on:click={() => handleNoteView(note.id)}>{formatDate(note.createdAt)}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.patientName}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.patientId}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{getPatientName(note.patientName)}</Table.TableCell>
             <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.department}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.attendingDoctor}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{getDoctorName(note.attendingDoctor)}</Table.TableCell>
             <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.severity}</Table.TableCell>
             <Table.TableCell on:click={() => handleNoteView(note.id)}>
               {#if note.isUrgent}
