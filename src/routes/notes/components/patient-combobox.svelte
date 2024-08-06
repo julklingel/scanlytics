@@ -9,11 +9,12 @@
   import { cn } from "$lib/utils.js";
   import Label from "$lib/components/ui/label/label.svelte";
 
-  import { UserStore } from "../../../stores/User";
+  import { PatientStore } from "../../../stores/Patient";
 
-  export let selectedDoctorId =  "";
+  export let selectedpatientId = "";
+  export let selectedpatientName = "";
 
-  $: doctors = $UserStore
+  $: patients = $PatientStore
     .map((d) => ({
       label: d.name,
       value: d.id,
@@ -21,8 +22,8 @@
 
   let open = false;
 
-  $: selectedValue = doctors.find((f) => f.value === selectedDoctorId)?.label ?? "Select a doctor...";
-
+  $: selectedValue = patients.find((f) => f.value === selectedpatientId)?.label ?? "Select a patient...";
+  $: selectedpatientName = patients.find((f) => f.value === selectedpatientId)?.label ?? "";
   
   function closeAndFocusTrigger(triggerId: string) {
     open = false;
@@ -35,7 +36,7 @@
 
 
 <div class="flex flex-col gap-2 ">
-  
+
   <Popover.Root bind:open let:ids>
     <Popover.Trigger asChild let:builder>
       <Button
@@ -51,24 +52,24 @@
     </Popover.Trigger>
     <Popover.Content class=" p-0">
       <Command.Root>
-        <Command.Input placeholder="Search doctors..." />
-        <Command.Empty>No doctors found.</Command.Empty>
+        <Command.Input placeholder="Search patients..." />
+        <Command.Empty>No patients found.</Command.Empty>
         <Command.Group>
-          {#each doctors as doctor}
+          {#each patients as patient}
             <Command.Item
-              value={doctor.value}
+              value={patient.value}
               onSelect={function (currentValue) {
-                selectedDoctorId = currentValue;
+                selectedpatientId = currentValue;
                 closeAndFocusTrigger(ids.trigger);
               }}
             >
               <Check
               class={cn(
                 "mr-2 h-4 w-4",
-                selectedDoctorId !== doctor.value && "text-transparent"
+                selectedpatientId !== patient.value && "text-transparent"
               )}
               />
-              {doctor.label}
+              {patient.label}
             </Command.Item>
           {/each}
         </Command.Group>

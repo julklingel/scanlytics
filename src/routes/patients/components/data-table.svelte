@@ -114,6 +114,28 @@
   function handlePatientView(id: string) {
     goto(`./patients/${id}`);
   }
+
+  function getDoctorName(doctorId: string) {
+    let doctorName = "No doctor assigned";
+    UserStore.subscribe(users => {
+      const doctor = users.find((d: any) => d.id === doctorId);
+      if (doctor) {
+        doctorName = doctor.name;
+      }
+    })();
+    return doctorName;
+  }
+
+  function getPatientName(patientId: string) {
+    let patientName = "No patient assigned";
+    PatientStore.subscribe(patients => {
+      const patient = patients.find((p: Patient) => p.id === patientId);
+      if (patient) {
+        patientName = patient.name;
+      }
+    })();
+    return patientName;
+  }
 </script>
 
 {#if !dataAvailable}
@@ -159,7 +181,7 @@
               >{patient.name}</Table.TableCell
             >
             <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{patient.id}</Table.TableCell
+              >{getPatientName(patient.id)}</Table.TableCell
             >
             <Table.TableCell on:click={() => handlePatientView(patient.id)}
               >{formatDate(patient.date_of_birth)}</Table.TableCell
@@ -171,7 +193,7 @@
               >{patient.contact_number}</Table.TableCell
             >
             <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{patient.primary_doctor.id.String}</Table.TableCell
+              >{getDoctorName(patient.primary_doctor.id.String)}</Table.TableCell
             >
             <Table.TableCell on:click={() => handlePatientView(patient.id)}
               >{formatDate(patient.created_at)}</Table.TableCell

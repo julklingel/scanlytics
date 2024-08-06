@@ -32,10 +32,11 @@
   let errorDescription: string | null | never = "";
 
   let name: string = selectedPatient ? selectedPatient.name : "";
-  let gender: string = selectedPatient;
+  let gender: string = selectedPatient ? selectedPatient.gender : "";;
   let contactNumber: string = selectedPatient ? selectedPatient.contact_number : "";
   let address: string = selectedPatient ? selectedPatient.address : "";
-  let primaryDoctorId: string = selectedPatient ? selectedPatient.primary_doctor_id : "";
+  let primaryDoctorId: string = selectedPatient ? selectedPatient?.primary_doctor.id.String : "";
+  $: console.log(name);
 
   let value: DateValue | undefined = undefined;
 
@@ -173,8 +174,10 @@
         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
       />
     </div>
-
+    
+    <Label>Attending Doctor</Label>
     <DoctorCombobox bind:selectedDoctorId={primaryDoctorId} />
+ 
   </div>
 
   {#if errorDescription}

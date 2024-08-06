@@ -1,4 +1,5 @@
 use super::models;
+use super::models::PatientNoteResponse;
 use super::services;
 use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
@@ -13,24 +14,23 @@ pub async fn create_patient_note(
     let patient_note_request: models::PatientNoteRequest = serde_json::from_str(&patient_note_request)
         .map_err(|e| format!("Failed to parse patient note request: {}", e))?;
     let db = db.write().await;
-    let mut records = services::create_patient_note_service(&db, patient_note_request).await?;
-    if records.is_empty() {
+    let mut data: Vec<PatientNoteResponse> = services::create_patient_note_service(&db, patient_note_request).await?;
+    if data.is_empty() {
         return Err("No record created".to_string());
     }
-    let record = records.pop().unwrap();
-    
+    let response = data.pop().unwrap();
+
     let response = models::PatientNoteResponse {
-        id: record.id,
-        patient_name: record.patient_name,
-        patient_id: record.patient_id,
-        symptoms: record.symptoms,
-        diagnosis: record.diagnosis,
-        treatment: record.treatment,
-        is_urgent: record.is_urgent,
-        department: record.department,
-        attending_doctor: record.attending_doctor,
-        severity: record.severity,
-        created_at: record.created_at
+        id: response.id,
+        patient: response.patient,
+        symptoms: response.symptoms,
+        diagnosis: response.diagnosis,
+        treatment: response.treatment,
+        is_urgent: response.is_urgent,
+        department: response.department,
+        attending_doctor: response.attending_doctor,
+        severity: response.severity,
+        created_at: response.created_at
     };
     
     Ok(response)
@@ -46,8 +46,7 @@ pub async fn get_patient_notes(
         .iter()
         .map(|record| models::PatientNoteResponse {
             id: record.id.clone(),
-            patient_name: record.patient_name.clone(),
-            patient_id: record.patient_id.clone(),
+            patient: record.patient.clone(),
             symptoms: record.symptoms.clone(),
             diagnosis: record.diagnosis.clone(),
             treatment: record.treatment.clone(),
@@ -77,8 +76,7 @@ pub async fn update_patient_note(
     if let Some(record) = updated_record {
         let response = models::PatientNoteResponse {
             id: record.id,
-            patient_name: record.patient_name,
-            patient_id: record.patient_id,
+            patient: record.patient,
             symptoms: record.symptoms,
             diagnosis: record.diagnosis,
             treatment: record.treatment,
@@ -107,8 +105,7 @@ pub async fn delete_patient_note(
     if let Some(record) = deleted_record {
         let response = models::PatientNoteResponse {
             id: record.id,
-            patient_name: record.patient_name,
-            patient_id: record.patient_id,
+            patient: record.patient,
             symptoms: record.symptoms,
             diagnosis: record.diagnosis,
             treatment: record.treatment,

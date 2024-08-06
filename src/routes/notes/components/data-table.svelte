@@ -10,6 +10,9 @@
   import { writable } from "svelte/store";
   import InfoMsg from "../../components/ui/infomodal.svelte";
   import { patientNotes } from "../../../stores/PatientNote";
+  import { PatientStore } from "../../../stores/Patient";
+  import { UserStore } from "../../../stores/User";
+  
 
   type PatientNote = {
     id: string;
@@ -25,6 +28,22 @@
     department: string;
     attendingDoctor: string;
   };
+
+  type Patient = {
+    id: string;
+    name: string;
+    date_of_birth: string;
+    gender: string;
+    contact_number: string;
+    address: string;
+    primary_doctor: {
+      id: string;
+      name: string;
+    };
+    created_at: string;
+    updated_at: string;
+  };
+
 
   type Options = {
     year: "numeric" | "2-digit";
@@ -53,10 +72,11 @@
       } else {
         dataAvailable = true;
       }
+
       const notes = data.map((note) => ({
         id: note.id.id.String,
-        patientName: note.patient_name,
-        patientId: note.patient_id,
+        patientName: note.patient.id.String,
+        patientId: note.patient.id.String,
         symptoms: note.symptoms,
         diagnosis: note.diagnosis,
         treatment: note.treatment,
@@ -65,7 +85,7 @@
         severity: note.severity,
         isUrgent: note.is_urgent,
         department: note.department,
-        attendingDoctor: note.attending_doctor,
+        attendingDoctor: note.attending_doctor.id.String,
       }));
       notes.sort((a, b) => {
         return (
@@ -77,7 +97,59 @@
     } catch (error) {
       console.error("Failed to load patient notes:", error);
     }
+    try {
+      const userData: any = await invoke("get_users");
+      const users = userData.map((user: any) => ({
+        id: user.id.id.String,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+      }));
+
+      users.sort((a: any, b: any) => {
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      });
+
+      UserStore.set(users);
+    } catch (error) {
+      console.error("Failed to load users:", error);
+    }
+
+    try {
+      const data = await invoke<Patient[]>("get_patients");
+
+      const patients = data.map((patient) => ({
+        id: patient.id.id.String,
+        name: patient.name,
+        date_of_birth: patient.date_of_birth,
+        gender: patient.gender,
+        contact_number: patient.contact_number,
+        address: patient.address,
+        primary_doctor: {
+          id: patient.primary_doctor?.id || "",
+          name: patient.primary_doctor?.name || "No doctor assigned",
+        },
+        created_at: patient.created_at,
+        updated_at: patient.updated_at,
+      }));
+
+      patients.sort((a, b) => {
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      });
+
+      PatientStore.set(patients);
+     
+    } catch (error) {
+      console.error("Failed to load patients:", error);
+    }
   });
+
 
   $: filteredNotes = $filterValue
     ? $patientNotes.filter((note) =>
@@ -85,7 +157,31 @@
       )
     : $patientNotes;
 
-  
+
+  function getDoctorName(doctorId: string) {
+    let doctorName = "No doctor assigned";
+    UserStore.subscribe(users => {
+      const doctor = users.find((d: any) => d.id === doctorId);
+      if (doctor) {
+        doctorName = doctor.name;
+      }
+    })();
+    return doctorName;
+  }
+
+  function getPatientName(patientId: string) {
+    let patientName = "No patient assigned";
+    PatientStore.subscribe(patients => {
+      const patient = patients.find((p: Patient) => p.id === patientId);
+      if (patient) {
+        patientName = patient.name;
+      }
+    })();
+    return patientName;
+  }
+
+
+
 
   function handleCreateNewNote() {
     goto("./notes/new");
@@ -105,6 +201,9 @@
   function handleNoteView(id: string) {
     goto(`./notes/${id}`);
   }
+
+
+
 
 </script>
 
@@ -136,7 +235,7 @@
         <Table.TableRow>
           <Table.TableHead>Created at</Table.TableHead>
           <Table.TableHead>Patient Name</Table.TableHead>
-          <Table.TableHead>Patient ID</Table.TableHead>
+       
           <Table.TableHead>Department</Table.TableHead>
           <Table.TableHead>Attending Doctor</Table.TableHead>
           <Table.TableHead>Severity</Table.TableHead>
@@ -149,10 +248,9 @@
         {#each filteredNotes as note}
           <Table.TableRow >
             <Table.TableCell on:click={() => handleNoteView(note.id)}>{formatDate(note.createdAt)}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.patientName}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.patientId}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{getPatientName(note.patientName)}</Table.TableCell>
             <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.department}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.attendingDoctor}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{getDoctorName(note.attendingDoctor)}</Table.TableCell>
             <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.severity}</Table.TableCell>
             <Table.TableCell on:click={() => handleNoteView(note.id)}>
               {#if note.isUrgent}
