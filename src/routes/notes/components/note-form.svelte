@@ -49,7 +49,6 @@
 
   async function handleSubmit() {
     const formData = {
-      patient_name: patientName,
       patient_id: patientId,
       symptoms,
       diagnosis,
