@@ -1,4 +1,6 @@
 <script lang="ts">
+  import DoctorCombobox from "./doctor-combobox.svelte";
+
   import { Label } from "$lib/components/ui/label/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -17,7 +19,6 @@
   import { Calendar } from "$lib/components/ui/calendar/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import { UserStore } from "../../../stores/User";
- 
 
   const df = new DateFormatter("en-US", {
     dateStyle: "long",
@@ -25,19 +26,17 @@
 
   export let create = true;
   export let selectedPatient: any = null;
+  export const selectedDoc: string = "";
 
   let errorTitle: string | null | never = "";
   let errorDescription: string | null | never = "";
 
   let name: string = selectedPatient ? selectedPatient.name : "";
   let gender: string = selectedPatient;
-  let contactNumber: string = selectedPatient
-    ? selectedPatient.contact_number
-    : "";
+  let contactNumber: string = selectedPatient ? selectedPatient.contact_number : "";
   let address: string = selectedPatient ? selectedPatient.address : "";
-  let primaryDoctorId: string = selectedPatient
-    ? selectedPatient.primary_doctor_id
-    : "";
+  let primaryDoctorId: string = selectedPatient ? selectedPatient.primary_doctor_id : "";
+
   let value: DateValue | undefined = undefined;
 
   async function handleSubmit() {
@@ -52,11 +51,14 @@
       primary_doctor_id: primaryDoctorId,
     };
 
+   
     if (create) {
       try {
+       
         const response = await invoke("create_patient", {
           patientRequest: JSON.stringify(formData),
         });
+
         goto("/patients");
         toast(`Patient created successfully!`);
         errorDescription = null;
@@ -67,11 +69,12 @@
       }
     } else {
       try {
+        
         const response = await invoke("update_patient", {
           patientRequest: JSON.stringify(formData),
-          patientId: selectedPatient.id,
+          id: selectedPatient.id,
         });
-        goto(`/patients/${selectedPatient.id}`);
+        goto(`/patients`);
         toast(`Patient updated successfully!`);
         errorDescription = null;
       } catch (error) {
@@ -171,18 +174,7 @@
       />
     </div>
 
-    <div>
-      <Label for="primaryDoctor" class="block text-sm font-medium text-gray-700"
-        >Primary Doctor</Label
-      >
-      <Input
-        type="text"
-        id="primaryDoctor"
-        bind:value={primaryDoctorId}
-        required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-      />
-    </div>
+    <DoctorCombobox bind:selectedDoctorId={primaryDoctorId} />
   </div>
 
   {#if errorDescription}
@@ -191,7 +183,11 @@
 
   <div class="mt-6">
     <Button type="submit" class="w-full px-4 py-2 font-semibold">
-      Create Patient
+      {#if create}
+        Create
+      {:else}
+        Update
+      {/if}
     </Button>
   </div>
 </form>

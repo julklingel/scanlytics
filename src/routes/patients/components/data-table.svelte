@@ -29,18 +29,18 @@
 
   let filteredPatients: Patient[] = [];
   const infoTitle: string | null | never = "No patients found";
-  const infoDescription: string | null | never = "There are no patients available. Please add a new patient.";
+  const infoDescription: string | null | never =
+    "There are no patients available. Please add a new patient.";
   let dataAvailable: boolean;
-  
+
   $: dataAvailable;
 
   const filterValue = writable("");
 
   onMount(async () => {
-
     try {
-      const userData:any = await invoke("get_users");
-      const users = userData.map((user:any) => ({
+      const userData: any = await invoke("get_users");
+      const users = userData.map((user: any) => ({
         id: user.id.id.String,
         name: user.name,
         email: user.email,
@@ -48,65 +48,58 @@
         created_at: user.created_at,
         updated_at: user.updated_at,
       }));
-      
-      users.sort((a:any, b:any) => {
+
+      users.sort((a: any, b: any) => {
         return (
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
       });
 
       UserStore.set(users);
-      
-      
     } catch (error) {
       console.error("Failed to load users:", error);
-      
     }
 
-  try {
-    const data = await invoke<Patient[]>("get_patients");
-    
+    try {
+      const data = await invoke<Patient[]>("get_patients");
 
-    if (data.length === 0) {
-      dataAvailable = false;
-    } else {
-      dataAvailable = true;
+      if (data.length === 0) {
+        dataAvailable = false;
+      } else {
+        dataAvailable = true;
+      }
+
+      const patients = data.map((patient) => ({
+        id: patient.id.id.String,
+        name: patient.name,
+        date_of_birth: patient.date_of_birth,
+        gender: patient.gender,
+        contact_number: patient.contact_number,
+        address: patient.address,
+        primary_doctor: {
+          id: patient.primary_doctor?.id || "",
+          name: patient.primary_doctor?.name || "No doctor assigned",
+        },
+        created_at: patient.created_at,
+        updated_at: patient.updated_at,
+      }));
+
+      patients.sort((a, b) => {
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      });
+
+      PatientStore.set(patients);
+      filteredPatients = patients;
+    } catch (error) {
+      console.error("Failed to load patients:", error);
     }
-
-  const patients = data.map((patient) => ({
-  id: patient.id.id.String,
-  name: patient.name,
-  date_of_birth: patient.date_of_birth,
-  gender: patient.gender,
-  contact_number: patient.contact_number,
-  address: patient.address,
-  primary_doctor: {
-    id: patient.primary_doctor?.id || '',
-    name: patient.primary_doctor?.name || 'No doctor assigned',
-  },
-  created_at: patient.created_at,
-  updated_at: patient.updated_at,
-}));
-   
-    patients.sort((a, b) => {
-      return (
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-    });
-
-    console.log(patients);
-
-    PatientStore.set(patients);
-    filteredPatients = patients;
-  } catch (error) {
-    console.error("Failed to load patients:", error);
-  }
-});
+  });
 
   $: filteredPatients = $filterValue
     ? $PatientStore.filter((patient) =>
-  
-        patient.name.toLowerCase().includes($filterValue.toLowerCase())
+        patient.name.toLowerCase().includes($filterValue.toLowerCase()),
       )
     : $PatientStore;
 
@@ -162,13 +155,27 @@
       <Table.TableBody>
         {#each filteredPatients as patient}
           <Table.TableRow>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.name}</Table.TableCell>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.id}</Table.TableCell>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{formatDate(patient.date_of_birth)}</Table.TableCell>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.gender}</Table.TableCell>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.contact_number}</Table.TableCell>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.primary_doctor.id.String}</Table.TableCell>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{formatDate(patient.created_at)}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}
+              >{patient.name}</Table.TableCell
+            >
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}
+              >{patient.id}</Table.TableCell
+            >
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}
+              >{formatDate(patient.date_of_birth)}</Table.TableCell
+            >
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}
+              >{patient.gender}</Table.TableCell
+            >
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}
+              >{patient.contact_number}</Table.TableCell
+            >
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}
+              >{patient.primary_doctor.id.String}</Table.TableCell
+            >
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}
+              >{formatDate(patient.created_at)}</Table.TableCell
+            >
             <Table.TableCell>
               <DataTableActions id={patient.id} />
             </Table.TableCell>
