@@ -202,9 +202,6 @@
     goto(`./notes/${id}`);
   }
 
-
-
-
 </script>
 
 {#if !dataAvailable}
@@ -246,23 +243,33 @@
       </Table.TableHeader>
       <Table.TableBody>
         {#each filteredNotes as note}
-          <Table.TableRow >
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{formatDate(note.createdAt)}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{getPatientName(note.patientName)}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.department}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{getDoctorName(note.attendingDoctor)}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.severity}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>
-              {#if note.isUrgent}
-                <span class="text-red-600 font-semibold">Yes</span>
-              {:else}
-                <span>No</span>
-              {/if}
+          <Table.TableRow>
+            <Table.TableCell>
+              <a href="/notes/{note.id}">{formatDate(note.createdAt)}</a>
             </Table.TableCell>
             <Table.TableCell>
-             
+              <a href="/notes/{note.id}">{getPatientName(note.patientName)}</a>
+            </Table.TableCell>
+            <Table.TableCell>
+              <a href="/notes/{note.id}">{note.department}</a>
+            </Table.TableCell>
+            <Table.TableCell>
+              <a href="/notes/{note.id}">{getDoctorName(note.attendingDoctor)}</a>
+            </Table.TableCell>
+            <Table.TableCell>
+              <a href="/notes/{note.id}">{note.severity}</a>
+            </Table.TableCell>
+            <Table.TableCell>
+              <a href="/notes/{note.id}">
+                {#if note.isUrgent}
+                  <span class="text-red-600 font-semibold">Yes</span>
+                {:else}
+                  <span>No</span>
+                {/if}
+              </a>
+            </Table.TableCell>
+            <Table.TableCell>
               <DataTableActions id={note.id} patientId={note.patientId} />
-      
             </Table.TableCell>
           </Table.TableRow>
         {/each}

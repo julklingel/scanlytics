@@ -36,8 +36,7 @@
   let contactNumber: string = selectedPatient ? selectedPatient.contact_number : "";
   let address: string = selectedPatient ? selectedPatient.address : "";
   let primaryDoctorId: string = selectedPatient ? selectedPatient?.primary_doctor.id.String : "";
-  $: console.log(name);
-
+  
   let value: DateValue | undefined = undefined;
 
   async function handleSubmit() {
@@ -89,7 +88,7 @@
 
 <form
   id="patientForm"
-  class="p-6 bg-white rounded-lg shadow-md"
+  class="py-6 bg-white rounded-lg shadow-md"
   on:submit|preventDefault={handleSubmit}
 >
   <div class="grid grid-cols-1 gap-6">
