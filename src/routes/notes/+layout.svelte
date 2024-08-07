@@ -6,6 +6,8 @@
 
     let url:string = $page.url.pathname
 
+    $: url
+
 
 
 </script>
@@ -14,7 +16,7 @@
 
 
 <div class="container mx-auto py-3">
-<Navigation {url}/>
+<Navigation/>
 <slot>
 
 </slot>

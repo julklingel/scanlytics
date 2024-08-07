@@ -101,7 +101,7 @@
 
 <form
   id="patientNoteForm"
-  class="p-6 bg-white rounded-lg shadow-md"
+  class="py-6 bg-white rounded-lg shadow-md"
   on:submit|preventDefault={handleSubmit}
 >
   <div class="grid grid-cols-1 gap-7">

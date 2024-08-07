@@ -1,20 +1,21 @@
 <script lang="ts">
     import * as Breadcrumb from "$lib/components/ui/breadcrumb/index.js";
+    import { page } from '$app/stores';
 
-    export let url: string;
-    let breadcrumb = getBreadcrumb(url);
+
+    $: breadcrumb = getBreadcrumb($page.url.pathname);
 
     function getBreadcrumb(url: string) {
-        return url.split("/").map(capitalizeFirstLetter);
+        const parts = url.split("/").filter(Boolean);
+        return parts.map((part, index) => ({
+            name: capitalizeFirstLetter(part),
+            href: '/' + parts.slice(0, index + 1).join('/')
+        }));
     }
 
     function capitalizeFirstLetter(string: string) {
         return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
     }
-
-
-
-
 </script>
 
 <Breadcrumb.Root>
@@ -22,21 +23,15 @@
         <Breadcrumb.Item>
             <Breadcrumb.Link href="/menu">Menu</Breadcrumb.Link>
         </Breadcrumb.Item>
-        {#if breadcrumb[1] !== "Menu"}
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-                <Breadcrumb.Link href="/{breadcrumb[1].toLowerCase()}"
-                    >{breadcrumb[1]}</Breadcrumb.Link
-                >
-            </Breadcrumb.Item>
-        {/if}
-        {#if breadcrumb[2]}
-        <Breadcrumb.Separator />
-        <Breadcrumb.Item>
-            <Breadcrumb.Link href="/{breadcrumb[2].toLowerCase()}"
-                >{breadcrumb[2]}</Breadcrumb.Link
-            >
-        </Breadcrumb.Item>
-    {/if}
+        {#each breadcrumb as crumb, index}
+            {#if index > 0 || crumb.name.toLowerCase() !== "menu"}
+                <Breadcrumb.Separator />
+                <Breadcrumb.Item>
+                    <Breadcrumb.Link href={crumb.href}>
+                        {crumb.name}
+                    </Breadcrumb.Link>
+                </Breadcrumb.Item>
+            {/if}
+        {/each}
     </Breadcrumb.List>
 </Breadcrumb.Root>
