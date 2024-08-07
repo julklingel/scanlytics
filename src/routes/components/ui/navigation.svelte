@@ -24,31 +24,35 @@
     $: breadcrumb = getBreadcrumb($page.url.pathname);
 
     function getBreadcrumb(url: string) {
-    const parts = url.split("/").filter(Boolean);
-    let breadcrumb = parts.map((part, index) => ({
-        name: capitalizeFirstLetter(part),
-        href: "/" + parts.slice(0, index + 1).join("/"),
-    }));
+        const parts = url.split("/").filter(Boolean);
+        let breadcrumb = parts.map((part, index) => ({
+            name: capitalizeFirstLetter(part),
+            href: "/" + parts.slice(0, index + 1).join("/"),
+        }));
 
-    if (parts.length > 1) {
-        switch (breadcrumb[0].name) {
-            case "Patients":
-                breadcrumb[1].name = convertIdToName(parts[1], $PatientStore);
-                break;
-            case "Notes":
-                console.log("Back at it again", parts[1]);
-                breadcrumb[1].name = convertIdtoPateintName(parts[1], $patientNotes);
-                break;
-            case "Users":
-                breadcrumb[1].name = convertIdToName(parts[1], $UserStore);
-                break;
+        if (parts.length > 1) {
+            switch (breadcrumb[0].name) {
+                case "Patients":
+                    breadcrumb[1].name = convertIdToName(
+                        parts[1],
+                        $PatientStore,
+                    );
+                    break;
+                case "Notes":
+                    console.log("Back at it again", parts[1]);
+                    breadcrumb[1].name = convertIdtoPateintName(
+                        parts[1],
+                        $patientNotes,
+                    );
+                    break;
+                case "Users":
+                    breadcrumb[1].name = convertIdToName(parts[1], $UserStore);
+                    break;
+            }
         }
+
+        return breadcrumb;
     }
-
-    return breadcrumb;
-}
-
-
 </script>
 
 <Breadcrumb.Root>
