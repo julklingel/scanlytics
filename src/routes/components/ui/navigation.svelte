@@ -11,6 +11,10 @@
     function capitalizeFirstLetter(string: string) {
         return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
     }
+
+
+
+
 </script>
 
 <Breadcrumb.Root>
@@ -21,10 +25,18 @@
         {#if breadcrumb[1] !== "Menu"}
             <Breadcrumb.Separator />
             <Breadcrumb.Item>
-                <Breadcrumb.Link href="/components"
+                <Breadcrumb.Link href="/{breadcrumb[1].toLowerCase()}"
                     >{breadcrumb[1]}</Breadcrumb.Link
                 >
             </Breadcrumb.Item>
         {/if}
+        {#if breadcrumb[2]}
+        <Breadcrumb.Separator />
+        <Breadcrumb.Item>
+            <Breadcrumb.Link href="/{breadcrumb[2].toLowerCase()}"
+                >{breadcrumb[2]}</Breadcrumb.Link
+            >
+        </Breadcrumb.Item>
+    {/if}
     </Breadcrumb.List>
 </Breadcrumb.Root>
