@@ -12,7 +12,6 @@
 
     function convertIdtoPateintName(id: string, store: any) {
         const item = store.find((item: any) => item.id === id);
-        console.log("Item", item);
         let patientName = convertIdToName(item.patientId, $PatientStore);
         return patientName;
     }
@@ -39,7 +38,6 @@
                     );
                     break;
                 case "Notes":
-                    console.log("Back at it again", parts[1]);
                     breadcrumb[1].name = convertIdtoPateintName(
                         parts[1],
                         $patientNotes,
