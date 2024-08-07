@@ -165,7 +165,7 @@
       <Table.TableHeader>
         <Table.TableRow>
           <Table.TableHead>Name</Table.TableHead>
-          <Table.TableHead>Patient ID</Table.TableHead>
+   
           <Table.TableHead>Date of Birth</Table.TableHead>
           <Table.TableHead>Gender</Table.TableHead>
           <Table.TableHead>Contact Number</Table.TableHead>
@@ -180,9 +180,7 @@
             <Table.TableCell on:click={() => handlePatientView(patient.id)}
               >{patient.name}</Table.TableCell
             >
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{getPatientName(patient.id)}</Table.TableCell
-            >
+    
             <Table.TableCell on:click={() => handlePatientView(patient.id)}
               >{formatDate(patient.date_of_birth)}</Table.TableCell
             >

@@ -36,8 +36,7 @@
   let contactNumber: string = selectedPatient ? selectedPatient.contact_number : "";
   let address: string = selectedPatient ? selectedPatient.address : "";
   let primaryDoctorId: string = selectedPatient ? selectedPatient?.primary_doctor.id.String : "";
-  $: console.log(name);
-
+  
   let value: DateValue | undefined = undefined;
 
   async function handleSubmit() {
