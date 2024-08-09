@@ -7,10 +7,6 @@ type Patient = {
   gender: string;
   contact_number: string;
   address: string;
-  primary_doctor: {
-    id: string;
-    name: string;
-  };
   created_at: string;
   updated_at: string;
 };

@@ -1,4 +1,4 @@
-use super::models::{DoctorRecord, PatientRecord, PatientRequest, PatientResponse};
+use super::models::{ PatientRecord, PatientRequest, PatientResponse};
 use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
 
@@ -7,11 +7,9 @@ pub async fn create_patient_service(
     db: &Surreal<Client>,
     data: PatientRequest,
 ) -> Result<Vec<PatientResponse>, String> {
-    let doctor: Option<DoctorRecord> = db
-        .select(("User", &data.primary_doctor_id))
-        .await
-        .map_err(|e| e.to_string())?;
-    let doctor = doctor.ok_or_else(|| "Doctor not found".to_string())?;
+
+    // Get treated by data entry
+
 
     let patient_record = PatientRecord {
         name: data.name,
@@ -19,9 +17,11 @@ pub async fn create_patient_service(
         gender: data.gender,
         contact_number: data.contact_number,
         address: data.address,
-        primary_doctor: doctor.id,  
         notes: data.notes,
+        images: data.images,
+        reports: data.reports,
     };
+
 
     let response: Vec<PatientResponse> = db
         .create("Patient")
@@ -55,8 +55,6 @@ pub async fn update_patient_service(
         notes: data.notes,
         images: data.images,
         reports: data.reports,
- 
-
     };
 
 

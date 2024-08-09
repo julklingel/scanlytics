@@ -11,8 +11,7 @@ use tauri::Manager;
 use db::init::{init_db, define_db_on_startup};
 use testapi::controller::{test_db_write, test_db_read, test_db_delete};
 use organizations::controller::{get_organizations};
-use users::controller::{get_users};
-use notes::controller::{create_patient_note, get_patient_notes, update_patient_note, delete_patient_note};	
+use users::controller::{get_users};	
 use patients::controller::{create_patient, get_patients, update_patient, delete_patient};	
 
 
@@ -43,10 +42,10 @@ fn main() {
             test_db_delete,
             test_db_write,
             //Notes APIs
-            create_patient_note,
-            get_patient_notes,
-            update_patient_note,
-            delete_patient_note,
+            // create_patient_note,
+            // get_patient_notes,
+            // update_patient_note,
+            // delete_patient_note,
             //Patients APIs
             create_patient,
             get_patients,
