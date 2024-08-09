@@ -12,11 +12,11 @@ pub struct UserRequest {
     pub password: String,
     pub role: String,
     pub organization: Thing,
-    pub patients: Option<Vec<Thing>>,
-    pub patient_notes: Option<Vec<Thing>>,
-    pub statements: Option<Vec<Thing>>,
-    pub images: Option<Vec<Thing>>,
-    pub reports: Option<Vec<Thing>>,
+    pub patients: Option<Vec<surrealdb::sql::Thing>>,
+    pub patient_notes: Option<Vec<surrealdb::sql::Thing>>,
+    pub statements: Option<Vec<surrealdb::sql::Thing>>,
+    pub images: Option<Vec<surrealdb::sql::Thing>>,
+    pub reports: Option<Vec<surrealdb::sql::Thing>>,
 
 }
 
@@ -29,11 +29,11 @@ pub struct UserRecord {
     pub password: String,
     pub role: String,
     pub organization: Thing,
-    pub patients: Option<Vec<Thing>>,
-    pub patient_notes: Option<Vec<Thing>>,
-    pub statements: Option<Vec<Thing>>,
-    pub images: Option<Vec<Thing>>,
-    pub reports: Option<Vec<Thing>>,
+    pub patients: Option<Vec<surrealdb::sql::Thing>>,
+    pub patient_notes: Option<Vec<surrealdb::sql::Thing>>,
+    pub statements: Option<Vec<surrealdb::sql::Thing>>,
+    pub images: Option<Vec<surrealdb::sql::Thing>>,
+    pub reports: Option<Vec<surrealdb::sql::Thing>>,
 }
 
 
@@ -47,11 +47,11 @@ pub struct UserResponse {
     pub password: String,
     pub role: String,
     pub organization: Thing,
-    pub patients: Option<Vec<Thing>>,
-    pub patient_notes: Option<Vec<Thing>>,
-    pub statements: Option<Vec<Thing>>,
-    pub images: Option<Vec<Thing>>,
-    pub reports: Option<Vec<Thing>>,
+    pub patients: Option<Vec<surrealdb::sql::Thing>>,
+    pub patient_notes: Option<Vec<surrealdb::sql::Thing>>,
+    pub statements: Option<Vec<surrealdb::sql::Thing>>,
+    pub images: Option<Vec<surrealdb::sql::Thing>>,
+    pub reports: Option<Vec<surrealdb::sql::Thing>>,
     pub created_at: Datetime,
     pub updated_at: Datetime,
 }

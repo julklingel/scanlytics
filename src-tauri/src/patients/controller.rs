@@ -27,8 +27,9 @@ pub async fn create_patient(
         gender: record.gender,
         contact_number: record.contact_number,
         address: record.address,
-        primary_doctor: record.primary_doctor,
         notes: record.notes,
+        reports: record.reports, 
+        images: record.images,    
         created_at: record.created_at,
         updated_at: record.updated_at,
     };
@@ -43,18 +44,19 @@ pub async fn get_patients(
 ) -> Result<Vec<models::PatientResponse>, String> {
     let db = db.write().await;
     let response:Vec<models::PatientResponse> = services::get_patient_service(&db).await?
-        .iter()
+        .into_iter()
         .map(|record| models::PatientResponse {
-            id: record.id.clone(),
-            name: record.name.clone(),
-            date_of_birth: record.date_of_birth.clone(),
-            gender: record.gender.clone(),
-            contact_number: record.contact_number.clone(),
-            address: record.address.clone(),
-            primary_doctor: record.primary_doctor.clone(),
-            notes: record.notes.clone(),
-            created_at: record.created_at.clone(),
-            updated_at: record.updated_at.clone(),
+            id: record.id,
+            name: record.name,
+            date_of_birth: record.date_of_birth,
+            gender: record.gender,
+            contact_number: record.contact_number,
+            address: record.address,
+            notes: record.notes,
+            reports: record.reports, 
+            images: record.images,    
+            created_at: record.created_at,
+            updated_at: record.updated_at,
         })
         .collect();
     Ok(response)
@@ -81,8 +83,9 @@ pub async fn update_patient(
             gender: record.gender,
             contact_number: record.contact_number,
             address: record.address,
-            primary_doctor: record.primary_doctor,
             notes: record.notes,
+            reports: record.reports, 
+            images: record.images,    
             created_at: record.created_at,
             updated_at: record.updated_at,
         };
@@ -110,8 +113,9 @@ pub async fn delete_patient(
             gender: record.gender,
             contact_number: record.contact_number,
             address: record.address,
-            primary_doctor: record.primary_doctor,
             notes: record.notes,
+            reports: record.reports, 
+            images: record.images,    
             created_at: record.created_at,
             updated_at: record.updated_at,
         };

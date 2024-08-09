@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Datetime, Thing};
 
+
+
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientRequest {
     pub name: String,
@@ -8,8 +11,9 @@ pub struct PatientRequest {
     pub gender: String,
     pub contact_number: String,
     pub address: String,
-    pub primary_doctor_id: String, 
-    pub notes: Option<Vec<String>>, 
+    pub notes: Option<Vec<surrealdb::sql::Thing>>,
+    pub reports:Option<Vec<surrealdb::sql::Thing>>,
+    pub images: Option<Vec<surrealdb::sql::Thing>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,9 +23,9 @@ pub struct PatientRecord {
     pub gender: String,
     pub contact_number: String,
     pub address: String,
-    pub primary_doctor: Thing,  
-    pub notes: Option<Vec<String>>,
-
+    pub notes: Option<Vec<surrealdb::sql::Thing>>,
+    pub reports: Option<Vec<surrealdb::sql::Thing>>,
+    pub images:Option<Vec<surrealdb::sql::Thing>>, 
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -32,16 +36,10 @@ pub struct PatientResponse {
     pub gender: String,
     pub contact_number: String,
     pub address: String,
-    pub primary_doctor: Thing,  
-    pub notes: Option<Vec<String>>,  
+    pub notes:Option<Vec<surrealdb::sql::Thing>>, 
+    pub reports: Option<Vec<surrealdb::sql::Thing>>, 
+    pub images: Option<Vec<surrealdb::sql::Thing>>,
     pub created_at: Datetime,
     pub updated_at: Datetime,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DoctorRecord {
-    pub id: Thing,
-    pub name: String,
-    pub email: String,
-    pub role: String,
-}
