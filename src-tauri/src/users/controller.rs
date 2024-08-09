@@ -12,18 +12,23 @@ pub async fn get_users(
     db: State<'_, RwLock<Surreal<Client>>>,
 ) -> Result<Vec<models::UserResponse>, String> {
     let db = db.write().await;
-    let response:Vec<models::UserResponse> = services::get_users_service(&db).await?
-        .iter()
+    let response: Vec<models::UserResponse> = services::get_users_service(&db).await?
+        .into_iter()
         .map(|record| models::UserResponse {
-            id: record.id.clone(),
-            name: record.name.clone(),
-            email: record.email.clone(),
-            role: record.role.clone(),
-            specialization: record.specialization.clone(),
-            patients: record.patients.clone(),
-            patient_notes: record.patient_notes.clone(),
-            created_at: record.created_at.clone(),
-            updated_at: record.updated_at.clone(),
+            id: record.id,
+            name: record.name,
+            email: record.email,
+            password: record.password,
+            role: record.role,
+            specialization: record.specialization,
+            organization: record.organization,
+            patients: record.patients,
+            patient_notes: record.patient_notes,
+            statements: record.statements,
+            images: record.images,
+            reports: record.reports,
+            created_at: record.created_at,
+            updated_at: record.updated_at,
         })
         .collect();
     Ok(response)
