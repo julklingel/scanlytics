@@ -38,6 +38,8 @@ pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
         "DEFINE FIELD notes.* ON User TYPE option<record(PatientNote)>;",
         "DEFINE FIELD Statement ON User TYPE option<array>;",
         "DEFINE FIELD Statement.* ON User TYPE option<record(Statement)>;",
+        "DEFINE FIELD Image ON User TYPE option<array>;",
+        "DEFINE FIELD Image.* ON User TYPE option<record(Image)>;",
         "DEFINE FIELD organization ON User TYPE record(Organization);",
         "DEFINE FIELD in ON TABLE Write_Reports TYPE record<User>;",
         "DEFINE FIELD out ON TABLE Write_Reports TYPE record<Report>;",
@@ -101,6 +103,7 @@ pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
         "DEFINE FIELD created_at ON Image TYPE datetime DEFAULT time::now();",
         "DEFINE FIELD updated_at ON Image TYPE datetime DEFAULT time::now() VALUE time::now();",
         "DEFINE FIELD patient ON Image TYPE record(Patient);",
+        "DEFINE FIELD user ON Image TYPE record(User);",
         "DEFINE FIELD in ON TABLE Images_Reports_Join TYPE record<Image>;",
         "DEFINE FIELD out ON TABLE Images_Reports_Join TYPE record<Report>;",
     ];
