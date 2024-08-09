@@ -37,28 +37,48 @@
 
   const filterValue = writable("");
 
+  interface UserResponse {
+  id: { id: string, tb: string };
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+  organization: { id: string, tb: string };
+  patients?: { id: string, tb: string }[];
+  patient_notes?: { id: string, tb: string }[];
+  images?: { id: string, tb: string }[];
+  reports?: { id: string, tb: string }[];
+  created_at: string;
+  updated_at: string;
+}
+
   onMount(async () => {
     try {
-      const userData: any = await invoke("get_users");
-      const users = userData.map((user: any) => ({
-        id: user.id.id.String,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-      }));
+    const users: UserResponse[] = await invoke("get_users");
+    const processedUsers = users.map((user) => ({
+      id: user.id.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      organization: user.organization.id,
+      patients: user.patients?.map(p => p.id),
+      patient_notes: user.patient_notes?.map(n => n.id),
+      statements: user.statements?.map(s => s.id),
+      images: user.images?.map(i => i.id),
+      reports: user.reports?.map(r => r.id),
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    }));
 
-      users.sort((a: any, b: any) => {
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-      });
+    processedUsers.sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
 
-      UserStore.set(users);
-    } catch (error) {
-      console.error("Failed to load users:", error);
-    }
+    console.log(processedUsers);
+    UserStore.set(processedUsers);
+  } catch (error) {
+    console.error("Failed to load users:", error);
+  }
 
     try {
       const data = await invoke<Patient[]>("get_patients");

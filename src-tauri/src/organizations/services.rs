@@ -1,4 +1,4 @@
-use super::models::{OrganizationRecord, OrganizationRequest, OrganizationResponse};
+use super::models::OrganizationResponse;
 use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
 

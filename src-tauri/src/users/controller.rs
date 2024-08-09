@@ -20,7 +20,6 @@ pub async fn get_users(
             email: record.email,
             password: record.password,
             role: record.role,
-            specialization: record.specialization,
             organization: record.organization,
             patients: record.patients,
             patient_notes: record.patient_notes,
