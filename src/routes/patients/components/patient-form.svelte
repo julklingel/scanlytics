@@ -18,7 +18,8 @@
   import { cn } from "$lib/utils.js";
   import { Calendar } from "$lib/components/ui/calendar/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
-  import { UserStore } from "../../../stores/User";
+  import { getUsers } from "../api/user-data";
+  import { onMount } from "svelte";
 
   const df = new DateFormatter("en-US", {
     dateStyle: "long",
@@ -38,6 +39,15 @@
   let primaryDoctorId: string = selectedPatient ? selectedPatient?.primary_doctor.id.String : "";
   
   let value: DateValue | undefined = undefined;
+
+  onMount(async () => {
+    try {
+      await getUsers();
+    } catch (error) {
+      console.error(error);
+    }
+
+  });
 
   async function handleSubmit() {
     const formData = {

@@ -11,6 +11,9 @@
   import InfoMsg from "../../components/ui/infomodal.svelte";
   import { PatientStore } from "../../../stores/Patient";
   import { getPatients} from "../api/patients-data"
+  import { page } from "$app/stores";
+
+
 
 
   let filteredPatients: any;
@@ -42,7 +45,7 @@
     : $PatientStore;
 
   function handleCreateNewPatient() {
-    goto("./patients/new");
+    goto("patients/new");
   }
 
   function formatDate(dateString: string) {
@@ -50,7 +53,7 @@
   }
 
   function handlePatientView(id: string) {
-    goto(`./patients/${id}`);
+    goto(`patients/${id}`);
   }
 
 </script>

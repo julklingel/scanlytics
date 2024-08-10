@@ -9,30 +9,12 @@ use tokio::sync::RwLock;
 pub async fn create_patient(
     db: State<'_, RwLock<Surreal<Client>>>,
     patient_request: String,
+    primary_doctor: String,
 ) -> Result<models::PatientResponse, String> {
-
     let patient_request: models::PatientRequest = serde_json::from_str(&patient_request)
         .map_err(|e| format!("Failed to parse patient request: {}", e))?;
     let db = db.write().await;
-    let mut response: Vec<models::PatientResponse> = services::create_patient_service(&db, patient_request).await?;
-    if response.is_empty() {
-        return Err("No record created".to_string());
-    }
-    let record = response.pop().unwrap();
-    
-    let response = models::PatientResponse {
-        id: record.id,
-        name: record.name,
-        date_of_birth: record.date_of_birth,
-        gender: record.gender,
-        contact_number: record.contact_number,
-        address: record.address,
-        notes: record.notes,
-        reports: record.reports, 
-        images: record.images,    
-        created_at: record.created_at,
-        updated_at: record.updated_at,
-    };
+    let response: models::PatientResponse = services::create_patient_service(&db, patient_request, primary_doctor).await?;
     
     Ok(response)
 }

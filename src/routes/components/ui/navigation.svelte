@@ -53,7 +53,7 @@
     }
 </script>
 
-<Breadcrumb.Root>
+<!-- <Breadcrumb.Root>
     <Breadcrumb.List>
         <Breadcrumb.Item>
             <Breadcrumb.Link href="/menu">Menu</Breadcrumb.Link>
@@ -69,4 +69,4 @@
             {/if}
         {/each}
     </Breadcrumb.List>
-</Breadcrumb.Root>
+</Breadcrumb.Root> -->

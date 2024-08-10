@@ -60,8 +60,10 @@ pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
         "DEFINE FIELD report.* ON Patient TYPE option<record(Report)>;",
         "DEFINE FIELD image ON Patient TYPE option<array>;",
         "DEFINE FIELD image.* ON Patient TYPE option<record(Image)>;",
-        "DEFINE FIELD in ON TABLE Treated_By TYPE record<User>;",
-        "DEFINE FIELD out ON TABLE Treated_By TYPE record<Patient>;",
+
+       
+        "DEFINE FIELD out ON TABLE Treated_By TYPE record<User>;",
+        "DEFINE FIELD in ON TABLE Treated_By TYPE record<Patient>;",
 
         "DEFINE TABLE PatientNote SCHEMAFULL;",
         "DEFINE FIELD symptoms ON PatientNote TYPE string;",
@@ -73,8 +75,8 @@ pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
         "DEFINE FIELD is_urgent ON PatientNote TYPE bool;",
         "DEFINE FIELD patient ON PatientNote TYPE record(Patient);",
         "DEFINE FIELD user_owner ON PatientNote TYPE record(User);",
-        "DEFINE FIELD in ON TABLE PatientNotes_Reports_Join TYPE record<User>;",
-        "DEFINE FIELD out ON TABLE PatientNotes_Reports_Join TYPE record<PatientNote>;",
+        "DEFINE FIELD out ON TABLE PatientNotes_Reports_Join TYPE record<User>;",
+        "DEFINE FIELD in ON TABLE PatientNotes_Reports_Join TYPE record<PatientNote>;",
 
         "DEFINE TABLE Statement SCHEMAFULL;",
         "DEFINE FIELD statement ON Statement TYPE string;",
@@ -106,6 +108,23 @@ pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
         "DEFINE FIELD user ON Image TYPE record(User);",
         "DEFINE FIELD in ON TABLE Images_Reports_Join TYPE record<Image>;",
         "DEFINE FIELD out ON TABLE Images_Reports_Join TYPE record<Report>;",
+        
+        "DEFINE INDEX Treated_By ON TABLE Treated_By COLUMNS in, out UNIQUE;",
+        "DEFINE INDEX Access_Statements ON TABLE Access_Statements COLUMNS in, out UNIQUE;",
+        "DEFINE INDEX PatientNotes_Reports_Join ON TABLE PatientNotes_Reports_Join COLUMNS in, out UNIQUE;",
+        "DEFINE INDEX Statements_Reports_Join ON TABLE Statements_Reports_Join COLUMNS in, out UNIQUE;",
+        "DEFINE INDEX Images_Reports_Join ON TABLE Images_Reports_Join COLUMNS in, out UNIQUE;",
+        "DEFINE INDEX Write_Reports ON TABLE Write_Reports COLUMNS in, out UNIQUE;",
+        "DEFINE INDEX Email ON TABLE User COLUMNS email UNIQUE;",
+
+
+        "DEFINE TABLE Treated_By SCHEMAFULL;",
+        "DEFINE TABLE Access_Statements SCHEMAFULL;",
+        "DEFINE TABLE PatientNotes_Reports_Join SCHEMAFULL;",
+        "DEFINE TABLE Statements_Reports_Join SCHEMAFULL;",
+        "DEFINE TABLE Images_Reports_Join SCHEMAFULL;",
+        "DEFINE TABLE Write_Reports SCHEMAFULL;",
+
     ];
 
     for statement in define_statements {
