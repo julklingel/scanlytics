@@ -58,15 +58,16 @@
       gender,
       contact_number: contactNumber,
       address,
-      primary_doctor_id: primaryDoctorId,
+      primary_doctor: primaryDoctorId.String,
     };
 
    
     if (create) {
       try {
-       
+        console.log("formData", formData);
         const response = await invoke("create_patient", {
           patientRequest: JSON.stringify(formData),
+          
         });
 
         goto("/patients");

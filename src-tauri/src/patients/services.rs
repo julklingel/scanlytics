@@ -8,10 +8,9 @@ use surrealdb::Surreal;
 pub async fn create_patient_service(
     db: &Surreal<Client>,
     data: PatientRequest,
-    primary_doctor: String,
 ) -> Result<PatientResponse, String> {
     let doctor: Option<UserResponse> = db
-        .select(("User", &primary_doctor))
+        .select(("User", &data.primary_doctor))
         .await
         .map_err(|e| e.to_string())?;
     let doctor = doctor.ok_or_else(|| "Doctor not found".to_string())?;

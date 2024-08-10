@@ -14,6 +14,7 @@ pub struct PatientRequest {
     pub notes: Option<Vec<surrealdb::sql::Thing>>,
     pub reports:Option<Vec<surrealdb::sql::Thing>>,
     pub images: Option<Vec<surrealdb::sql::Thing>>,
+    pub primary_doctor: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
