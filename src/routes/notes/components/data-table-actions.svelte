@@ -3,7 +3,7 @@
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
     import { Button } from "$lib/components/ui/button";
     import { invoke } from "@tauri-apps/api/core";
-    import { patientNotes } from "../../../stores/PatientNote";
+    import { PatientNotesStore } from "../../../stores/PatientNote";
     import { toast } from "svelte-sonner";
 
 
@@ -16,7 +16,7 @@
     function deleteNote() {
       try {
         invoke("delete_patient_note", { id });
-        patientNotes.update((notes) => notes.filter((note) => note.id !== id));
+        PatientNotesStore.update((notes) => notes.filter((note) => note.id !== id));
         toast("Note deleted successfully");
 
       } catch (error) {

@@ -13,6 +13,7 @@ use testapi::controller::{test_db_write, test_db_read, test_db_delete};
 use organizations::controller::{get_organizations};
 use users::controller::{get_users};	
 use patients::controller::{create_patient, get_patients, update_patient, delete_patient};	
+use notes::controller::{create_patient_note, get_patient_notes, update_patient_note, delete_patient_note};
 
 
 
@@ -42,10 +43,10 @@ fn main() {
             test_db_delete,
             test_db_write,
             //Notes APIs
-            // create_patient_note,
-            // get_patient_notes,
-            // update_patient_note,
-            // delete_patient_note,
+            create_patient_note,
+            get_patient_notes,
+            update_patient_note,
+            delete_patient_note,
             //Patients APIs
             create_patient,
             get_patients,
