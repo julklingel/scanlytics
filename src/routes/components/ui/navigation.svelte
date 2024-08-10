@@ -32,10 +32,16 @@
         if (parts.length > 1) {
             switch (breadcrumb[0].name) {
                 case "Patients":
-                    breadcrumb[1].name = convertIdToName(
-                        parts[1],
-                        $PatientStore,
-                    );
+                    if (parts[1] === "new") {
+                        breadcrumb[1].name = "Create";
+                    } else {
+                        breadcrumb[1].name = convertIdToName(
+                            parts[1],
+                            $PatientStore,
+                        );
+                    }
+                  
+                    
                     break;
                 case "Notes":
                     breadcrumb[1].name = convertIdtoPateintName(
@@ -53,7 +59,7 @@
     }
 </script>
 
-<!-- <Breadcrumb.Root>
+<Breadcrumb.Root>
     <Breadcrumb.List>
         <Breadcrumb.Item>
             <Breadcrumb.Link href="/menu">Menu</Breadcrumb.Link>
@@ -69,4 +75,4 @@
             {/if}
         {/each}
     </Breadcrumb.List>
-</Breadcrumb.Root> -->
+</Breadcrumb.Root>
