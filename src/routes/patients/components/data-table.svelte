@@ -20,9 +20,9 @@
   const infoTitle: string | null | never = "No patients found";
   const infoDescription: string | null | never =
     "There are no patients available. Please add a new patient.";
-  let dataAvailable: boolean;
+  let dataAvailable: boolean = false
 
-  $: dataAvailable;
+
 
   const filterValue = writable("");
 
@@ -30,8 +30,9 @@
   onMount(async () => {
     try {
       await getPatients();
+      dataAvailable = true;
     } catch (error) {
-      dataAvailable = false;
+      
       console.error(error);
     }
    
@@ -58,7 +59,7 @@
 
 </script>
 
-{#if dataAvailable}
+{#if !dataAvailable}
   <div class="flex flex-col gap-4">
     <InfoMsg {infoTitle} {infoDescription} />
 

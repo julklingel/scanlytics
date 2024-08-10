@@ -8,31 +8,41 @@ use surrealdb::Surreal;
 pub async fn create_patient_service(
     db: &Surreal<Client>,
     data: PatientRequest,
-) -> Result<PatientResponse, String> {
+) -> Result<Vec<PatientResponse>, String> {
     let doctor: Option<UserResponse> = db
         .select(("User", &data.primary_doctor))
         .await
         .map_err(|e| e.to_string())?;
     let doctor = doctor.ok_or_else(|| "Doctor not found".to_string())?;
-    
-    let patients: Vec<PatientResponse> = db
-        .create("Patient")
-        .content(data)
-        .await
-        .map_err(|e| e.to_string())?;
-    
-    let patient = patients.into_iter().next()
-        .ok_or_else(|| "Failed to create patient".to_string())?;
-    
-    db.query("RELATE $patient -> Treated_By -> $doctor")
-        .bind(("patient", &patient.id))
-        .bind(("doctor", &doctor.id))
-        .await
-        .map_err(|e| e.to_string())?;
-    
-    Ok(patient)
-}
 
+    let patient_record = PatientRecord {
+        name: data.name,
+        date_of_birth: data.date_of_birth,
+        gender: data.gender,
+        contact_number: data.contact_number,
+        address: data.address,
+        notes: data.notes,
+        reports: data.reports,
+        images: data.images,
+    };
+
+    let created: Vec<PatientResponse> = db
+        .create("Patient")
+        .content(patient_record)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if let Some(patient) = created.first() {
+        db.query("RELATE $patient -> Treated_By -> $doctor")
+            .bind(("patient", &patient.id))
+            .bind(("doctor", &doctor.id))
+            .await
+            .map_err(|e| e.to_string())?;
+        println!("Patient created: {:?}", patient);
+    }
+
+    Ok(created)
+}
 
 pub async fn get_patient_service(db: &Surreal<Client>) -> Result<Vec<PatientResponse>, String> {
     let records: Vec<PatientResponse> = db.select("Patient").await.map_err(|e| e.to_string())?;

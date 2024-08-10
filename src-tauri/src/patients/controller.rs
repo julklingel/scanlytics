@@ -13,8 +13,25 @@ pub async fn create_patient(
     let patient_request: models::PatientRequest = serde_json::from_str(&patient_request)
         .map_err(|e| format!("Failed to parse patient request: {}", e))?;
     let db = db.write().await;
-    let response: models::PatientResponse = services::create_patient_service(&db, patient_request).await?;
-    
+    let mut data: Vec<models::PatientResponse> = services::create_patient_service(&db, patient_request).await?;
+    if data.is_empty() {
+        return Err("No record created".to_string());
+    }
+    let response = data.pop().unwrap();
+    let response = models::PatientResponse {
+        id: response.id,
+        name: response.name,
+        date_of_birth: response.date_of_birth,
+        gender: response.gender,
+        contact_number: response.contact_number,
+        address: response.address,
+        notes: response.notes,
+        reports: response.reports,
+        images: response.images,
+        created_at: response.created_at,
+        updated_at: response.updated_at,
+    };
+   
     Ok(response)
 }
 
