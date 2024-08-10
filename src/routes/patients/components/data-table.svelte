@@ -5,38 +5,32 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import PlusIcon from "lucide-svelte/icons/plus";
   import { goto } from "$app/navigation";
-
   import { onMount } from "svelte";
-  import { writable } from "svelte/store";
+  import { writable, derived } from "svelte/store";
   import InfoMsg from "../../components/ui/infomodal.svelte";
   import { PatientStore } from "../../../stores/Patient";
-  import { getPatients} from "../api/patients-data"
+  import { getPatients } from "../api/patients-data"
   import { page } from "$app/stores";
-
-
-
 
   let filteredPatients: any;
   const infoTitle: string | null | never = "No patients found";
   const infoDescription: string | null | never =
     "There are no patients available. Please add a new patient.";
-  let dataAvailable: boolean = false
-
-
-
+  let dataAvailable: boolean = false;
   const filterValue = writable("");
 
+
+  const isPatientStoreEmpty = derived(PatientStore, $PatientStore => $PatientStore.length === 0);
+
+
+  $: dataAvailable = !$isPatientStoreEmpty;
 
   onMount(async () => {
     try {
       await getPatients();
-      dataAvailable = true;
     } catch (error) {
-      
       console.error(error);
     }
-   
-
   });
 
   $: filteredPatients = $filterValue
@@ -56,13 +50,11 @@
   function handlePatientView(id: string) {
     goto(`patients/${id}`);
   }
-
 </script>
 
 {#if !dataAvailable}
   <div class="flex flex-col gap-4">
     <InfoMsg {infoTitle} {infoDescription} />
-
     <Button on:click={handleCreateNewPatient}>
       <PlusIcon size={16} />
       <span>Add New Patient</span>
@@ -86,11 +78,9 @@
       <Table.TableHeader>
         <Table.TableRow>
           <Table.TableHead>Name</Table.TableHead>
-   
           <Table.TableHead>Date of Birth</Table.TableHead>
           <Table.TableHead>Gender</Table.TableHead>
           <Table.TableHead>Contact Number</Table.TableHead>
-          <!-- <Table.TableHead>Primary Doctor</Table.TableHead> -->
           <Table.TableHead>Created At</Table.TableHead>
           <Table.TableHead>Actions</Table.TableHead>
         </Table.TableRow>
@@ -98,25 +88,11 @@
       <Table.TableBody>
         {#each filteredPatients as patient}
           <Table.TableRow>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{patient.name}</Table.TableCell
-            >
-    
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{formatDate(patient.date_of_birth)}</Table.TableCell
-            >
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{patient.gender}</Table.TableCell
-            >
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{patient.contact_number}</Table.TableCell
-            >
-            <!-- <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{getDoctorName(patient.primary_doctor.id.String)}</Table.TableCell
-            > -->
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{formatDate(patient.created_at)}</Table.TableCell
-            >
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.name}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{formatDate(patient.date_of_birth)}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.gender}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.contact_number}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{formatDate(patient.created_at)}</Table.TableCell>
             <Table.TableCell>
               <DataTableActions id={patient.id} />
             </Table.TableCell>
