@@ -9,6 +9,8 @@
   import PatientCombobox from "./patient-combobox.svelte";
   import DoctorCombobox from "../../patients/components/doctor-combobox.svelte";
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
+  import { getPatients } from "../api/patient-data";
 
   import ErrorMsg from "../../components/ui/errormodal.svelte";
 
@@ -32,7 +34,7 @@
   let errorTitle: string | null | never = "";
   let errorDescription: string | null | never = "";
 
-  let patient: string = selectedNote ? selectedNote.patient : "";
+  let selectedPatientId: string = selectedNote ? selectedNote.patient : "";
   let symptoms: string = selectedNote ? selectedNote.symptoms : "";
   let diagnosis: string = selectedNote ? selectedNote.diagnosis : "";
   let treatment: string = selectedNote ? selectedNote.treatment : "";
@@ -43,9 +45,19 @@
     : "";
   let severity: string = selectedNote ? selectedNote.severity : "";
 
+
+  onMount(async () => {
+    try {
+      await getPatients();
+    } catch (error) {
+      console.error(error);
+    }
+
+  });
+
   async function handleSubmit() {
     const formData = {
-      patient,
+      selectedPatientId,
       symptoms,
       diagnosis,
       treatment,
@@ -107,8 +119,8 @@
         >Patient
       </Label>
       <PatientCombobox
-        bind:selectedpatientId={patientId}
-        bind:selectedpatientName={patientName}
+        bind:selectedPatientId={selectedPatientId}
+      
       />
     </div>
 
@@ -192,7 +204,7 @@
           class="block text-sm font-medium text-gray-700"
           >Attending Doctor</Label
         >
-        <DoctorCombobox bind:selectedDoctorId={attendingDoctor} />
+        <!-- <DoctorCombobox bind:selectedDoctorId={attendingDoctor} /> -->
         
       </div>
     </div>

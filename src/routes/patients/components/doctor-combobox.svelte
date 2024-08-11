@@ -1,33 +1,32 @@
 <script lang="ts">
-import { UserStore } from "../../../stores/User";
+  import { PatientStore } from "../../../stores/Patient";
   import { createEventDispatcher } from "svelte";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
 
-  export let selectedDoctorId = "";
-
+  export let selectedPatientId = "";
   const dispatch = createEventDispatcher();
 
-  $: doctors = $UserStore.map((d) => ({
-    label: d.name,
-    value: d.id,
+  $: patients = $PatientStore.map((p) => ({
+    label: p.name,
+    value: p.id,
   }));
 
   let searchTerm = "";
-  let filteredDoctors = doctors;
+  let filteredPatients = patients;
   let isInputFocused = false;
 
   $: {
-    filteredDoctors = doctors.filter((doctor) =>
-      doctor.label.toLowerCase().includes(searchTerm.toLowerCase()),
+    filteredPatients = patients.filter((patient) =>
+      patient.label.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }
 
-  function handleSelect(doctor: any) {
-    selectedDoctorId = doctor.value;
-    dispatch("select", { id: doctor.value });
+  function handleSelect(patient: any) {
+    selectedPatientId = patient.value;
+    dispatch("select", { id: patient.value });
     isInputFocused = false;
-    searchTerm = doctor.label;
+    searchTerm = patient.label;
   }
 
   function handleInputFocus() {
@@ -44,22 +43,22 @@ import { UserStore } from "../../../stores/User";
 <div class="relative">
   <Input
     type="text"
-    placeholder="Search for a doctor"
+    placeholder="Search for a patient"
     bind:value={searchTerm}
     on:focus={handleInputFocus}
     on:blur={handleInputBlur}
   />
   {#if isInputFocused}
-    {#if filteredDoctors.length > 0}
+    {#if filteredPatients.length > 0}
       <ul class="flex flex-col absolute w-full bg-white border border-gray-300 mt-1 max-h-60 overflow-y-auto z-10">
-        {#each filteredDoctors as doctor}
-          <Button variant="ghost" on:click={() => handleSelect(doctor)} class="text-left p-2 hover:bg-gray-100">
-            {doctor.label}
+        {#each filteredPatients as patient}
+          <Button variant="ghost" on:click={() => handleSelect(patient)} class="text-left p-2 hover:bg-gray-100">
+            {patient.label}
           </Button>
         {/each}
       </ul>
     {:else}
-      <p class="text-gray-500 mt-2 absolute w-full bg-white border border-gray-300 p-2 z-10">No doctors found</p>
+      <p class="text-gray-500 mt-2 absolute w-full bg-white border border-gray-300 p-2 z-10">No patients found</p>
     {/if}
   {/if}
 </div>

@@ -33,11 +33,15 @@
   let errorDescription: string | null | never = "";
 
   let name: string = selectedPatient ? selectedPatient.name : "";
-  let gender: string = selectedPatient ? selectedPatient.gender : "";;
-  let contactNumber: string = selectedPatient ? selectedPatient.contact_number : "";
+  let gender: string = selectedPatient ? selectedPatient.gender : "";
+  let contactNumber: string = selectedPatient
+    ? selectedPatient.contact_number
+    : "";
   let address: string = selectedPatient ? selectedPatient.address : "";
-  let primaryDoctorId: string = selectedPatient ? selectedPatient?.primary_doctor.id.String : "";
-  
+  let primaryDoctorId: string = selectedPatient
+    ? selectedPatient?.primary_doctor.id.String
+    : "";
+
   let value: DateValue | undefined = undefined;
 
   onMount(async () => {
@@ -46,7 +50,6 @@
     } catch (error) {
       console.error(error);
     }
-
   });
 
   async function handleSubmit() {
@@ -61,13 +64,11 @@
       primary_doctor: primaryDoctorId.String,
     };
 
-   
     if (create) {
       try {
         console.log("formData", formData);
         const response = await invoke("create_patient", {
           patientRequest: JSON.stringify(formData),
-          
         });
 
         goto("/patients");
@@ -80,7 +81,6 @@
       }
     } else {
       try {
-        
         const response = await invoke("update_patient", {
           patientRequest: JSON.stringify(formData),
           id: selectedPatient.id,
@@ -184,10 +184,9 @@
         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
       />
     </div>
-    
+
     <Label>Attending Doctor</Label>
     <DoctorCombobox bind:selectedDoctorId={primaryDoctorId} />
- 
   </div>
 
   {#if errorDescription}
