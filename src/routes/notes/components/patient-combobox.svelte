@@ -4,7 +4,7 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
 
-  export let selectedPatientId = "";
+  export let patient_id = "";
   const dispatch = createEventDispatcher();
 
   $: patients = $PatientStore.map((p) => ({
@@ -23,7 +23,7 @@
   }
 
   function handleSelect(patient: any) {
-    selectedPatientId = patient.value;
+    patient_id = patient.value.String;
     dispatch("select", { id: patient.value });
     isInputFocused = false;
     searchTerm = patient.label;

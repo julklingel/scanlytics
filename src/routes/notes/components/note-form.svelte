@@ -35,7 +35,7 @@
   let errorTitle: string | null | never = "";
   let errorDescription: string | null | never = "";
 
-  let selectedPatientId: string = selectedNote ? selectedNote.patient : "";
+  let patient_id: string = selectedNote ? selectedNote.patient : "";
   let symptoms: string = selectedNote ? selectedNote.symptoms : "";
   let diagnosis: string = selectedNote ? selectedNote.diagnosis : "";
   let treatment: string = selectedNote ? selectedNote.treatment : "";
@@ -59,7 +59,7 @@
 
   async function handleSubmit() {
     const formData = {
-      selectedPatientId,
+      patient_id,
       symptoms,
       diagnosis,
       treatment,
@@ -121,7 +121,7 @@
         >Patient
       </Label>
       <PatientCombobox
-        bind:selectedPatientId={selectedPatientId}
+        bind:patient_id={patient_id}
       
       />
     </div>
