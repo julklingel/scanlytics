@@ -11,6 +11,7 @@
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import { getPatients } from "../api/patient-data";
+  import { getUsers } from "../api/user-data";
 
   import ErrorMsg from "../../components/ui/errormodal.svelte";
 
@@ -49,6 +50,7 @@
   onMount(async () => {
     try {
       await getPatients();
+      await getUsers();
     } catch (error) {
       console.error(error);
     }
@@ -204,7 +206,7 @@
           class="block text-sm font-medium text-gray-700"
           >Attending Doctor</Label
         >
-        <!-- <DoctorCombobox bind:selectedDoctorId={attendingDoctor} /> -->
+        <DoctorCombobox bind:selectedDoctorId={attendingDoctor} />
         
       </div>
     </div>
