@@ -1,7 +1,7 @@
 
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::Client;
-use super::models::{ PatientNoteRecord, PatientNoteRequest, PatientNoteResponse, UserResponse, PatientResponse}; 
+use super::models::{ PatientNoteRecord, PatientNoteRequest, PatientNoteResponse}; 
 use surrealdb::sql::Thing;
 
 pub async fn create_patient_note_service(

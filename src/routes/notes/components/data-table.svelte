@@ -12,6 +12,9 @@
   import { getPatientNotes } from "../api/patients-note-data";
   import { page } from "$app/stores";
 
+  console.log(page);
+
+
   let filteredPatientNotes: any;
   const infoTitle: string | null | never = "No patient notes found";
   const infoDescription: string | null | never =
@@ -39,7 +42,7 @@
     : $PatientNotesStore;
 
   function handleCreateNewPatientNote() {
-    goto("notes/new");
+    goto("/notes/new");
   }
 
   function formatDate(dateString: string) {
@@ -47,7 +50,7 @@
   }
 
   function handleNoteView(id: string) {
-    goto(`notes/${id}`);
+    goto(`/notes/${id}`);
   }
 </script>
 
@@ -89,7 +92,7 @@
       <Table.TableBody>
         {#each filteredPatientNotes as note}
           <Table.TableRow>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.patient}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.patient.id.String}</Table.TableCell>
             <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.symptoms}</Table.TableCell>
             <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.diagnosis}</Table.TableCell>
             <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.treatment}</Table.TableCell>

@@ -8,6 +8,7 @@
   import { invoke } from "@tauri-apps/api/core";
   import PatientCombobox from "./patient-combobox.svelte";
   import DoctorCombobox from "../../patients/components/doctor-combobox.svelte";
+  import { goto } from "$app/navigation";
 
   import ErrorMsg from "../../components/ui/errormodal.svelte";
 
@@ -17,11 +18,7 @@
     getLocalTimeZone,
   } from "@internationalized/date";
 
-  import CalendarIcon from "lucide-svelte/icons/calendar";
-  import { cn } from "$lib/utils.js";
-  import { Calendar } from "$lib/components/ui/calendar/index.js";
-  import * as Popover from "$lib/components/ui/popover/index.js";
-  import { goto } from "$app/navigation";
+  
     
   export let create: boolean;
   export let selectedNote: any;
@@ -35,8 +32,7 @@
   let errorTitle: string | null | never = "";
   let errorDescription: string | null | never = "";
 
-  let patientName: string = selectedNote ? selectedNote.patientName : "";
-  let patientId: string = selectedNote ? selectedNote.patientId : "";
+  let patient: string = selectedNote ? selectedNote.patient : "";
   let symptoms: string = selectedNote ? selectedNote.symptoms : "";
   let diagnosis: string = selectedNote ? selectedNote.diagnosis : "";
   let treatment: string = selectedNote ? selectedNote.treatment : "";
@@ -49,7 +45,7 @@
 
   async function handleSubmit() {
     const formData = {
-      patient_id: patientId,
+      patient,
       symptoms,
       diagnosis,
       treatment,
@@ -149,32 +145,6 @@
         />
       </div>
 
-      <!-- TO BE DISCUSSED -->
-      <!-- <div>
-      <Label for="followupDate" class="block text-sm font-medium text-gray-700"
-        >Follow Up Date</Label
-      >
-      <Popover.Root openFocus>
-        <Popover.Trigger asChild let:builder>
-          <Button
-            variant="outline"
-            class={cn(
-              "w-[280px] justify-start text-left font-normal",
-              !value && "text-muted-foreground",
-            )}
-            builders={[builder]}
-          >
-            <CalendarIcon class="mr-2 h-4 w-4" />
-            {value
-              ? df.format(value.toDate(getLocalTimeZone()))
-              : "Select a date"}
-          </Button>
-        </Popover.Trigger>
-        <Popover.Content class="w-auto p-0">
-          <Calendar bind:value initialFocus />
-        </Popover.Content>
-      </Popover.Root>
-    </div> -->
 
       <div class="mb-4">
         <label for="severity" class="block text-sm font-medium text-gray-700"
