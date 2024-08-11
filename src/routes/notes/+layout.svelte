@@ -1,23 +1,15 @@
 <script lang="ts">
-    import type { LayoutData } from '../menu/$types';
-    import Navigation from '../components/ui/navigation.svelte'
+    import type { LayoutData } from "../menu/$types";
+    import Navigation from "../components/ui/navigation.svelte";
 
-    import { page } from '$app/stores';  
+    import { page } from "$app/stores";
 
-    let url:string = $page.url.pathname
+    let url: string = $page.url.pathname;
 
-    $: url
-
-
-
+    $: url;
 </script>
 
-
-
-
 <div class="container mx-auto py-3">
-<Navigation/>
-<slot>
-
-</slot>
+    <Navigation />
+    <slot></slot>
 </div>
