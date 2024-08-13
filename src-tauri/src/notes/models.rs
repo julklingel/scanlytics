@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Datetime, Thing};
 
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteRequest {
     pub patient_id: String,
     pub symptoms: String,
@@ -16,7 +16,7 @@ pub struct PatientNoteRequest {
    
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteRecord {
     pub patient: Thing,
     pub symptoms: String,
@@ -46,24 +46,6 @@ pub struct PatientNoteResponse {
 
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserResponse {
-    pub id: Thing,
-    pub name: String,
-    pub email: String,
-    pub password: String,
-    pub role: String,
-    pub organization: Thing,
-    pub patients: Option<Vec<surrealdb::sql::Thing>>,
-    pub patient_notes: Option<Vec<surrealdb::sql::Thing>>,
-    pub statements: Option<Vec<surrealdb::sql::Thing>>,
-    pub images: Option<Vec<surrealdb::sql::Thing>>,
-    pub reports: Option<Vec<surrealdb::sql::Thing>>,
-    pub created_at: Datetime,
-    pub updated_at: Datetime,
-}
-
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientResponse {
     pub id: Thing,
     pub name: String,
@@ -76,4 +58,30 @@ pub struct PatientResponse {
     pub images: Option<Vec<surrealdb::sql::Thing>>,
     pub created_at: Datetime,
     pub updated_at: Datetime,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PatientNoteWithPatientResponse {
+    pub id: String,
+    pub symptoms: String,
+    pub diagnosis: String,
+    pub treatment: String,
+    pub severity: String,
+    pub is_urgent: bool,
+    pub patient: PatientInfo,
+    pub user_owner: UserInfo,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PatientInfo {
+    pub id: String,
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserInfo {
+    pub id: String,
+    pub name: String,
 }

@@ -1,8 +1,9 @@
 
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::Client;
-use super::models::{ PatientNoteRecord, PatientNoteRequest, PatientNoteResponse}; 
+use super::models::{ PatientNoteRecord, PatientNoteRequest, PatientNoteResponse, PatientNoteWithPatientResponse}; 
 use surrealdb::sql::Thing;
+
 
 pub async fn create_patient_note_service(
     db: &Surreal<Client>,
@@ -39,22 +40,36 @@ pub async fn create_patient_note_service(
 
 pub async fn get_patient_notes_service(
     db: &Surreal<Client>
-) -> Result<Vec<PatientNoteResponse>, String> {
-  
-    let patient_notes: Vec<PatientNoteResponse> = db
-        .select("PatientNote")
+) -> Result<Vec<PatientNoteWithPatientResponse>, String> {
+    println!("Watson we arrived in the notes service function");
+    let query = "
+        SELECT
+        id,
+        symptoms,
+        diagnosis,
+        treatment,
+        severity,
+        is_urgent,
+        patient.name,
+        user_owner.name,
+        patient.id,
+        user_owner.id,
+        created_at,
+        updated_at
+        FROM PatientNote FETCH patient, user_owner;
+    ";
+   
+    let result: Vec<PatientNoteWithPatientResponse> = db
+        .query(query)
         .await
-        .map_err(|e| format!("Failed to fetch patient notes: {}", e))?;
+        .map_err(|e| e.to_string())?
+        .take(0) // Take the first (and only) result set
+        .map_err(|e| e.to_string())?;
 
-    let mut sorted_notes = patient_notes;
-    sorted_notes.sort_by(|a, b| b.created_at.cmp(&a.created_at));
-
-    Ok(sorted_notes)
+    println!("Result from the fabulous service function: {:?}", result);
+   
+    Ok(result)
 }
-
-
-
-
 
 
 pub async fn update_patient_note_service(

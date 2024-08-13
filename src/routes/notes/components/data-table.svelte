@@ -10,9 +10,6 @@
   import InfoMsg from "../../components/ui/infomodal.svelte";
   import { PatientNotesStore } from "../../../stores/PatientNote";
   import { getPatientNotes } from "../api/patients-note-data";
-  import { page } from "$app/stores";
-
-  console.log(page);
 
 
   let filteredPatientNotes: any;
@@ -33,13 +30,13 @@
     }
   });
 
-  $: filteredPatientNotes = $filterValue
-    ? $PatientNotesStore.filter((note) =>
-        note.patient.toLowerCase().includes($filterValue.toLowerCase()) ||
-        note.symptoms.toLowerCase().includes($filterValue.toLowerCase()) ||
-        note.diagnosis.toLowerCase().includes($filterValue.toLowerCase())
-      )
-    : $PatientNotesStore;
+  // $: filteredPatientNotes = $filterValue
+  //   ? $PatientNotesStore.filter((note) =>
+  //       note.patient.toLowerCase().includes($filterValue.toLowerCase()) ||
+  //       note.symptoms.toLowerCase().includes($filterValue.toLowerCase()) ||
+  //       note.diagnosis.toLowerCase().includes($filterValue.toLowerCase())
+  //     )
+  //   : $PatientNotesStore;
 
   function handleCreateNewPatientNote() {
     goto("/notes/new");
@@ -54,7 +51,9 @@
   }
 </script>
 
-{#if !dataAvailable}
+
+
+<!-- {#if !dataAvailable}
   <div class="flex flex-col gap-4">
     <InfoMsg {infoTitle} {infoDescription} />
     <Button on:click={handleCreateNewPatientNote}>
@@ -107,4 +106,4 @@
       </Table.TableBody>
     </Table.Table>
   </div>
-{/if}
+{/if} -->

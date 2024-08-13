@@ -1,18 +1,22 @@
-
 import { writable } from "svelte/store";
 
 type PatientNoteStore = {
-  id: string;
-  patient: string;
+  id: { String: string };
+  patient: {
+    id: { String: string };
+    name: string;
+  };
   symptoms: string;
   diagnosis: string;
   treatment: string;
   createdAt: string;
   updatedAt: string;
-  severity: "Low" | "Medium" | "High";
+  severity: "low" | "medium" | "high";
   isUrgent: boolean;
-  department: string;
-  userOwner: string;
+  userOwner: {
+    id: { String: string };
+    name: string;
+  };
 };
 
 export const PatientNotesStore = writable<PatientNoteStore[]>([]);

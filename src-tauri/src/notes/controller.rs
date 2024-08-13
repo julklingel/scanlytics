@@ -41,23 +41,31 @@ pub async fn create_patient_note(
 #[tauri::command]
 pub async fn get_patient_notes(
     db: State<'_, RwLock<Surreal<Client>>>,
-) -> Result<Vec<models::PatientNoteResponse>, String> {
+) -> Result<Vec<models::PatientNoteWithPatientResponse>, String> {
+    println!("Watson we arrived in the notes controller");
     let db = db.write().await;
-    let response: Vec<models::PatientNoteResponse> = services::get_patient_notes_service(&db).await?
+    let response:Vec<models::PatientNoteWithPatientResponse> = services::get_patient_notes_service(&db).await?
         .into_iter()
-        .map(|record| models::PatientNoteResponse {
+        .map(|record| models::PatientNoteWithPatientResponse {
             id: record.id,
-            patient: record.patient,
-            symptoms: record.symptoms,
-            diagnosis: record.diagnosis,
-            treatment: record.treatment,
-            is_urgent: record.is_urgent,
-            severity: record.severity,
-            user_owner: record.user_owner,
             created_at: record.created_at,
+            diagnosis: record.diagnosis,
+            is_urgent: record.is_urgent,
+            patient: models::PatientInfo {
+                id: record.patient.id,
+                name: record.patient.name,
+            },
+            severity: record.severity,
+            symptoms: record.symptoms,
+            treatment: record.treatment,
             updated_at: record.updated_at,
+            user_owner: models::UserInfo {
+                id: record.user_owner.id,
+                name: record.user_owner.name,
+            },
         })
         .collect();
+    println!("Response: {:?}", response);
     Ok(response)
 }
 

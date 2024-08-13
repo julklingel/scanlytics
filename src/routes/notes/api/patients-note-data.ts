@@ -1,26 +1,36 @@
 import { PatientNotesStore } from "../../../stores/PatientNote";
 import { invoke } from "@tauri-apps/api/core";
 
-type PatientNote = {
-  id: string;
-  patient: string;
-  symptoms: string;
-  diagnosis: string;
-  treatment: string;
+type PatientNoteResponse = {
+  id: { String: string };
   created_at: string;
-  updated_at: string;
-  severity: "Low" | "Medium" | "High";
+  diagnosis: string;
   is_urgent: boolean;
-  department: string;
-  user_owner: string;
+  patient: {
+    id: { String: string };
+    name: string;
+  };
+  severity: "low" | "medium" | "high";
+  symptoms: string;
+  treatment: string;
+  updated_at: string;
+  user_owner: {
+    id: { String: string };
+    name: string;
+  };
 };
 
 export async function getPatientNotes() {
   try {
-    const data = await invoke<PatientNote[]>("get_patient_notes");
+    const data = await invoke<PatientNoteResponse[]>("get_patient_notes");
+    console.log("Patient notes data:", data);
+
     const patientNotes = data.map((note) => ({
       id: note.id,
-      patient: note.patient,
+      patient: {
+        id: note.patient.id,
+        name: note.patient.name
+      },
       symptoms: note.symptoms,
       diagnosis: note.diagnosis,
       treatment: note.treatment,
@@ -28,10 +38,12 @@ export async function getPatientNotes() {
       updatedAt: note.updated_at,
       severity: note.severity,
       isUrgent: note.is_urgent,
-      department: note.department,
-      userOwner: note.user_owner
+      userOwner: {
+        id: note.user_owner.id,
+        name: note.user_owner.name
+      }
     }));
-    
+   
     patientNotes.sort((a, b) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
