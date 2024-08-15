@@ -47,13 +47,15 @@
       )
     : $PatientNotesStore;
 
-  function handleCreateNewPatientNote() {
-    goto("/notes/new");
-  }
-
+  
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString();
   }
+
+  function handleCreateNewPatientNote() {
+    goto("notes/new");
+  }
+
 
   function handleNoteView(id: string) {
     goto(`/notes/${id}`);
