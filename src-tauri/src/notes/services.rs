@@ -3,6 +3,7 @@ use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::Client;
 use super::models::{ PatientNoteRecord, PatientNoteRequest, PatientNoteResponse, PatientNoteWithPatientResponse}; 
 use surrealdb::sql::Thing;
+use surrealdb::Error as SurrealError;
 
 
 pub async fn create_patient_note_service(
@@ -38,39 +39,30 @@ pub async fn create_patient_note_service(
 }
 
 
+
 pub async fn get_patient_notes_service(
     db: &Surreal<Client>
-) -> Result<Vec<PatientNoteWithPatientResponse>, String> {
-    println!("Watson we arrived in the notes service function");
+) -> Result<Vec<PatientNoteWithPatientResponse>, SurrealError> {
     let query = "
         SELECT
-        id,
-        symptoms,
-        diagnosis,
-        treatment,
-        severity,
-        is_urgent,
-        patient.name,
-        user_owner.name,
-        patient.id,
-        user_owner.id,
-        created_at,
-        updated_at
-        FROM PatientNote FETCH patient, user_owner;
+            id,
+            symptoms,
+            diagnosis,
+            treatment,
+            severity,
+            is_urgent,
+            { id: patient.id, name: patient.name } as patient,
+            { id: user_owner.id, name: user_owner.name } as user_owner,
+            created_at,
+            updated_at
+        FROM PatientNote
+        FETCH patient, user_owner;
     ";
-   
-    let result: Vec<PatientNoteWithPatientResponse> = db
-        .query(query)
-        .await
-        .map_err(|e| e.to_string())?
-        .take(0) // Take the first (and only) result set
-        .map_err(|e| e.to_string())?;
 
-    println!("Result from the fabulous service function: {:?}", result);
-   
+    let result: Vec<PatientNoteWithPatientResponse> = db.query(query).await?.take(0)?;
+    
     Ok(result)
 }
-
 
 pub async fn update_patient_note_service(
     db: &Surreal<Client>,

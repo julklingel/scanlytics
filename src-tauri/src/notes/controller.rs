@@ -4,6 +4,7 @@ use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
 use tauri::State;
 use tokio::sync::RwLock;
+use surrealdb::Error as SurrealError;
 
 #[tauri::command]
 pub async fn create_patient_note(
@@ -42,32 +43,14 @@ pub async fn create_patient_note(
 pub async fn get_patient_notes(
     db: State<'_, RwLock<Surreal<Client>>>,
 ) -> Result<Vec<models::PatientNoteWithPatientResponse>, String> {
-    println!("Watson we arrived in the notes controller");
-    let db = db.write().await;
-    let response:Vec<models::PatientNoteWithPatientResponse> = services::get_patient_notes_service(&db).await?
-        .into_iter()
-        .map(|record| models::PatientNoteWithPatientResponse {
-            id: record.id,
-            created_at: record.created_at,
-            diagnosis: record.diagnosis,
-            is_urgent: record.is_urgent,
-            patient: models::PatientInfo {
-                id: record.patient.id,
-                name: record.patient.name,
-            },
-            severity: record.severity,
-            symptoms: record.symptoms,
-            treatment: record.treatment,
-            updated_at: record.updated_at,
-            user_owner: models::UserInfo {
-                id: record.user_owner.id,
-                name: record.user_owner.name,
-            },
-        })
-        .collect();
-    println!("Response: {:?}", response);
+    let db = db.read().await;
+    let response = services::get_patient_notes_service(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+    
     Ok(response)
 }
+
 
 
 #[tauri::command]

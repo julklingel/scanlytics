@@ -62,7 +62,7 @@ pub struct PatientResponse {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteWithPatientResponse {
-    pub id: String,
+    pub id: Thing,
     pub symptoms: String,
     pub diagnosis: String,
     pub treatment: String,
@@ -70,18 +70,18 @@ pub struct PatientNoteWithPatientResponse {
     pub is_urgent: bool,
     pub patient: PatientInfo,
     pub user_owner: UserInfo,
-    pub created_at: String,
-    pub updated_at: String,
+    pub created_at: Datetime,
+    pub updated_at: Datetime,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientInfo {
-    pub id: String,
+    pub id: Thing,
     pub name: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserInfo {
-    pub id: String,
+    pub id: Thing,
     pub name: String,
 }
