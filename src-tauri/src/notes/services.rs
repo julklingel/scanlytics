@@ -58,9 +58,7 @@ pub async fn get_patient_notes_service(
         FROM PatientNote
         FETCH patient, user_owner;
     ";
-
     let result: Vec<PatientNoteWithPatientResponse> = db.query(query).await?.take(0)?;
-    
     Ok(result)
 }
 

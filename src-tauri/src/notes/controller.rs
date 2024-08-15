@@ -4,7 +4,7 @@ use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
 use tauri::State;
 use tokio::sync::RwLock;
-use surrealdb::Error as SurrealError;
+
 
 #[tauri::command]
 pub async fn create_patient_note(

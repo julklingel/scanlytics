@@ -11,7 +11,6 @@
   import { PatientNotesStore } from "../../../stores/PatientNote";
   import { getPatientNotes } from "../api/patients-note-data";
 
-
   let filteredPatientNotes: any;
   const infoTitle: string | null | never = "No patient notes found";
   const infoDescription: string | null | never =
@@ -19,7 +18,10 @@
   let dataAvailable: boolean = false;
   const filterValue = writable("");
 
-  const isPatientNotesStoreEmpty = derived(PatientNotesStore, $PatientNotesStore => $PatientNotesStore.length === 0);
+  const isPatientNotesStoreEmpty = derived(
+    PatientNotesStore,
+    ($PatientNotesStore) => $PatientNotesStore.length === 0,
+  );
   $: dataAvailable = !$isPatientNotesStoreEmpty;
 
   onMount(async () => {
@@ -30,13 +32,20 @@
     }
   });
 
-  // $: filteredPatientNotes = $filterValue
-  //   ? $PatientNotesStore.filter((note) =>
-  //       note.patient.toLowerCase().includes($filterValue.toLowerCase()) ||
-  //       note.symptoms.toLowerCase().includes($filterValue.toLowerCase()) ||
-  //       note.diagnosis.toLowerCase().includes($filterValue.toLowerCase())
-  //     )
-  //   : $PatientNotesStore;
+  $: filteredPatientNotes = $filterValue
+    ? $PatientNotesStore.filter(
+        (note) =>
+          (note.patient?.name || "")
+            .toLowerCase()
+            .includes($filterValue.toLowerCase()) ||
+          (note.symptoms || "")
+            .toLowerCase()
+            .includes($filterValue.toLowerCase()) ||
+          (note.diagnosis || "")
+            .toLowerCase()
+            .includes($filterValue.toLowerCase()),
+      )
+    : $PatientNotesStore;
 
   function handleCreateNewPatientNote() {
     goto("/notes/new");
@@ -51,9 +60,7 @@
   }
 </script>
 
-
-
-<!-- {#if !dataAvailable}
+{#if !dataAvailable}
   <div class="flex flex-col gap-4">
     <InfoMsg {infoTitle} {infoDescription} />
     <Button on:click={handleCreateNewPatientNote}>
@@ -79,10 +86,8 @@
       <Table.TableHeader>
         <Table.TableRow>
           <Table.TableHead>Patient</Table.TableHead>
-          <Table.TableHead>Symptoms</Table.TableHead>
+          <Table.TableHead>Doctor</Table.TableHead>
           <Table.TableHead>Diagnosis</Table.TableHead>
-          <Table.TableHead>Treatment</Table.TableHead>
-          <Table.TableHead>Severity</Table.TableHead>
           <Table.TableHead>Urgent</Table.TableHead>
           <Table.TableHead>Created At</Table.TableHead>
           <Table.TableHead>Actions</Table.TableHead>
@@ -91,19 +96,26 @@
       <Table.TableBody>
         {#each filteredPatientNotes as note}
           <Table.TableRow>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.patient.id.String}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.symptoms}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.diagnosis}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.treatment}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.severity}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{note.is_urgent ? 'Yes' : 'No'}</Table.TableCell>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}>{formatDate(note.created_at)}</Table.TableCell>
+            <Table.TableCell on:click={() => handleNoteView(note.id)}
+              >{note.patient?.name || "N/A"}</Table.TableCell
+            >
+            <Table.TableCell on:click={() => handleNoteView(note.id)}
+              >{note.userOwner?.name || "N/A"}</Table.TableCell
+            >
+            <Table.TableCell on:click={() => handleNoteView(note.id)}
+              >{note.diagnosis || "N/A"}</Table.TableCell
+            ><Table.TableCell on:click={() => handleNoteView(note.id)}
+              >{note.is_urgent ? "Yes" : "No"}</Table.TableCell
+            >
+            <Table.TableCell on:click={() => handleNoteView(note.id)}
+              >{formatDate(note.createdAt)}</Table.TableCell
+            >
             <Table.TableCell>
-              <DataTableActions id={note.id} patientId={note.id} />
+              <DataTableActions id={note.id} patientId={note.patient?.id} />
             </Table.TableCell>
           </Table.TableRow>
         {/each}
       </Table.TableBody>
     </Table.Table>
   </div>
-{/if} -->
+{/if}
