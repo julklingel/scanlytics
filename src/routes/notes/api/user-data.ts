@@ -47,7 +47,6 @@ export async function getUsers() {
     processedUsers.sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-    console.log(processedUsers);
     UserStore.set(processedUsers);
   } catch (error) {
     console.error("Failed to load users:", error);

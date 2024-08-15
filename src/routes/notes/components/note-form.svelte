@@ -41,8 +41,8 @@
   let treatment: string = selectedNote ? selectedNote.treatment : "";
   let isUrgent: boolean = selectedNote ? selectedNote.isUrgent : false;
   let department: string = selectedNote ? selectedNote.department : "";
-  let attendingDoctor: string = selectedNote
-    ? selectedNote.attendingDoctor
+  let userOwner: string = selectedNote
+    ? selectedNote.userOwner
     : "";
   let severity: string = selectedNote ? selectedNote.severity : "";
 
@@ -63,17 +63,16 @@
       symptoms,
       diagnosis,
       treatment,
-      follow_up_date: value
-        ? df.format(value.toDate(getLocalTimeZone()))
-        : null,
       severity,
       is_urgent: isUrgent,
       department,
-      attending_doctor: attendingDoctor,
+      user_owner: userOwner.String,
     };
 
     if (create) {
       try {
+        console.log("formData", formData);
+
         const response = await invoke("create_patient_note", {
           patientNoteRequest: JSON.stringify(formData),
           success: true,
@@ -206,7 +205,7 @@
           class="block text-sm font-medium text-gray-700"
           >Attending Doctor</Label
         >
-        <DoctorCombobox bind:selectedDoctorId={attendingDoctor} />
+        <DoctorCombobox bind:selectedDoctorId={userOwner} />
         
       </div>
     </div>

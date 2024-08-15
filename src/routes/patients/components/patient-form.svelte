@@ -66,7 +66,6 @@
 
     if (create) {
       try {
-        console.log("formData", formData);
         const response = await invoke("create_patient", {
           patientRequest: JSON.stringify(formData),
         });

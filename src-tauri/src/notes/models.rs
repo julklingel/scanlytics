@@ -12,9 +12,35 @@ pub struct PatientNoteRequest {
     pub treatment: String,
     pub severity: String,
     pub is_urgent: bool,
-    pub user_owner: Thing,
-   
+    pub user_owner: String,
 }
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PatientResponse {
+    pub id: Thing,
+    pub name: String,
+    pub date_of_birth: Datetime,
+    pub gender: String,
+    pub contact_number: String,
+    pub address: String,
+    pub notes: Option<Vec<Thing>>,
+    pub reports: Option<Vec<Thing>>,
+    pub images: Option<Vec<Thing>>,
+    pub created_at: Datetime,
+    pub updated_at: Datetime,
+}
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserInfo {
+    pub id: Thing,
+    pub name: String,
+
+}
+
+
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteRecord {
@@ -44,22 +70,6 @@ pub struct PatientNoteResponse {
 }
 
 
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct PatientResponse {
-    pub id: Thing,
-    pub name: String,
-    pub date_of_birth: Datetime,
-    pub gender: String,
-    pub contact_number: String,
-    pub address: String,
-    pub notes:Option<Vec<surrealdb::sql::Thing>>, 
-    pub reports: Option<Vec<surrealdb::sql::Thing>>, 
-    pub images: Option<Vec<surrealdb::sql::Thing>>,
-    pub created_at: Datetime,
-    pub updated_at: Datetime,
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteWithPatientResponse {
     pub id: Thing,
@@ -80,8 +90,3 @@ pub struct PatientInfo {
     pub name: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserInfo {
-    pub id: Thing,
-    pub name: String,
-}

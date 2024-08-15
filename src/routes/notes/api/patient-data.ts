@@ -34,7 +34,6 @@ export async function getPatients() {
     processedPatients.sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-    console.log(processedPatients);
     PatientStore.set(processedPatients);
   } catch (error) {
     console.error("Failed to load patients:", error);
