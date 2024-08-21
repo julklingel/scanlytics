@@ -40,8 +40,6 @@ pub struct UserInfo {
 }
 
 
-
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteRecord {
     pub patient: Thing,
@@ -90,3 +88,20 @@ pub struct PatientInfo {
     pub name: String,
 }
 
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserResponse {
+    pub id: Thing,
+    pub name: String,
+    pub email: String,
+    pub password: String,
+    pub role: String,
+    pub organization: Thing,
+    pub patients: Option<Vec<surrealdb::sql::Thing>>,
+    pub patient_notes: Option<Vec<surrealdb::sql::Thing>>,
+    pub statements: Option<Vec<surrealdb::sql::Thing>>,
+    pub images: Option<Vec<surrealdb::sql::Thing>>,
+    pub reports: Option<Vec<surrealdb::sql::Thing>>,
+    pub created_at: Datetime,
+    pub updated_at: Datetime,
+}

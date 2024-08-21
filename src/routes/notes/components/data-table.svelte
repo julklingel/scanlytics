@@ -53,7 +53,7 @@
   }
 
   function handleCreateNewPatientNote() {
-    goto("notes/new");
+    goto("/notes/new");
   }
 
 

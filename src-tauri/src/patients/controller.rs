@@ -40,7 +40,7 @@ pub async fn create_patient(
 pub async fn get_patients(
     db: State<'_, RwLock<Surreal<Client>>>,
 ) -> Result<Vec<models::PatientResponse>, String> {
-    println!("Watson we arrived in the patient controller");
+
     let db = db.write().await;
     let response:Vec<models::PatientResponse> = services::get_patient_service(&db).await?
         .into_iter()
