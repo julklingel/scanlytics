@@ -11,15 +11,20 @@ use surrealdb::sql::Thing;
 
 
 
+
 pub async fn create_patient_note_service(
     db: &Surreal<Client>,
     data: PatientNoteRequest,
 ) -> Result<Vec<PatientNoteResponse>, String> {
+    db.query("BEGIN TRANSACTION").await.map_err(|e| e.to_string())?;
+
     let patient: Option<PatientResponse> = db
         .select(("Patient", &data.patient_id))
         .await
         .map_err(|e| e.to_string())?;
     let patient = patient.ok_or_else(|| "Patient not found".to_string())?;
+
+
     let user_owner: Option<UserInfo> = db
         .select(("User", &data.user_owner))
         .await
@@ -52,6 +57,9 @@ pub async fn create_patient_note_service(
         .merge(updated_patient)
         .await
         .map_err(|e| e.to_string())?;
+
+    db.query("COMMIT TRANSACTION").await.map_err(|e| e.to_string())?;
+
 
     Ok(created)
 }
