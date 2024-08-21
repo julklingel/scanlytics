@@ -1,3 +1,5 @@
+
+
 <script lang="ts">
     import NoteForm from "../components/note-form.svelte";
     let create = true;
