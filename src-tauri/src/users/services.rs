@@ -1,4 +1,4 @@
-use super::models::{UserRecord, UserRequest, UserResponse};
+use super::models::{UserResponse};
 use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
 

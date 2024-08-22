@@ -1,79 +1,64 @@
 <script lang="ts">
-  import Check from "lucide-svelte/icons/check";
-  import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
-  import { tick } from "svelte";
-  import * as Command from "$lib/components/ui/command/index.js";
-  import * as Popover from "$lib/components/ui/popover/index.js";
+  import { PatientStore } from "../../../stores/Patient";
+  import { createEventDispatcher } from "svelte";
+  import { Input } from "$lib/components/ui/input/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
 
-  import { cn } from "$lib/utils.js";
-  import Label from "$lib/components/ui/label/label.svelte";
+  export let patient_id = "";
+  const dispatch = createEventDispatcher();
 
-  import { PatientStore } from "../../../stores/Patient";
+  $: patients = $PatientStore.map((p) => ({
+    label: p.name,
+    value: p.id,
+  }));
 
-  export let selectedpatientId = "";
-  export let selectedpatientName = "";
+  let searchTerm = "";
+  let filteredPatients = patients;
+  let isInputFocused = false;
 
-  $: patients = $PatientStore
-    .map((d) => ({
-      label: d.name,
-      value: d.id,
-    }));
+  $: {
+    filteredPatients = patients.filter((patient) =>
+      patient.label.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }
 
-  let open = false;
+  function handleSelect(patient: any) {
+    patient_id = patient.value.String;
+    dispatch("select", { id: patient.value });
+    isInputFocused = false;
+    searchTerm = patient.label;
+  }
 
-  $: selectedValue = patients.find((f) => f.value === selectedpatientId)?.label ?? "Select a patient...";
-  $: selectedpatientName = patients.find((f) => f.value === selectedpatientId)?.label ?? "";
-  
-  function closeAndFocusTrigger(triggerId: string) {
-    open = false;
-    tick().then(() => {
-      document.getElementById(triggerId)?.focus();
-    });
+  function handleInputFocus() {
+    isInputFocused = true;
+  }
+
+  function handleInputBlur() {
+    setTimeout(() => {
+      isInputFocused = false;
+    }, 200);
   }
 </script>
 
-
-
-<div class="flex flex-col gap-2 ">
-
-  <Popover.Root bind:open let:ids>
-    <Popover.Trigger asChild let:builder>
-      <Button
-        builders={[builder]}
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        class=" justify-between"
-      >
-        {selectedValue}
-        <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-      </Button>
-    </Popover.Trigger>
-    <Popover.Content class=" p-0">
-      <Command.Root>
-        <Command.Input placeholder="Search patients..." />
-        <Command.Empty>No patients found.</Command.Empty>
-        <Command.Group>
-          {#each patients as patient}
-            <Command.Item
-              value={patient.value}
-              onSelect={function (currentValue) {
-                selectedpatientId = currentValue;
-                closeAndFocusTrigger(ids.trigger);
-              }}
-            >
-              <Check
-              class={cn(
-                "mr-2 h-4 w-4",
-                selectedpatientId !== patient.value && "text-transparent"
-              )}
-              />
-              {patient.label}
-            </Command.Item>
-          {/each}
-        </Command.Group>
-      </Command.Root>
-    </Popover.Content>
-  </Popover.Root>
+<div class="relative">
+  <Input
+    type="text"
+    placeholder="Search for a patient"
+    bind:value={searchTerm}
+    on:focus={handleInputFocus}
+    on:blur={handleInputBlur}
+  />
+  {#if isInputFocused}
+    {#if filteredPatients.length > 0}
+      <ul class="flex flex-col absolute w-full bg-white border border-gray-300 mt-1 max-h-60 overflow-y-auto z-10">
+        {#each filteredPatients as patient}
+          <Button variant="ghost" on:click={() => handleSelect(patient)} class="text-left p-2 hover:bg-gray-100">
+            {patient.label}
+          </Button>
+        {/each}
+      </ul>
+    {:else}
+      <p class="text-gray-500 mt-2 absolute w-full bg-white border border-gray-300 p-2 z-10">No patients found</p>
+    {/if}
+  {/if}
 </div>

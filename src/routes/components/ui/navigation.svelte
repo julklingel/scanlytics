@@ -3,7 +3,7 @@
     import { page } from "$app/stores";
     import { PatientStore } from "../../../stores/Patient";
     import { UserStore } from "../../../stores/User";
-    import { patientNotes } from "../../../stores/PatientNote";
+    import { PatientNotesStore } from "../../../stores/PatientNote";
 
     function convertIdToName(id: string, store: any) {
         const item = store.find((item: any) => item.id === id);
@@ -32,16 +32,22 @@
         if (parts.length > 1) {
             switch (breadcrumb[0].name) {
                 case "Patients":
-                    breadcrumb[1].name = convertIdToName(
-                        parts[1],
-                        $PatientStore,
-                    );
+                    if (parts[1] === "new") {
+                        breadcrumb[1].name = "Create";
+                    } else {
+                        breadcrumb[1].name = convertIdToName(
+                            parts[1],
+                            $PatientStore,
+                        );
+                    }
+                  
+                    
                     break;
                 case "Notes":
-                    breadcrumb[1].name = convertIdtoPateintName(
-                        parts[1],
-                        $patientNotes,
-                    );
+                    // breadcrumb[1].name = convertIdtoPateintName(
+                    //     parts[1],
+                    //     $PatientNotesStore,
+                    // );
                     break;
                 case "Users":
                     breadcrumb[1].name = convertIdToName(parts[1], $UserStore);

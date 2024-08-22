@@ -18,7 +18,8 @@
   import { cn } from "$lib/utils.js";
   import { Calendar } from "$lib/components/ui/calendar/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
-  import { UserStore } from "../../../stores/User";
+  import { getUsers } from "../api/user-data";
+  import { onMount } from "svelte";
 
   const df = new DateFormatter("en-US", {
     dateStyle: "long",
@@ -32,12 +33,24 @@
   let errorDescription: string | null | never = "";
 
   let name: string = selectedPatient ? selectedPatient.name : "";
-  let gender: string = selectedPatient ? selectedPatient.gender : "";;
-  let contactNumber: string = selectedPatient ? selectedPatient.contact_number : "";
+  let gender: string = selectedPatient ? selectedPatient.gender : "";
+  let contactNumber: string = selectedPatient
+    ? selectedPatient.contact_number
+    : "";
   let address: string = selectedPatient ? selectedPatient.address : "";
-  let primaryDoctorId: string = selectedPatient ? selectedPatient?.primary_doctor.id.String : "";
-  
+  let primaryDoctorId: string = selectedPatient
+    ? selectedPatient?.primary_doctor.id.String
+    : "";
+
   let value: DateValue | undefined = undefined;
+
+  onMount(async () => {
+    try {
+      await getUsers();
+    } catch (error) {
+      console.error(error);
+    }
+  });
 
   async function handleSubmit() {
     const formData = {
@@ -48,13 +61,11 @@
       gender,
       contact_number: contactNumber,
       address,
-      primary_doctor_id: primaryDoctorId,
+      primary_doctor: primaryDoctorId.String,
     };
 
-   
     if (create) {
       try {
-       
         const response = await invoke("create_patient", {
           patientRequest: JSON.stringify(formData),
         });
@@ -69,7 +80,6 @@
       }
     } else {
       try {
-        
         const response = await invoke("update_patient", {
           patientRequest: JSON.stringify(formData),
           id: selectedPatient.id,
@@ -173,10 +183,9 @@
         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
       />
     </div>
-    
+
     <Label>Attending Doctor</Label>
     <DoctorCombobox bind:selectedDoctorId={primaryDoctorId} />
- 
   </div>
 
   {#if errorDescription}

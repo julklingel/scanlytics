@@ -5,13 +5,15 @@ mod testapi;
 mod notes;
 mod patients;
 mod users;
+mod organizations;
 
 use tauri::Manager;
-use db::init::init_db;
+use db::init::{init_db, define_db_on_startup};
 use testapi::controller::{test_db_write, test_db_read, test_db_delete};
-use notes::controller::{create_patient_note, get_patient_notes, update_patient_note, delete_patient_note};	
+use organizations::controller::{get_organizations};
+use users::controller::{get_users};	
 use patients::controller::{create_patient, get_patients, update_patient, delete_patient};	
-use users::controller::{get_users};
+use notes::controller::{create_patient_note, get_patient_notes, update_patient_note, delete_patient_note};
 
 
 
@@ -22,35 +24,37 @@ fn main() {
         .setup(|app| {
             tauri::async_runtime::block_on(async {
                 let db = init_db().await.expect("Failed to initialize database");
+               
+               
+                {
+                    let db_guard = db.read().await;
+                    define_db_on_startup(&*db_guard).await.expect("Failed to define database structure");
+                }
+                
                 app.manage(db);
             });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-
+            // Organizations APIs
+            get_organizations,
             // Test APIs
             test_db_read,
             test_db_delete,
             test_db_write,
-
             //Notes APIs
             create_patient_note,
             get_patient_notes,
             update_patient_note,
             delete_patient_note,
-
             //Patients APIs
             create_patient,
             get_patients,
             update_patient,
             delete_patient,
-
             // User APIs
             get_users
-
-            
-            
-            ])
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

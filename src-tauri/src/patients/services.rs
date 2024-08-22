@@ -1,14 +1,16 @@
-use super::models::{DoctorRecord, PatientRecord, PatientRequest, PatientResponse};
+use super::models::{PatientRecord, PatientRequest, PatientResponse, UserResponse};
+
 use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
+
 
 
 pub async fn create_patient_service(
     db: &Surreal<Client>,
     data: PatientRequest,
 ) -> Result<Vec<PatientResponse>, String> {
-    let doctor: Option<DoctorRecord> = db
-        .select(("User", &data.primary_doctor_id))
+    let doctor: Option<UserResponse> = db
+        .select(("User", &data.primary_doctor))
         .await
         .map_err(|e| e.to_string())?;
     let doctor = doctor.ok_or_else(|| "Doctor not found".to_string())?;
@@ -19,17 +21,27 @@ pub async fn create_patient_service(
         gender: data.gender,
         contact_number: data.contact_number,
         address: data.address,
-        primary_doctor: doctor.id,  
         notes: data.notes,
+        reports: data.reports,
+        images: data.images,
     };
 
-    let response: Vec<PatientResponse> = db
+    let created: Vec<PatientResponse> = db
         .create("Patient")
         .content(patient_record)
         .await
         .map_err(|e| e.to_string())?;
 
-    Ok(response)
+    if let Some(patient) = created.first() {
+        db.query("RELATE $patient -> Treated_By -> $doctor")
+            .bind(("patient", &patient.id))
+            .bind(("doctor", &doctor.id))
+            .await
+            .map_err(|e| e.to_string())?;
+        println!("Patient created: {:?}", patient);
+    }
+
+    Ok(created)
 }
 
 pub async fn get_patient_service(db: &Surreal<Client>) -> Result<Vec<PatientResponse>, String> {
@@ -42,11 +54,7 @@ pub async fn update_patient_service(
     id: String,
     data: PatientRequest,
 ) -> Result<Option<PatientResponse>, String> {
-    let doctor: Option<DoctorRecord> = db
-        .select(("User", &data.primary_doctor_id))
-        .await
-        .map_err(|e| e.to_string())?;
-    let doctor = doctor.ok_or_else(|| "Doctor not found".to_string())?;
+    // Get treated by data
 
     let patient_record = PatientRecord {
         name: data.name,
@@ -54,10 +62,10 @@ pub async fn update_patient_service(
         gender: data.gender,
         contact_number: data.contact_number,
         address: data.address,
-        primary_doctor: doctor.id,  
         notes: data.notes,
+        images: data.images,
+        reports: data.reports,
     };
-
 
     let updated: Option<PatientResponse> = db
         .update(("Patient", id))

@@ -8,6 +8,10 @@
   import { invoke } from "@tauri-apps/api/core";
   import PatientCombobox from "./patient-combobox.svelte";
   import DoctorCombobox from "../../patients/components/doctor-combobox.svelte";
+  import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
+  import { getPatients } from "../api/patient-data";
+  import { getUsers } from "../api/user-data";
 
   import ErrorMsg from "../../components/ui/errormodal.svelte";
 
@@ -17,11 +21,7 @@
     getLocalTimeZone,
   } from "@internationalized/date";
 
-  import CalendarIcon from "lucide-svelte/icons/calendar";
-  import { cn } from "$lib/utils.js";
-  import { Calendar } from "$lib/components/ui/calendar/index.js";
-  import * as Popover from "$lib/components/ui/popover/index.js";
-  import { goto } from "$app/navigation";
+  
     
   export let create: boolean;
   export let selectedNote: any;
@@ -35,35 +35,44 @@
   let errorTitle: string | null | never = "";
   let errorDescription: string | null | never = "";
 
-  let patientName: string = selectedNote ? selectedNote.patientName : "";
-  let patientId: string = selectedNote ? selectedNote.patientId : "";
+  let patient_id: string = selectedNote ? selectedNote.patient : "";
   let symptoms: string = selectedNote ? selectedNote.symptoms : "";
   let diagnosis: string = selectedNote ? selectedNote.diagnosis : "";
   let treatment: string = selectedNote ? selectedNote.treatment : "";
   let isUrgent: boolean = selectedNote ? selectedNote.isUrgent : false;
   let department: string = selectedNote ? selectedNote.department : "";
-  let attendingDoctor: string = selectedNote
-    ? selectedNote.attendingDoctor
+  let userOwner: string = selectedNote
+    ? selectedNote.userOwner
     : "";
   let severity: string = selectedNote ? selectedNote.severity : "";
 
+
+  onMount(async () => {
+    try {
+      await getPatients();
+      await getUsers();
+    } catch (error) {
+      console.error(error);
+    }
+
+  });
+
   async function handleSubmit() {
     const formData = {
-      patient_id: patientId,
+      patient_id,
       symptoms,
       diagnosis,
       treatment,
-      follow_up_date: value
-        ? df.format(value.toDate(getLocalTimeZone()))
-        : null,
       severity,
       is_urgent: isUrgent,
       department,
-      attending_doctor: attendingDoctor,
+      user_owner: userOwner.String,
     };
 
     if (create) {
       try {
+        console.log("formData", formData);
+
         const response = await invoke("create_patient_note", {
           patientNoteRequest: JSON.stringify(formData),
           success: true,
@@ -111,8 +120,8 @@
         >Patient
       </Label>
       <PatientCombobox
-        bind:selectedpatientId={patientId}
-        bind:selectedpatientName={patientName}
+        bind:patient_id={patient_id}
+      
       />
     </div>
 
@@ -149,32 +158,6 @@
         />
       </div>
 
-      <!-- TO BE DISCUSSED -->
-      <!-- <div>
-      <Label for="followupDate" class="block text-sm font-medium text-gray-700"
-        >Follow Up Date</Label
-      >
-      <Popover.Root openFocus>
-        <Popover.Trigger asChild let:builder>
-          <Button
-            variant="outline"
-            class={cn(
-              "w-[280px] justify-start text-left font-normal",
-              !value && "text-muted-foreground",
-            )}
-            builders={[builder]}
-          >
-            <CalendarIcon class="mr-2 h-4 w-4" />
-            {value
-              ? df.format(value.toDate(getLocalTimeZone()))
-              : "Select a date"}
-          </Button>
-        </Popover.Trigger>
-        <Popover.Content class="w-auto p-0">
-          <Calendar bind:value initialFocus />
-        </Popover.Content>
-      </Popover.Root>
-    </div> -->
 
       <div class="mb-4">
         <label for="severity" class="block text-sm font-medium text-gray-700"
@@ -222,7 +205,7 @@
           class="block text-sm font-medium text-gray-700"
           >Attending Doctor</Label
         >
-        <DoctorCombobox bind:selectedDoctorId={attendingDoctor} />
+        <DoctorCombobox bind:selectedDoctorId={userOwner} />
         
       </div>
     </div>

@@ -5,95 +5,31 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import PlusIcon from "lucide-svelte/icons/plus";
   import { goto } from "$app/navigation";
-  import { invoke } from "@tauri-apps/api/core";
   import { onMount } from "svelte";
-  import { writable } from "svelte/store";
+  import { writable, derived } from "svelte/store";
   import InfoMsg from "../../components/ui/infomodal.svelte";
   import { PatientStore } from "../../../stores/Patient";
-  import { UserStore } from "../../../stores/User";
+  import { getPatients } from "../api/patients-data"
+  import { page } from "$app/stores";
 
-  type Patient = {
-    id: string;
-    name: string;
-    date_of_birth: string;
-    gender: string;
-    contact_number: string;
-    address: string;
-    primary_doctor: {
-      id: string;
-      name: string;
-    };
-    created_at: string;
-    updated_at: string;
-  };
-
-  let filteredPatients: Patient[] = [];
+  let filteredPatients: any;
   const infoTitle: string | null | never = "No patients found";
   const infoDescription: string | null | never =
     "There are no patients available. Please add a new patient.";
-  let dataAvailable: boolean;
-
-  $: dataAvailable;
-
+  let dataAvailable: boolean = false;
   const filterValue = writable("");
+
+
+  const isPatientStoreEmpty = derived(PatientStore, $PatientStore => $PatientStore.length === 0);
+
+
+  $: dataAvailable = !$isPatientStoreEmpty;
 
   onMount(async () => {
     try {
-      const userData: any = await invoke("get_users");
-      const users = userData.map((user: any) => ({
-        id: user.id.id.String,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-      }));
-
-      users.sort((a: any, b: any) => {
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-      });
-
-      UserStore.set(users);
+      await getPatients();
     } catch (error) {
-      console.error("Failed to load users:", error);
-    }
-
-    try {
-      const data = await invoke<Patient[]>("get_patients");
-
-      if (data.length === 0) {
-        dataAvailable = false;
-      } else {
-        dataAvailable = true;
-      }
-
-      const patients = data.map((patient) => ({
-        id: patient.id.id.String,
-        name: patient.name,
-        date_of_birth: patient.date_of_birth,
-        gender: patient.gender,
-        contact_number: patient.contact_number,
-        address: patient.address,
-        primary_doctor: {
-          id: patient.primary_doctor?.id || "",
-          name: patient.primary_doctor?.name || "No doctor assigned",
-        },
-        created_at: patient.created_at,
-        updated_at: patient.updated_at,
-      }));
-
-      patients.sort((a, b) => {
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-      });
-
-      PatientStore.set(patients);
-      filteredPatients = patients;
-    } catch (error) {
-      console.error("Failed to load patients:", error);
+      console.error(error);
     }
   });
 
@@ -104,7 +40,7 @@
     : $PatientStore;
 
   function handleCreateNewPatient() {
-    goto("./patients/new");
+    goto("patients/new");
   }
 
   function formatDate(dateString: string) {
@@ -112,36 +48,13 @@
   }
 
   function handlePatientView(id: string) {
-    goto(`./patients/${id}`);
-  }
-
-  function getDoctorName(doctorId: string) {
-    let doctorName = "No doctor assigned";
-    UserStore.subscribe(users => {
-      const doctor = users.find((d: any) => d.id === doctorId);
-      if (doctor) {
-        doctorName = doctor.name;
-      }
-    })();
-    return doctorName;
-  }
-
-  function getPatientName(patientId: string) {
-    let patientName = "No patient assigned";
-    PatientStore.subscribe(patients => {
-      const patient = patients.find((p: Patient) => p.id === patientId);
-      if (patient) {
-        patientName = patient.name;
-      }
-    })();
-    return patientName;
+    goto(`patients/${id}`);
   }
 </script>
 
 {#if !dataAvailable}
   <div class="flex flex-col gap-4">
     <InfoMsg {infoTitle} {infoDescription} />
-
     <Button on:click={handleCreateNewPatient}>
       <PlusIcon size={16} />
       <span>Add New Patient</span>
@@ -165,11 +78,9 @@
       <Table.TableHeader>
         <Table.TableRow>
           <Table.TableHead>Name</Table.TableHead>
-   
           <Table.TableHead>Date of Birth</Table.TableHead>
           <Table.TableHead>Gender</Table.TableHead>
           <Table.TableHead>Contact Number</Table.TableHead>
-          <Table.TableHead>Primary Doctor</Table.TableHead>
           <Table.TableHead>Created At</Table.TableHead>
           <Table.TableHead>Actions</Table.TableHead>
         </Table.TableRow>
@@ -177,25 +88,11 @@
       <Table.TableBody>
         {#each filteredPatients as patient}
           <Table.TableRow>
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{patient.name}</Table.TableCell
-            >
-    
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{formatDate(patient.date_of_birth)}</Table.TableCell
-            >
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{patient.gender}</Table.TableCell
-            >
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{patient.contact_number}</Table.TableCell
-            >
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{getDoctorName(patient.primary_doctor.id.String)}</Table.TableCell
-            >
-            <Table.TableCell on:click={() => handlePatientView(patient.id)}
-              >{formatDate(patient.created_at)}</Table.TableCell
-            >
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.name}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{formatDate(patient.date_of_birth)}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.gender}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{patient.contact_number}</Table.TableCell>
+            <Table.TableCell on:click={() => handlePatientView(patient.id)}>{formatDate(patient.created_at)}</Table.TableCell>
             <Table.TableCell>
               <DataTableActions id={patient.id} />
             </Table.TableCell>

@@ -15,3 +15,8 @@ export {
 	Trigger as PopoverTrigger,
 	Close as PopoverClose,
 };
+
+
+    export function Panel(Panel: any) {
+            throw new Error("Function not implemented.");
+        }
