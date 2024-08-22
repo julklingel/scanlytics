@@ -98,7 +98,7 @@ pub struct UserResponse {
     pub role: String,
     pub organization: Thing,
     pub patients: Option<Vec<surrealdb::sql::Thing>>,
-    pub patient_notes: Option<Vec<surrealdb::sql::Thing>>,
+    pub notes: Option<Vec<surrealdb::sql::Thing>>,
     pub statements: Option<Vec<surrealdb::sql::Thing>>,
     pub images: Option<Vec<surrealdb::sql::Thing>>,
     pub reports: Option<Vec<surrealdb::sql::Thing>>,

@@ -1,33 +1,29 @@
 use super::models::{
     PatientNoteRecord, PatientNoteRequest, PatientNoteResponse, PatientNoteWithPatientResponse,
-    PatientResponse, UserInfo,
+    PatientResponse, UserResponse,
 };
 use surrealdb::engine::remote::ws::Client;
 
+use surrealdb::sql::Thing;
 use surrealdb::Error as SurrealError;
 use surrealdb::Surreal;
-use surrealdb::sql::Thing;
-
-
 
 pub async fn create_patient_note_service(
     db: &Surreal<Client>,
     data: PatientNoteRequest,
 ) -> Result<Vec<PatientNoteResponse>, String> {
-    
     let patient: Option<PatientResponse> = db
         .select(("Patient", &data.patient_id))
         .await
         .map_err(|e| e.to_string())?;
     let patient = patient.ok_or_else(|| "Patient not found".to_string())?;
 
-
-    let user_owner: Option<UserInfo> = db
+    let user_owner: Option<UserResponse> = db
         .select(("User", &data.user_owner))
         .await
         .map_err(|e| e.to_string())?;
     let user_owner = user_owner.ok_or_else(|| "User not found".to_string())?;
-    
+
     let patient_note_record = PatientNoteRecord {
         patient: patient.id.clone(),
         symptoms: data.symptoms,
@@ -35,29 +31,33 @@ pub async fn create_patient_note_service(
         treatment: data.treatment,
         severity: data.severity,
         is_urgent: data.is_urgent,
-        user_owner: user_owner.id,
+        user_owner: user_owner.id.clone(),
     };
-    
+
     let created: Vec<PatientNoteResponse> = db
         .create("PatientNote")
         .content(patient_note_record)
         .await
         .map_err(|e| e.to_string())?;
-    
-    
-    let mut updated_patient = patient;
-    updated_patient.notes = Some(updated_patient.notes.unwrap_or_default().into_iter()
-        .chain(std::iter::once(created[0].id.clone()))
-        .collect());
-    
-    db.update::<Option<PatientResponse>>(("Patient", &data.patient_id))
-        .merge(updated_patient)
+
+  
+    db.query("UPDATE type::thing($table, $id) SET notes += $note")
+        .bind(("table", "Patient"))
+        .bind(("id", &data.patient_id))
+        .bind(("note", &created[0].id))
+        .await
+        .map_err(|e| e.to_string())?;
+ 
+   
+    db.query("UPDATE type::thing($table, $id) SET notes += $note")
+        .bind(("table", "User"))
+        .bind(("id", &data.user_owner))
+        .bind(("note", &created[0].id))
         .await
         .map_err(|e| e.to_string())?;
 
     Ok(created)
 }
-
 
 pub async fn get_patient_notes_service(
     db: &Surreal<Client>,
