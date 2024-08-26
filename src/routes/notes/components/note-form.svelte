@@ -114,105 +114,73 @@
   class="py-6 bg-white rounded-lg shadow-md p-6"
   on:submit|preventDefault={handleSubmit}
 >
-  <div class="grid grid-cols-1 gap-7">
-    <div class=" ">
-      <div class="mb-4">
-      <Label for="patientName" class="block text-sm font-medium text-gray-700"
-        >Patient
-      </Label>
-      <PatientCombobox
-        bind:patient_id={patient_id}
-      
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+    <div class="col-span-2 sm:col-span-4">
+      <Label for="patientName" class="block text-sm font-medium text-gray-700">Patient</Label>
+      <PatientCombobox bind:patient_id={patient_id} />
+    </div>
+    <div class="col-span-2 sm:col-span-2">
+      <Label for="attendingDoctor" class="block text-sm font-medium text-gray-700">Attending Doctor</Label>
+      <DoctorCombobox bind:selectedDoctorId={userOwner} />
+    </div>
+    <div class="col-span-2 sm:col-span-1">
+      <Label for="severity" class="block text-sm font-medium text-gray-700">Severity</Label>
+      <Select.Root bind:selected>
+        <Select.Trigger class="w-full">
+          <Select.Value placeholder="Severity" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="low">Low</Select.Item>
+          <Select.Item value="medium">Medium</Select.Item>
+          <Select.Item value="high">High</Select.Item>
+        </Select.Content>
+      </Select.Root>
+    </div>
+
+    <div class="col-span-2 sm:col-span-1 flex items-center pt-4">
+      <Switch id="urgent-mode" bind:checked={isUrgent} class="urgent-switch mr-2" />
+      <Label for="urgent-mode" class="text-sm font-medium text-gray-900">Is Urgent</Label>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-yellow-50 rounded-lg p-4 shadow">
+      <Label for="symptoms" class="block text-lg font-bold mb-2">Symptoms</Label>
+      <Textarea
+        name="symptoms"
+        bind:value={symptoms}
+        placeholder="Describe the symptoms"
+        class="w-full bg-yellow-50"
       />
     </div>
-
-      <div class="mb-4">
-        <Label for="symptoms" class="block text-sm font-medium text-gray-700"
-          >Symptoms</Label
-        >
-        <Textarea
-          name="symptoms"
-          bind:value={symptoms}
-          placeholder="Type your message here."
-        />
-      </div>
-
-      <div class="mb-4">
-        <Label for="diagnosis" class="block text-sm font-medium text-gray-700"
-          >Diagnosis</Label
-        >
-        <Textarea
-          name="diagnosis"
-          bind:value={diagnosis}
-          placeholder="Type your message here."
-        />
-      </div>
-
-      <div class="mb-4">
-        <Label for="treatment" class="block text-sm font-medium text-gray-700"
-          >Treatment</Label
-        >
-        <Textarea
-          name="treatment"
-          bind:value={treatment}
-          placeholder="Type your message here."
-        />
-      </div>
-
-
-      <div class="mb-4">
-        <label for="severity" class="block text-sm font-medium text-gray-700"
-          >Severity</label
-        >
-
-
-        <Select.Root bind:selected>
-          <Select.Trigger class="w-[180px]">
-            <Select.Value placeholder="Severity"  />
-          </Select.Trigger>
-          <Select.Content>
-            <Select.Item value="low">Low</Select.Item>
-            <Select.Item value="medium">Medium</Select.Item>
-            <Select.Item value="high">High</Select.Item>
-          </Select.Content>
-        </Select.Root>
-
-      </div>
-      <div class="flex items-center space-x-2 mb-4">
-        <Switch
-          id="urgent-mode"
-          bind:checked={isUrgent}
-          class="urgent-switch"
-        />
-        <Label for="urgent-mode" class="text-sm font-medium text-gray-900"
-          >Is Urgent</Label
-        >
-      </div>
-
-      <div>
-        <Label
-          for="attendingDoctor"
-          class="block text-sm font-medium text-gray-700"
-          >Attending Doctor</Label
-        >
-        <DoctorCombobox bind:selectedDoctorId={userOwner} />
-        
-      </div>
+    <div class="bg-blue-50 rounded-lg p-4 shadow">
+      <Label for="diagnosis" class="block text-lg font-bold mb-2">Diagnosis</Label>
+      <Textarea
+        name="diagnosis"
+        bind:value={diagnosis}
+        placeholder="Enter the diagnosis"
+        class="w-full bg-blue-50"
+      />
     </div>
-
-    {#if errorDescription}
-      <ErrorMsg {errorTitle} {errorDescription} />
-    {/if}
-
-    <div class="mt-6">
-      <Button type="submit" class="w-full px-4 py-2 font-semibold">
-        {#if create}
-          Create
-        {:else}
-          Update
-        {/if}
-      </Button>
+    <div class="bg-green-50 rounded-lg p-4 shadow">
+      <Label for="treatment" class="block text-lg font-bold mb-2">Treatment</Label>
+      <Textarea
+        name="treatment"
+        bind:value={treatment}
+        placeholder="Describe the treatment"
+        class="w-full bg-green-50 "
+      />
     </div>
+  </div>
+
+  {#if errorDescription}
+    <ErrorMsg {errorTitle} {errorDescription} />
+  {/if}
+
+  <div class="mt-6">
+    <Button type="submit" class="w-full px-4 py-2 font-semibold">
+      {create ? 'Create' : 'Update'}
+    </Button>
   </div>
 </form>
 
