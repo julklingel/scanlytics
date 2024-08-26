@@ -30,8 +30,8 @@
   Notiz Patient {selectedNote?.patient.name}
 </h1>
 
-<section class="flex gap-2 justify-end">
-  <Button >Edit</Button>
+<section class="flex gap-4 mb-4 justify-end">
+  <Button>Edit</Button>
   <Button variant="destructive">Delete</Button>
 
 </section>
