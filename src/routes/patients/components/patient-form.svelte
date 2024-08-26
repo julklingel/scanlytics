@@ -52,6 +52,8 @@
     }
   });
 
+
+
   async function handleSubmit() {
     const formData = {
       name,
@@ -61,7 +63,7 @@
       gender,
       contact_number: contactNumber,
       address,
-      primary_doctor: primaryDoctorId.String,
+      primary_doctor: (primaryDoctorId as any).String,
     };
 
     if (create) {

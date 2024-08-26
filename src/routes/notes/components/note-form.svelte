@@ -67,7 +67,7 @@
       treatment,
       severity,
       is_urgent: isUrgent,
-      user_owner: userOwner.String,
+      user_owner:(userOwner as any).String
     };
 
     if (create) {

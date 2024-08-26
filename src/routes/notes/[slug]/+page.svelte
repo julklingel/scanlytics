@@ -10,7 +10,9 @@
     (note) => note.id.id.String === $page.params.slug
   );
 
-  const InfoItem = ({ icon, label, value }) => ({
+
+
+  const InfoItem = ({ icon, label, value }: { icon: any, label: any, value: any }) => ({
     icon,
     label,
     value
