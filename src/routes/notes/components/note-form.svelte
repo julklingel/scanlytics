@@ -31,7 +31,7 @@
     dateStyle: "long",
   });
 
-  let selected: any = "l";
+  let selected: any = "null";
 
 
   let errorTitle: string | null | never = "";
@@ -42,7 +42,6 @@
   let diagnosis: string = selectedNote ? selectedNote.diagnosis : "";
   let treatment: string = selectedNote ? selectedNote.treatment : "";
   let isUrgent: boolean = selectedNote ? selectedNote.isUrgent : false;
-  let department: string = selectedNote ? selectedNote.department : "";
   let userOwner: string = selectedNote
     ? selectedNote.userOwner
     : "";
@@ -68,7 +67,6 @@
       treatment,
       severity,
       is_urgent: isUrgent,
-      department,
       user_owner: userOwner.String,
     };
 
@@ -166,17 +164,7 @@
         <label for="severity" class="block text-sm font-medium text-gray-700"
           >Severity</label
         >
-        <!-- <select
-          id="severity"
-          name="severity"
-          bind:value={severity}
-          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-        >
-          <option value="" disabled>Select a Severity</option>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select> -->
+
 
         <Select.Root bind:selected>
           <Select.Trigger class="w-[180px]">
@@ -199,19 +187,6 @@
         <Label for="urgent-mode" class="text-sm font-medium text-gray-900"
           >Is Urgent</Label
         >
-      </div>
-
-      <div class="mb-4">
-        <Label for="department" class="block text-sm font-medium text-gray-700"
-          >Department</Label
-        >
-        <Input
-          type="text"
-          id="department"
-          name="department"
-          bind:value={department}
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-        />
       </div>
 
       <div>
