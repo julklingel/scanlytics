@@ -69,7 +69,7 @@ pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
         "DEFINE FIELD symptoms ON PatientNote TYPE string;",
         "DEFINE FIELD diagnosis ON PatientNote TYPE string;",
         "DEFINE FIELD treatment ON PatientNote TYPE string;",
-        "DEFINE FIELD created_at ON PatientNote TYPE datetime DEFAULT time::now();",
+        "DEFINE FIELD created_at ON PatientNote TYPE datetime DEFAULT time::now() VALUE time::now();",
         "DEFINE FIELD updated_at ON PatientNote TYPE datetime DEFAULT time::now() VALUE time::now();",
         "DEFINE FIELD severity ON PatientNote TYPE string ASSERT $value IN ['low', 'medium', 'high'];",
         "DEFINE FIELD is_urgent ON PatientNote TYPE bool;",

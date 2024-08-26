@@ -12,6 +12,7 @@
   import { onMount } from "svelte";
   import { getPatients } from "../api/patient-data";
   import { getUsers } from "../api/user-data";
+  import * as Select from "$lib/components/ui/select";
 
   import ErrorMsg from "../../components/ui/errormodal.svelte";
 
@@ -30,7 +31,8 @@
     dateStyle: "long",
   });
 
-  let value: DateValue | undefined = undefined;
+  let selected: any = "l";
+
 
   let errorTitle: string | null | never = "";
   let errorDescription: string | null | never = "";
@@ -44,7 +46,8 @@
   let userOwner: string = selectedNote
     ? selectedNote.userOwner
     : "";
-  let severity: string = selectedNote ? selectedNote.severity : "";
+  let severity: string =  selectedNote ? selectedNote.severity : "";
+  $: severity = selected.value; 
 
 
   onMount(async () => {
@@ -104,13 +107,13 @@
       }
     }
   }
-
+  
   
 </script>
 
 <form
   id="patientNoteForm"
-  class="py-6 bg-white rounded-lg shadow-md"
+  class="py-6 bg-white rounded-lg shadow-md p-6"
   on:submit|preventDefault={handleSubmit}
 >
   <div class="grid grid-cols-1 gap-7">
@@ -163,7 +166,7 @@
         <label for="severity" class="block text-sm font-medium text-gray-700"
           >Severity</label
         >
-        <select
+        <!-- <select
           id="severity"
           name="severity"
           bind:value={severity}
@@ -173,7 +176,19 @@
           <option value="low">Low</option>
           <option value="medium">Medium</option>
           <option value="high">High</option>
-        </select>
+        </select> -->
+
+        <Select.Root bind:selected>
+          <Select.Trigger class="w-[180px]">
+            <Select.Value placeholder="Severity"  />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="low">Low</Select.Item>
+            <Select.Item value="medium">Medium</Select.Item>
+            <Select.Item value="high">High</Select.Item>
+          </Select.Content>
+        </Select.Root>
+
       </div>
       <div class="flex items-center space-x-2 mb-4">
         <Switch
