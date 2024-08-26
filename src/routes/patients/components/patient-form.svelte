@@ -52,6 +52,8 @@
     }
   });
 
+
+
   async function handleSubmit() {
     const formData = {
       name,
@@ -61,7 +63,7 @@
       gender,
       contact_number: contactNumber,
       address,
-      primary_doctor: primaryDoctorId.String,
+      primary_doctor: (primaryDoctorId as any).String,
     };
 
     if (create) {
@@ -98,7 +100,7 @@
 
 <form
   id="patientForm"
-  class="py-6 bg-white rounded-lg shadow-md"
+  class="py-6 bg-white rounded-lg shadow-md p-6"
   on:submit|preventDefault={handleSubmit}
 >
   <div class="grid grid-cols-1 gap-6">

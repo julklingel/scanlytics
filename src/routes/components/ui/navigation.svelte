@@ -33,21 +33,27 @@
             switch (breadcrumb[0].name) {
                 case "Patients":
                     if (parts[1] === "new") {
-                        breadcrumb[1].name = "Create";
+                        breadcrumb[1].name = "New";
                     } else {
                         breadcrumb[1].name = convertIdToName(
                             parts[1],
                             $PatientStore,
                         );
                     }
-                  
-                    
                     break;
                 case "Notes":
-                    // breadcrumb[1].name = convertIdtoPateintName(
-                    //     parts[1],
-                    //     $PatientNotesStore,
-                    // );
+                    if (parts[1] === "new") {
+                        breadcrumb[1].name = "New";
+                    } else {
+                        const note = $PatientNotesStore.find(
+                            (note) => note.id.id.String === parts[1]
+                        );
+                        if (note) {
+                            breadcrumb[1].name = note.patient.name;
+                        } else {
+                            breadcrumb[1].name = "Unknown Patient";
+                        }
+                    }
                     break;
                 case "Users":
                     breadcrumb[1].name = convertIdToName(parts[1], $UserStore);

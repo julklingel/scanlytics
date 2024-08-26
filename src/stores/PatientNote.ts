@@ -1,7 +1,9 @@
 import { writable } from "svelte/store";
 
 type PatientNoteStore = {
-  id: { String: string };
+  id: {
+    [x: string]: any; String: string 
+};
   patient: {
     id: { String: string };
     name: string;

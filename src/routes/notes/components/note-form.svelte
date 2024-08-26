@@ -12,6 +12,7 @@
   import { onMount } from "svelte";
   import { getPatients } from "../api/patient-data";
   import { getUsers } from "../api/user-data";
+  import * as Select from "$lib/components/ui/select";
 
   import ErrorMsg from "../../components/ui/errormodal.svelte";
 
@@ -30,21 +31,22 @@
     dateStyle: "long",
   });
 
-  let value: DateValue | undefined = undefined;
+  let selected: any = "null";
+
 
   let errorTitle: string | null | never = "";
   let errorDescription: string | null | never = "";
 
-  let patient_id: string = selectedNote ? selectedNote.patient : "";
+  let patient_id: string = selectedNote ? selectedNote.patient.id : "";
   let symptoms: string = selectedNote ? selectedNote.symptoms : "";
   let diagnosis: string = selectedNote ? selectedNote.diagnosis : "";
   let treatment: string = selectedNote ? selectedNote.treatment : "";
   let isUrgent: boolean = selectedNote ? selectedNote.isUrgent : false;
-  let department: string = selectedNote ? selectedNote.department : "";
   let userOwner: string = selectedNote
     ? selectedNote.userOwner
     : "";
-  let severity: string = selectedNote ? selectedNote.severity : "";
+  let severity: string =  selectedNote ? selectedNote.severity : "";
+  $: severity = selected.value; 
 
 
   onMount(async () => {
@@ -65,8 +67,7 @@
       treatment,
       severity,
       is_urgent: isUrgent,
-      department,
-      user_owner: userOwner.String,
+      user_owner:(userOwner as any).String
     };
 
     if (create) {
@@ -104,125 +105,82 @@
       }
     }
   }
-
+  
   
 </script>
 
 <form
   id="patientNoteForm"
-  class="py-6 bg-white rounded-lg shadow-md"
+  class="py-6 bg-white rounded-lg shadow-md p-6"
   on:submit|preventDefault={handleSubmit}
 >
-  <div class="grid grid-cols-1 gap-7">
-    <div class=" ">
-      <div class="mb-4">
-      <Label for="patientName" class="block text-sm font-medium text-gray-700"
-        >Patient
-      </Label>
-      <PatientCombobox
-        bind:patient_id={patient_id}
-      
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+    <div class="col-span-2 sm:col-span-4">
+      <Label for="patientName" class="block text-sm font-medium text-gray-700">Patient</Label>
+      <PatientCombobox bind:patient_id={patient_id} />
+    </div>
+    <div class="col-span-2 sm:col-span-2">
+      <Label for="attendingDoctor" class="block text-sm font-medium text-gray-700">Attending Doctor</Label>
+      <DoctorCombobox bind:selectedDoctorId={userOwner} />
+    </div>
+    <div class="col-span-2 sm:col-span-1">
+      <Label for="severity" class="block text-sm font-medium text-gray-700">Severity</Label>
+      <Select.Root bind:selected>
+        <Select.Trigger class="w-full">
+          <Select.Value placeholder="Severity" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="low">Low</Select.Item>
+          <Select.Item value="medium">Medium</Select.Item>
+          <Select.Item value="high">High</Select.Item>
+        </Select.Content>
+      </Select.Root>
+    </div>
+
+    <div class="col-span-2 sm:col-span-1 flex items-center pt-4">
+      <Switch id="urgent-mode" bind:checked={isUrgent} class="urgent-switch mr-2" />
+      <Label for="urgent-mode" class="text-sm font-medium text-gray-900">Is Urgent</Label>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-yellow-50 rounded-lg p-4 shadow">
+      <Label for="symptoms" class="block text-lg font-bold mb-2">Symptoms</Label>
+      <Textarea
+        name="symptoms"
+        bind:value={symptoms}
+        placeholder="Describe the symptoms"
+        class="w-full bg-yellow-50"
       />
     </div>
-
-      <div class="mb-4">
-        <Label for="symptoms" class="block text-sm font-medium text-gray-700"
-          >Symptoms</Label
-        >
-        <Textarea
-          name="symptoms"
-          bind:value={symptoms}
-          placeholder="Type your message here."
-        />
-      </div>
-
-      <div class="mb-4">
-        <Label for="diagnosis" class="block text-sm font-medium text-gray-700"
-          >Diagnosis</Label
-        >
-        <Textarea
-          name="diagnosis"
-          bind:value={diagnosis}
-          placeholder="Type your message here."
-        />
-      </div>
-
-      <div class="mb-4">
-        <Label for="treatment" class="block text-sm font-medium text-gray-700"
-          >Treatment</Label
-        >
-        <Textarea
-          name="treatment"
-          bind:value={treatment}
-          placeholder="Type your message here."
-        />
-      </div>
-
-
-      <div class="mb-4">
-        <label for="severity" class="block text-sm font-medium text-gray-700"
-          >Severity</label
-        >
-        <select
-          id="severity"
-          name="severity"
-          bind:value={severity}
-          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-        >
-          <option value="" disabled>Select a Severity</option>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-      </div>
-      <div class="flex items-center space-x-2 mb-4">
-        <Switch
-          id="urgent-mode"
-          bind:checked={isUrgent}
-          class="urgent-switch"
-        />
-        <Label for="urgent-mode" class="text-sm font-medium text-gray-900"
-          >Is Urgent</Label
-        >
-      </div>
-
-      <div class="mb-4">
-        <Label for="department" class="block text-sm font-medium text-gray-700"
-          >Department</Label
-        >
-        <Input
-          type="text"
-          id="department"
-          name="department"
-          bind:value={department}
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-        />
-      </div>
-
-      <div>
-        <Label
-          for="attendingDoctor"
-          class="block text-sm font-medium text-gray-700"
-          >Attending Doctor</Label
-        >
-        <DoctorCombobox bind:selectedDoctorId={userOwner} />
-        
-      </div>
+    <div class="bg-blue-50 rounded-lg p-4 shadow">
+      <Label for="diagnosis" class="block text-lg font-bold mb-2">Diagnosis</Label>
+      <Textarea
+        name="diagnosis"
+        bind:value={diagnosis}
+        placeholder="Enter the diagnosis"
+        class="w-full bg-blue-50"
+      />
     </div>
-
-    {#if errorDescription}
-      <ErrorMsg {errorTitle} {errorDescription} />
-    {/if}
-
-    <div class="mt-6">
-      <Button type="submit" class="w-full px-4 py-2 font-semibold">
-        {#if create}
-          Create
-        {:else}
-          Update
-        {/if}
-      </Button>
+    <div class="bg-green-50 rounded-lg p-4 shadow">
+      <Label for="treatment" class="block text-lg font-bold mb-2">Treatment</Label>
+      <Textarea
+        name="treatment"
+        bind:value={treatment}
+        placeholder="Describe the treatment"
+        class="w-full bg-green-50 "
+      />
     </div>
+  </div>
+
+  {#if errorDescription}
+    <ErrorMsg {errorTitle} {errorDescription} />
+  {/if}
+
+  <div class="mt-6">
+    <Button type="submit" class="w-full px-4 py-2 font-semibold">
+      {create ? 'Create' : 'Update'}
+    </Button>
   </div>
 </form>
 
