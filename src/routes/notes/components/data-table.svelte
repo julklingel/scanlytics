@@ -98,18 +98,18 @@
       <Table.TableBody>
         {#each filteredPatientNotes as note}
           <Table.TableRow>
-            <Table.TableCell on:click={() => handleNoteView(note.id)}
+            <Table.TableCell on:click={() => handleNoteView(note.id.id.String)}
               >{note.patient?.name || "N/A"}</Table.TableCell
             >
-            <Table.TableCell on:click={() => handleNoteView(note.id)}
+            <Table.TableCell on:click={() => handleNoteView(note.id.id.String)}
               >{note.userOwner?.name || "N/A"}</Table.TableCell
             >
-            <Table.TableCell on:click={() => handleNoteView(note.id)}
+            <Table.TableCell on:click={() => handleNoteView(note.id.id.String)}
               >{note.diagnosis || "N/A"}</Table.TableCell
-            ><Table.TableCell on:click={() => handleNoteView(note.id)}
+            ><Table.TableCell on:click={() => handleNoteView(note.id.id.String)}
               >{note.is_urgent ? "Yes" : "No"}</Table.TableCell
             >
-            <Table.TableCell on:click={() => handleNoteView(note.id)}
+            <Table.TableCell on:click={() => handleNoteView(note.id.id.String)}
               >{formatDate(note.createdAt)}</Table.TableCell
             >
             <Table.TableCell>

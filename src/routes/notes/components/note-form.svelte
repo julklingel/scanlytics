@@ -37,7 +37,7 @@
   let errorTitle: string | null | never = "";
   let errorDescription: string | null | never = "";
 
-  let patient_id: string = selectedNote ? selectedNote.patient : "";
+  let patient_id: string = selectedNote ? selectedNote.patient.id : "";
   let symptoms: string = selectedNote ? selectedNote.symptoms : "";
   let diagnosis: string = selectedNote ? selectedNote.diagnosis : "";
   let treatment: string = selectedNote ? selectedNote.treatment : "";
