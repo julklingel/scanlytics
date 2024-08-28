@@ -8,8 +8,8 @@
   import { onMount } from "svelte";
   import { writable, derived } from "svelte/store";
   import InfoMsg from "../../components/ui/infomodal.svelte";
-  import { ReportStore } from "../../../stores/Report"; 
-  import { getReports } from "../api/report-data";
+  // import { ReportStore } from "../../../stores/Report"; 
+  // import { getReports } from "../api/report-data";
   
 
   let filteredReports: any;
@@ -19,34 +19,34 @@
   let dataAvailable: boolean = false;
   const filterValue = writable("");
 
-  const isReportStoreEmpty = derived(
-    ReportStore,
-    ($ReportStore) => $ReportStore.length === 0,
-  );
-  $: dataAvailable = !$isReportStoreEmpty;
+  // const isReportStoreEmpty = derived(
+  //   ReportStore,
+  //   ($ReportStore) => $ReportStore.length === 0,
+  // );
+  // $: dataAvailable = !$isReportStoreEmpty;
 
   onMount(async () => {
     try {
-      await getReports();
+      // await getReports();
     } catch (error) {
       console.error(error);
     }
   });
 
-  $: filteredReports = $filterValue
-    ? $ReportStore.filter(
-        (report) =>
-          (report.patient?.name || "")
-            .toLowerCase()
-            .includes($filterValue.toLowerCase()) ||
-          (report.condition || "")
-            .toLowerCase()
-            .includes($filterValue.toLowerCase()) ||
-          (report.body_type || "")
-            .toLowerCase()
-            .includes($filterValue.toLowerCase()),
-      )
-    : $ReportStore;
+  // $: filteredReports = $filterValue
+  //   ? $ReportStore.filter(
+  //       (report) =>
+  //         (report.patient?.name || "")
+  //           .toLowerCase()
+  //           .includes($filterValue.toLowerCase()) ||
+  //         (report.condition || "")
+  //           .toLowerCase()
+  //           .includes($filterValue.toLowerCase()) ||
+  //         (report.body_type || "")
+  //           .toLowerCase()
+  //           .includes($filterValue.toLowerCase()),
+  //     )
+  //   : $ReportStore;
 
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString();
