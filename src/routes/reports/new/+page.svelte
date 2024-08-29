@@ -10,12 +10,17 @@
   import * as Carousel from "$lib/components/ui/carousel/index.js";
   import PlusIcon from "lucide-svelte/icons/plus";
   import XIcon from "lucide-svelte/icons/x";
+  import { toast } from "svelte-sonner";
+  import { invoke } from "@tauri-apps/api/core";
+
 
   export let patient_id: string;
   export let userOwner: string;
 
   let files: File[] = [];
   let reportText: string = "";
+
+
   let carouselApi: any;
 
   export let suggestions: { id: number; text: string }[] = [
@@ -32,7 +37,21 @@
 
   let addedSugg: { id: number; text: string }[] = [];
 
-  let status = "";
+  async function handleSubmit() {
+    const formData = {
+      patient_id,
+      userOwner,
+      reportText,
+      files,
+    };
+    try {
+      await invoke("create_report", formData);
+      toast.success("Report created successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create report");
+    }
+  }
 
   function handleClick() {
     const input = document.createElement("input");
@@ -251,6 +270,7 @@
 </Resizable.PaneGroup>
 
 <section class="flex justify-end my-6 gap-4">
-  <Button class=" ">Preview</Button>
-  <Button class=" ">Save</Button>
+  <!-- TBD -->
+  <!-- <Button class=" ">Preview</Button> -->
+  <Button on:click={handleSubmit} class=" ">Save</Button>
 </section>
