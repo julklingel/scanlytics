@@ -1,5 +1,5 @@
 <script lang="ts">
-    import TextProposals from './text-proposals.svelte';
+    import TextProposals from '../components/text-proposals.svelte';
     import { onMount } from "svelte";
     import * as Resizable from "$lib/components/ui/resizable/index.js";
   

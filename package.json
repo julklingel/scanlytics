@@ -20,6 +20,7 @@
     "bits-ui": "^0.21.13",
     "clsx": "^2.1.1",
     "cmdk-sv": "^0.0.18",
+    "embla-carousel-svelte": "^8.2.0",
     "lucide-svelte": "^0.416.0",
     "mode-watcher": "^0.4.1",
     "paneforge": "^0.0.5",
