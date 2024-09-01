@@ -6,6 +6,7 @@ mod notes;
 mod patients;
 mod users;
 mod organizations;
+mod reports;
 
 use tauri::Manager;
 use db::init::{init_db, define_db_on_startup};
@@ -14,6 +15,7 @@ use organizations::controller::{get_organizations};
 use users::controller::{get_users};	
 use patients::controller::{create_patient, get_patients, update_patient, delete_patient};	
 use notes::controller::{create_patient_note, get_patient_notes, update_patient_note, delete_patient_note};
+use reports::controller::{create_report};
 
 
 
@@ -53,7 +55,9 @@ fn main() {
             update_patient,
             delete_patient,
             // User APIs
-            get_users
+            get_users,
+            // Report APIs
+            create_report
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

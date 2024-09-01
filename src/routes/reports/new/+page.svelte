@@ -12,6 +12,8 @@
   import XIcon from "lucide-svelte/icons/x";
   import { toast } from "svelte-sonner";
   import { invoke } from "@tauri-apps/api/core";
+  import { getPatients } from "../api/patient-data";
+  import { getUsers } from "../api/user-data";
 
 
   export let patient_id: string;
@@ -19,6 +21,15 @@
 
   let files: File[] = [];
   let reportText: string = "";
+
+  onMount(async () => {
+    try {
+      await getUsers();
+      await getPatients();
+    } catch (error) {
+      console.error(error);
+    }
+  });
 
 
   let carouselApi: any;
