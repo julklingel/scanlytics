@@ -5,22 +5,23 @@ use surrealdb::Surreal;
 use tauri::State;
 use tokio::sync::RwLock;
 
-
 #[tauri::command]
 pub async fn create_patient_note(
     db: State<'_, RwLock<Surreal<Client>>>,
     patient_note_request: String,
 ) -> Result<models::PatientNoteResponse, String> {
-    let patient_note_request: models::PatientNoteRequest = serde_json::from_str(&patient_note_request)
-        .map_err(|e| format!("Failed to parse patient note request: {}", e))?;
-    
+    let patient_note_request: models::PatientNoteRequest =
+        serde_json::from_str(&patient_note_request)
+            .map_err(|e| format!("Failed to parse patient note request: {}", e))?;
+
     let db = db.write().await;
-    let mut data: Vec<models::PatientNoteResponse> = services::create_patient_note_service(&db, patient_note_request).await?;
-    
+    let mut data: Vec<models::PatientNoteResponse> =
+        services::create_patient_note_service(&db, patient_note_request).await?;
+
     if data.is_empty() {
         return Err("No record created".to_string());
     }
-    
+
     let response = data.pop().unwrap();
     let response = models::PatientNoteResponse {
         id: response.id,
@@ -34,10 +35,9 @@ pub async fn create_patient_note(
         created_at: response.created_at,
         updated_at: response.updated_at,
     };
-   
+
     Ok(response)
 }
-
 
 #[tauri::command]
 pub async fn get_patient_notes(
@@ -47,11 +47,9 @@ pub async fn get_patient_notes(
     let response = services::get_patient_notes_service(&db)
         .await
         .map_err(|e| e.to_string())?;
-    
+
     Ok(response)
 }
-
-
 
 #[tauri::command]
 pub async fn update_patient_note(
@@ -59,13 +57,18 @@ pub async fn update_patient_note(
     id: String,
     patient_note_request: String,
 ) -> Result<models::PatientNoteResponse, String> {
-    println!("update_patient_note: id: {}, patient_note_request: {}", id, patient_note_request);
-    let patient_note_request: models::PatientNoteRequest = serde_json::from_str(&patient_note_request)
-        .map_err(|e| format!("Failed to parse patient note request: {}", e))?;
-   
+    println!(
+        "update_patient_note: id: {}, patient_note_request: {}",
+        id, patient_note_request
+    );
+    let patient_note_request: models::PatientNoteRequest =
+        serde_json::from_str(&patient_note_request)
+            .map_err(|e| format!("Failed to parse patient note request: {}", e))?;
+
     let db = db.write().await;
-    let updated_record = services::update_patient_note_service(&db, id, patient_note_request).await?;
-   
+    let updated_record =
+        services::update_patient_note_service(&db, id, patient_note_request).await?;
+
     if let Some(record) = updated_record {
         let response = models::PatientNoteResponse {
             id: record.id,
@@ -79,13 +82,12 @@ pub async fn update_patient_note(
             created_at: record.created_at,
             updated_at: record.updated_at,
         };
-       
+
         Ok(response)
     } else {
         Err("No record updated".to_string())
     }
 }
-
 
 #[tauri::command]
 pub async fn delete_patient_note(
@@ -94,7 +96,7 @@ pub async fn delete_patient_note(
 ) -> Result<models::PatientNoteResponse, String> {
     let db = db.write().await;
     let deleted_record = services::delete_patient_note_service(&db, id).await?;
-   
+
     if let Some(record) = deleted_record {
         let response = models::PatientNoteResponse {
             id: record.id,
@@ -106,9 +108,9 @@ pub async fn delete_patient_note(
             severity: record.severity,
             user_owner: record.user_owner,
             created_at: record.created_at,
-            updated_at: record.updated_at
+            updated_at: record.updated_at,
         };
-       
+
         Ok(response)
     } else {
         Err("No record deleted".to_string())

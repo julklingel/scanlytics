@@ -1,8 +1,5 @@
-
-
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Datetime, Thing};
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteRequest {
@@ -14,7 +11,6 @@ pub struct PatientNoteRequest {
     pub is_urgent: bool,
     pub user_owner: String,
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientResponse {
@@ -31,14 +27,11 @@ pub struct PatientResponse {
     pub updated_at: Datetime,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserInfo {
     pub id: Thing,
     pub name: String,
-
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteRecord {
@@ -49,7 +42,6 @@ pub struct PatientNoteRecord {
     pub severity: String,
     pub is_urgent: bool,
     pub user_owner: Thing,
-    
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -61,12 +53,10 @@ pub struct PatientNoteResponse {
     pub treatment: String,
     pub severity: String,
     pub is_urgent: bool,
-    pub user_owner: Thing, 
+    pub user_owner: Thing,
     pub created_at: Datetime,
-    pub updated_at: Datetime, 
-    
+    pub updated_at: Datetime,
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteWithPatientResponse {
@@ -87,7 +77,6 @@ pub struct PatientInfo {
     pub id: Thing,
     pub name: String,
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserResponse {

@@ -17,10 +17,11 @@
 
 
   export let patient_id: string;
-  export let userOwner: string;
+  export let user_owner: string;
 
+  let carouselApi: any;
   let files: File[] = [];
-  let reportText: string = "";
+  let report_text: string = "";
 
   onMount(async () => {
     try {
@@ -32,37 +33,49 @@
   });
 
 
-  let carouselApi: any;
+  
 
   export let suggestions: { id: number; text: string }[] = [
-    {
-      id: 1,
-      text: "Das Bild zeigt...kugjlhgjhfhgkfkhgf ghc  zvckckhgf  wbdfowafdweiubdwequ weubdqwzbd wuebdwebffbre piwqudbewqiufbd biuefbiewquf iaefbpiwerbfu aieuzbfabf",
-    },
-    { id: 2, text: "Bemerkenswerte Merkmale sind..." },
-    { id: 3, text: "Die Gesamtkomposition ist..." },
-    { id: 4, text: "Die Farbpalette besteht aus..." },
-    { id: 5, text: "Im Vordergrund sehen wir..." },
-    { id: 6, text: "Der Hintergrund enthält..." },
-  ];
+  {
+    id: 1,
+    text: "The X-ray image of the knee shows...",
+  },
+  { id: 2, text: "Notable findings include..." },
+  { id: 3, text: "The overall alignment of the knee joint is..." },
+  { id: 4, text: "The bone density appears to be..." },
+  { id: 5, text: "In the anterior aspect of the knee, we observe..." },
+  { id: 6, text: "The posterior elements of the knee demonstrate..." },
+  { id: 7, text: "The joint space between the femur and tibia is..." },
+  { id: 8, text: "The patella position and structure appear..." },
+  { id: 9, text: "Soft tissue findings, if any, include..." },
+  { id: 10, text: "Comparison with previous studies shows..." },
+];
+
 
   let addedSugg: { id: number; text: string }[] = [];
 
   async function handleSubmit() {
-    const formData = {
-      patient_id,
-      userOwner,
-      reportText,
-      files,
-    };
-    try {
-      await invoke("create_report", formData);
-      toast.success("Report created successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to create report");
-    }
+  const formData = new FormData();
+  formData.append('patient_id', patient_id);
+  formData.append('user_owner', user_owner);
+  formData.append('report_text', report_text);
+  
+  for (let file of files) {
+    formData.append('files', file);
   }
+
+  try {
+    const response = await invoke("create_report", {
+      reportRequest: formData
+    });
+    toast.success("Report created successfully");
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to create report");
+  }
+}
+
+
 
   function handleClick() {
     const input = document.createElement("input");
@@ -94,7 +107,7 @@
     const suggestionIndex = suggestions.findIndex((s) => s.id === id);
     if (suggestionIndex !== -1) {
       const suggestion = suggestions[suggestionIndex];
-      reportText += suggestion.text;
+      report_text += suggestion.text;
       suggestions = suggestions.filter((s) => s.id !== id);
       addedSugg = [...addedSugg, suggestion];
     }
@@ -104,7 +117,7 @@
     if (addedSugg.length > 0) {
       const lastSuggestion = addedSugg.pop();
       if (lastSuggestion) {
-        reportText = reportText.slice(0, -lastSuggestion.text.length);
+        report_text = report_text.slice(0, -lastSuggestion.text.length);
         suggestions = [...suggestions, lastSuggestion];
         addedSugg = [...addedSugg];
       }
@@ -131,7 +144,7 @@
         for="attendingDoctor"
         class="block text-sm font-medium text-gray-700">Attending Doctor</Label
       >
-      <DoctorCombobox bind:selectedDoctorId={userOwner} />
+      <DoctorCombobox bind:selectedDoctorId={user_owner} />
     </div>
     <div class="">
       <Label
@@ -248,7 +261,7 @@
             >
           </div>
           <textarea
-            bind:value={reportText}
+            bind:value={report_text}
             class="flex-grow p-2 border rounded-md resize-none"
             placeholder="Schreiben Sie Ihren Befund hier..."
           />

@@ -5,14 +5,13 @@ use surrealdb::Surreal;
 use tauri::State;
 use tokio::sync::RwLock;
 
-
-
 #[tauri::command]
 pub async fn get_organizations(
     db: State<'_, RwLock<Surreal<Client>>>,
 ) -> Result<Vec<models::OrganizationResponse>, String> {
     let db = db.read().await;
-    let response:Vec<models::OrganizationResponse> = services::get_organizations_service(&db).await?
+    let response: Vec<models::OrganizationResponse> = services::get_organizations_service(&db)
+        .await?
         .iter()
         .map(|record| models::OrganizationResponse {
             id: record.id.clone(),

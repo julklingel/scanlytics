@@ -1,10 +1,6 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Datetime, Thing};
 
-
-
-
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OrganizationRequest {
     pub name: String,
@@ -12,7 +8,6 @@ pub struct OrganizationRequest {
     pub email: String,
     pub users: Option<Vec<Thing>>,
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OrganizationRecord {
@@ -24,7 +19,6 @@ pub struct OrganizationRecord {
     pub created_at: Datetime,
     pub updated_at: Datetime,
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OrganizationResponse {

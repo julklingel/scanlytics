@@ -1,9 +1,5 @@
-
-
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
-
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Testdata {
@@ -18,7 +14,6 @@ pub struct Record {
     pub txt1: String,
     pub bool1: bool,
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TestdbResponse {

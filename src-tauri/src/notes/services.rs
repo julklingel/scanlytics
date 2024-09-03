@@ -40,15 +40,13 @@ pub async fn create_patient_note_service(
         .await
         .map_err(|e| e.to_string())?;
 
-  
     db.query("UPDATE type::thing($table, $id) SET notes += $note")
         .bind(("table", "Patient"))
         .bind(("id", &data.patient_id))
         .bind(("note", &created[0].id))
         .await
         .map_err(|e| e.to_string())?;
- 
-   
+
     db.query("UPDATE type::thing($table, $id) SET notes += $note")
         .bind(("table", "User"))
         .bind(("id", &data.user_owner))

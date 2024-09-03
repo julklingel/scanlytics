@@ -24,7 +24,7 @@ import { UserStore } from "../../../stores/User";
   }
 
   function handleSelect(doctor: any) {
-    selectedDoctorId = doctor.value;
+    selectedDoctorId = doctor.value.String;
     dispatch("select", { id: doctor.value });
     isInputFocused = false;
     searchTerm = doctor.label;
