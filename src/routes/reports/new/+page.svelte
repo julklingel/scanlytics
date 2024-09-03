@@ -15,7 +15,6 @@
   import { getPatients } from "../api/patient-data";
   import { getUsers } from "../api/user-data";
 
-
   export let patient_id: string;
   export let user_owner: string;
 
@@ -32,41 +31,39 @@
     }
   });
 
-
-  
-
   export let suggestions: { id: number; text: string }[] = [
-  {
-    id: 1,
-    text: "The X-ray image of the knee shows...",
-  },
-  { id: 2, text: "Notable findings include..." },
-  { id: 3, text: "The overall alignment of the knee joint is..." },
-  { id: 4, text: "The bone density appears to be..." },
-  { id: 5, text: "In the anterior aspect of the knee, we observe..." },
-  { id: 6, text: "The posterior elements of the knee demonstrate..." },
-  { id: 7, text: "The joint space between the femur and tibia is..." },
-  { id: 8, text: "The patella position and structure appear..." },
-  { id: 9, text: "Soft tissue findings, if any, include..." },
-  { id: 10, text: "Comparison with previous studies shows..." },
-];
-
+    {
+      id: 1,
+      text: "The X-ray image of the knee shows...",
+    },
+    { id: 2, text: "Notable findings include..." },
+    { id: 3, text: "The overall alignment of the knee joint is..." },
+    { id: 4, text: "The bone density appears to be..." },
+    { id: 5, text: "In the anterior aspect of the knee, we observe..." },
+    { id: 6, text: "The posterior elements of the knee demonstrate..." },
+    { id: 7, text: "The joint space between the femur and tibia is..." },
+    { id: 8, text: "The patella position and structure appear..." },
+    { id: 9, text: "Soft tissue findings, if any, include..." },
+    { id: 10, text: "Comparison with previous studies shows..." },
+  ];
 
   let addedSugg: { id: number; text: string }[] = [];
 
   async function handleSubmit() {
-  const formData = new FormData();
-  formData.append('patient_id', patient_id);
-  formData.append('user_owner', user_owner);
-  formData.append('report_text', report_text);
-  
-  for (let file of files) {
-    formData.append('files', file);
-  }
+  const reportData = {
+    patient_id,
+    user_owner,
+    report_text,
+    files: files.map(file => ({
+      filename: file.name,
+      extension: file.type,
+ 
+    }))
+  };
 
   try {
     const response = await invoke("create_report", {
-      reportRequest: formData
+      reportRequest: JSON.stringify(reportData),
     });
     toast.success("Report created successfully");
   } catch (error) {
@@ -74,6 +71,7 @@
     toast.error("Failed to create report");
   }
 }
+
 
 
 
@@ -87,6 +85,7 @@
       if (target.files) {
         files = [...files, ...Array.from(target.files)];
       }
+      console.log(files);
     };
     input.click();
   }
@@ -149,10 +148,14 @@
     <div class="">
       <Label
         for="attendingDoctor"
-        class="block text-sm font-medium text-gray-700">Körperteil</Label>
-        <Input type="text" placeholder="Search for type" class="mt-1 block w-full" />
+        class="block text-sm font-medium text-gray-700">Körperteil</Label
+      >
+      <Input
+        type="text"
+        placeholder="Search for type"
+        class="mt-1 block w-full"
+      />
     </div>
-
   </div>
 </section>
 
@@ -160,35 +163,35 @@
   direction="horizontal"
   class="max-w min-h-96 rounded-lg border"
 >
-<Resizable.Pane defaultSize={150}>
-  <Resizable.PaneGroup direction="horizontal">
-    <Resizable.Pane defaultSize={50}>
-      {#if files.length > 0}
-        <div class="relative">
-          <Carousel.Root bind:api={carouselApi}>
-            <Carousel.Content>
-              {#each files as file, index (file)}
-                <Carousel.Item>
-                  <div class="relative">
-                    <button
-                      on:click={() => removeImage(index)}
-                      class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md"
-                    >
-                      <XIcon size={16} />
-                    </button>
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt={`Uploaded image ${index + 1}`}
-                      class="object-cover w-full h-full"
-                      aria-hidden="true"
-                    />
-                  </div>
-                </Carousel.Item>
-              {/each}
-            </Carousel.Content>
-            <Carousel.Previous />
-            <Carousel.Next />
-          </Carousel.Root>
+  <Resizable.Pane defaultSize={150}>
+    <Resizable.PaneGroup direction="horizontal">
+      <Resizable.Pane defaultSize={50}>
+        {#if files.length > 0}
+          <div class="relative">
+            <Carousel.Root bind:api={carouselApi}>
+              <Carousel.Content>
+                {#each files as file, index (file)}
+                  <Carousel.Item>
+                    <div class="relative">
+                      <button
+                        on:click={() => removeImage(index)}
+                        class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md"
+                      >
+                        <XIcon size={16} />
+                      </button>
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Uploaded image ${index + 1}`}
+                        class="object-cover w-full h-full"
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </Carousel.Item>
+                {/each}
+              </Carousel.Content>
+              <Carousel.Previous />
+              <Carousel.Next />
+            </Carousel.Root>
             <div
               class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2"
             >

@@ -12,7 +12,7 @@ pub struct ReportRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileData {
     pub filename: String,
-    pub content: Vec<u8>,
+    pub extension: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -20,18 +20,18 @@ pub struct ReportRecord {
     pub patient: Thing,
     pub user_owner: Thing,
     pub report_text: String,
-    pub files: Vec<String>,
+    pub files: Vec<Thing>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ImageRecord {
-    pub id: String,
+pub struct ImageResponse {
+    pub id: Thing,
     pub name: String,
     pub path: String,
-    pub patient: String,
+    pub patient: surrealdb::sql::Thing,
+    pub user: surrealdb::sql::Thing,
     pub file_type: String,
-    pub body_type: String,
-    pub modality_type: String,
+    pub modal_type: String,
     pub created_at: Datetime,
     pub updated_at: Datetime,
 }
@@ -41,9 +41,10 @@ pub struct ImageRequest {
 
     pub name: String,
     pub path: String,
-    pub patient: String,
+    pub patient: Thing,
+    pub user: Thing,
     pub file_type: String,
-    pub modality_type: String,
+    pub modal_type: String,
 
 }
 
@@ -53,7 +54,7 @@ pub struct ReportResponse {
     pub patient: Thing,
     pub user_owner: Thing,
     pub report_text: String,
-    pub files: Vec<String>,
+    pub files: Vec<Thing>,
     pub created_at: Datetime,
     pub updated_at: Datetime,
 }

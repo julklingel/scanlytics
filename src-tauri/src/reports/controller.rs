@@ -11,15 +11,15 @@ use tokio::sync::RwLock;
 pub async fn create_report(
     db: State<'_, RwLock<Surreal<Client>>>,
     report_request: String,
-) -> Result<Vec<models::ReportResponse>, String> {
+) -> Result<models::ReportResponse, String> {
     println!("Obeject before serde: {}", report_request);
     let report_request: models::ReportRequest = serde_json::from_str(&report_request)
-    .map_err(|e| format!("Failed to parse patient note request: {}", e))?;
+    .map_err(|e| format!("Tauri: Failed to parse report request : {}", e))?;
 
     println!("Object after serde: {:?}", report_request);
 
     let db = db.write().await;
-    let response: Vec<models::ReportResponse> =
+    let response: models::ReportResponse =
         services::create_report_service(&db, report_request).await?;
 
     Ok(response)
