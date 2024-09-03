@@ -104,7 +104,7 @@ pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
         "DEFINE TABLE Image SCHEMAFULL;",
         "DEFINE FIELD name ON Image TYPE string;",
         "DEFINE FIELD path ON Image TYPE string;",
-        "DEFINE FIELD body_type ON Image TYPE string;",
+        "DEFINE FIELD body_type ON Image TYPE string OPTIONAL;",
         "DEFINE FIELD modal_type ON Image TYPE string ASSERT $value IN ['xray', 'mri', 'ct'];",
         "DEFINE FIELD file_type ON Image TYPE string;",
         "DEFINE FIELD created_at ON Image TYPE datetime DEFAULT time::now();",

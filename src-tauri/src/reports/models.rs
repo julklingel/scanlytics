@@ -36,6 +36,17 @@ pub struct ImageRecord {
     pub updated_at: Datetime,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ImageRequest {
+
+    pub name: String,
+    pub path: String,
+    pub patient: String,
+    pub file_type: String,
+    pub modality_type: String,
+
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReportResponse {
     pub id: Thing,
