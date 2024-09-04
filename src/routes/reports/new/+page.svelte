@@ -14,6 +14,9 @@
   import { invoke } from "@tauri-apps/api/core";
   import { getPatients } from "../api/patient-data";
   import { getUsers } from "../api/user-data";
+  import { goto } from "$app/navigation";
+
+
 
   export let patient_id: string;
   export let user_owner: string;
@@ -30,6 +33,11 @@
       console.error(error);
     }
   });
+
+  async function fileToUint8Array(file: File): Promise<Uint8Array> {
+  return new Uint8Array(await file.arrayBuffer());
+}
+
 
   export let suggestions: { id: number; text: string }[] = [
     {
@@ -50,15 +58,17 @@
   let addedSugg: { id: number; text: string }[] = [];
 
   async function handleSubmit() {
+  const fileData = await Promise.all(files.map(async (file) => ({
+    filename: file.name,
+    extension: file.name.split('.').pop() || '',
+    data: Array.from(await fileToUint8Array(file))  
+  })));
+
   const reportData = {
     patient_id,
     user_owner,
     report_text,
-    files: files.map(file => ({
-      filename: file.name,
-      extension: file.type,
- 
-    }))
+    files: fileData
   };
 
   try {
@@ -66,6 +76,7 @@
       reportRequest: JSON.stringify(reportData),
     });
     toast.success("Report created successfully");
+    goto("/reports");
   } catch (error) {
     console.error(error);
     toast.error("Failed to create report");

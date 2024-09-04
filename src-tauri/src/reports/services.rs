@@ -4,7 +4,6 @@ use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
 use std::path::Path;
 
-
 pub async fn create_report_service(
     db: &Surreal<Client>,
     report_request: models::ReportRequest,
@@ -21,10 +20,6 @@ pub async fn create_report_service(
         .map_err(|e| e.to_string())?;
     let user_owner = user_owner.ok_or_else(|| "User not found".to_string())?;
 
-    println!("Patient: {:?}", patient);
-    println!("User owner: {:?}", user_owner);
-
-
     let mut image_ids = Vec::new();
 
     let save_dir = Path::new("saved_images");
@@ -33,19 +28,14 @@ pub async fn create_report_service(
     }
 
     for file in &report_request.files {
-        println!("File: {:?}", file);
-        let file_extension = file.filename.split('.').last().unwrap_or("bin");
-        
         let image_request = models::ImageRequest {
             name: file.filename.clone(),
-            path: String::new(), 
+            path: String::new(), // We'll update this after saving the file
             patient: patient.id.clone(),
             user: user_owner.id.clone(),
-            file_type: file_extension.to_string(),
-            modal_type: "xray".to_string(), 
+            file_type: file.extension.clone(),
+            modal_type: "xray".to_string(), // You might want to make this dynamic
         };
-
-        println!("Image request: {:?}", image_request);
 
         let created_image: Vec<models::ImageResponse> = db
             .create("Image")
@@ -54,25 +44,31 @@ pub async fn create_report_service(
             .map_err(|e| e.to_string())?;
 
         let created_image = created_image
-        .into_iter()
-        .next()
-        .ok_or_else(|| "Failed to create image".to_string())?;
+            .into_iter()
+            .next()
+            .ok_or_else(|| "Failed to create image".to_string())?;
 
-        println!("Created image: {:?}", created_image);
+        // Now that we have the ID, let's save the file
+        let file_name = format!("{}.{}", created_image.id, file.extension);
+        let file_path = save_dir.join(&file_name);
 
-        let file_name = format!("{}.{}", created_image.id, file_extension);
-        let file_path = format!("saved_images/{}", file_name);
+        // Convert Vec<u8> to DynamicImage
+        let image = image::load_from_memory(&file.data)
+            .map_err(|e| format!("Failed to load image: {}", e))?;
 
+        // Save the image
+        image.save(&file_path)
+            .map_err(|e| format!("Failed to save image: {}", e))?;
+
+        // Update the image record with the correct path
+        let file_path_str = file_path.to_str().unwrap().to_string();
         db.query("UPDATE type::thing($table, $id) SET path = $path")
             .bind(("table", "Image"))
             .bind(("id", &created_image.id))
-            .bind(("path", &file_path))
+            .bind(("path", &file_path_str))
             .await
             .map_err(|e| e.to_string())?;
 
-        
-
-        fs::write(&file_path, &file.extension).map_err(|e| e.to_string())?;
         image_ids.push(created_image.id);
     }
 
@@ -80,10 +76,8 @@ pub async fn create_report_service(
         patient: patient.id,
         user_owner: user_owner.id,
         report_text: report_request.report_text,
-        files: image_ids, 
+        files: image_ids,
     };
-
-    println!("Report record: {:?}", report_record);
 
     let created_report: Vec<models::ReportResponse> = db
         .create("Report")

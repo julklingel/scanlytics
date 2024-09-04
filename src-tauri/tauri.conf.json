@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "scanlytics",
+        "title": "Scanlytics",
         "width": 800,
         "height": 600
       }

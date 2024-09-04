@@ -13,7 +13,10 @@ pub struct ReportRequest {
 pub struct FileData {
     pub filename: String,
     pub extension: String,
+    #[serde(with = "serde_bytes")]
+    pub data: Vec<u8>,
 }
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReportRecord {
@@ -38,14 +41,12 @@ pub struct ImageResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageRequest {
-
     pub name: String,
     pub path: String,
     pub patient: Thing,
     pub user: Thing,
     pub file_type: String,
     pub modal_type: String,
-
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

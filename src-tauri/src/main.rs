@@ -21,8 +21,6 @@ use users::controller::get_users;
 
 fn main() {
     tauri::Builder::default()
-    .plugin(tauri_plugin_fs::init())
-
         .setup(|app| {
             tauri::async_runtime::block_on(async {
                 let db = init_db().await.expect("Failed to initialize database");
@@ -63,3 +61,4 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
