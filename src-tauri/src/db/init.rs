@@ -100,6 +100,7 @@ pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
         "DEFINE FIELD in ON TABLE Statements_Reports_Join TYPE record<Statement>;",
         "DEFINE FIELD out ON TABLE Statements_Reports_Join TYPE record<Report>;",
         "DEFINE FIELD patient ON Report TYPE record(Patient);",
+        "DEFINE FIELD user_owner ON Report TYPE record(User);",
 
         "DEFINE TABLE Image SCHEMAFULL;",
         "DEFINE FIELD name ON Image TYPE string;",

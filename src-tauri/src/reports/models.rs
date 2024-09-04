@@ -23,7 +23,6 @@ pub struct ReportRecord {
     pub patient: Thing,
     pub user_owner: Thing,
     pub report_text: String,
-    pub files: Vec<Thing>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -55,7 +54,6 @@ pub struct ReportResponse {
     pub patient: Thing,
     pub user_owner: Thing,
     pub report_text: String,
-    pub files: Vec<Thing>,
     pub created_at: Datetime,
     pub updated_at: Datetime,
 }

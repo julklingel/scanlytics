@@ -30,11 +30,11 @@ pub async fn create_report_service(
     for file in &report_request.files {
         let image_request = models::ImageRequest {
             name: file.filename.clone(),
-            path: String::new(), // We'll update this after saving the file
+            path: String::new(), 
             patient: patient.id.clone(),
             user: user_owner.id.clone(),
             file_type: file.extension.clone(),
-            modal_type: "xray".to_string(), // You might want to make this dynamic
+            modal_type: "xray".to_string(), 
         };
 
         let created_image: Vec<models::ImageResponse> = db
@@ -48,19 +48,18 @@ pub async fn create_report_service(
             .next()
             .ok_or_else(|| "Failed to create image".to_string())?;
 
-        // Now that we have the ID, let's save the file
         let file_name = format!("{}.{}", created_image.id, file.extension);
         let file_path = save_dir.join(&file_name);
 
-        // Convert Vec<u8> to DynamicImage
+    
         let image = image::load_from_memory(&file.data)
             .map_err(|e| format!("Failed to load image: {}", e))?;
 
-        // Save the image
+    
         image.save(&file_path)
             .map_err(|e| format!("Failed to save image: {}", e))?;
 
-        // Update the image record with the correct path
+
         let file_path_str = file_path.to_str().unwrap().to_string();
         db.query("UPDATE type::thing($table, $id) SET path = $path")
             .bind(("table", "Image"))
@@ -76,7 +75,7 @@ pub async fn create_report_service(
         patient: patient.id,
         user_owner: user_owner.id,
         report_text: report_request.report_text,
-        files: image_ids,
+       
     };
 
     let created_report: Vec<models::ReportResponse> = db
