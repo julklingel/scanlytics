@@ -79,7 +79,10 @@
     goto("/reports");
   } catch (error) {
     console.error(error);
-    toast.error("Failed to create report");
+    alert(error)
+    let stringerror = JSON.stringify(error)
+    toast.error(stringerror);
+    
   }
 }
 

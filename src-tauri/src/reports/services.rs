@@ -2,11 +2,12 @@ use super::models;
 use std::fs;
 use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
-use std::path::Path;
+use tauri::Manager;
 
 pub async fn create_report_service(
     db: &Surreal<Client>,
     report_request: models::ReportRequest,
+    app_handle: tauri::AppHandle,
 ) -> Result<models::ReportResponse, String> {
     let patient: Option<models::PatientInfo> = db
         .select(("Patient", &report_request.patient_id))
@@ -22,19 +23,24 @@ pub async fn create_report_service(
 
     let mut image_ids = Vec::new();
 
-    let save_dir = Path::new("saved_images");
+    let app_local_data_dir = app_handle
+        .path()
+        .app_local_data_dir()
+        .map_err(|e| format!("Failed to get app local data directory: {}", e))?;
+
+    let save_dir = app_local_data_dir.join("saved_images");
     if !save_dir.exists() {
-        fs::create_dir_all(save_dir).map_err(|e| format!("Failed to create directory: {}", e))?;
+        fs::create_dir_all(&save_dir).map_err(|e| format!("Failed to create directory: {}", e))?;
     }
 
     for file in &report_request.files {
         let image_request = models::ImageRequest {
             name: file.filename.clone(),
-            path: String::new(), 
+            path: String::new(),
             patient: patient.id.clone(),
             user: user_owner.id.clone(),
             file_type: file.extension.clone(),
-            modal_type: "xray".to_string(), 
+            modal_type: "xray".to_string(),
         };
 
         let created_image: Vec<models::ImageResponse> = db
@@ -51,14 +57,12 @@ pub async fn create_report_service(
         let file_name = format!("{}.{}", created_image.id, file.extension);
         let file_path = save_dir.join(&file_name);
 
-    
         let image = image::load_from_memory(&file.data)
             .map_err(|e| format!("Failed to load image: {}", e))?;
 
-    
-        image.save(&file_path)
+        image
+            .save(&file_path)
             .map_err(|e| format!("Failed to save image: {}", e))?;
-
 
         let file_path_str = file_path.to_str().unwrap().to_string();
         db.query("UPDATE type::thing($table, $id) SET path = $path")
@@ -75,7 +79,6 @@ pub async fn create_report_service(
         patient: patient.id,
         user_owner: user_owner.id,
         report_text: report_request.report_text,
-       
     };
 
     let created_report: Vec<models::ReportResponse> = db
@@ -87,8 +90,18 @@ pub async fn create_report_service(
             e.to_string()
         })?;
 
-    let report = created_report.into_iter().next()
+    let report = created_report
+        .into_iter()
+        .next()
         .ok_or_else(|| "Failed to create report".to_string())?;
+
+    for image_id in image_ids {
+        db.query("RELATE $image -> Images_Reports_Join -> $report")
+            .bind(("image", &image_id))
+            .bind(("report", &report.id))
+            .await
+            .map_err(|e| e.to_string())?;
+    }
 
     println!("Created report: {:?}", report);
 
