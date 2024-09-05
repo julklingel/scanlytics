@@ -27,30 +27,11 @@
       e.preventDefault();
     }
   
-    function handleClick() {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-      input.onchange = (e: Event) => {
-        const target = e.target as HTMLInputElement;
-        if (target.files) {
-          file = target.files[0];
-        }
-      };
-      input.click();
-    }
   
     function handleDragStart(e: DragEvent, suggestion: string) {
       e.dataTransfer?.setData('text/plain', suggestion);
     }
   
-    function handleTextAreaDrop(e: DragEvent) {
-      e.preventDefault();
-      const suggestion = e.dataTransfer?.getData('text/plain');
-      if (suggestion) {
-        reportText += ' ' + suggestion;
-      }
-    }
   
     onMount(() => {
       dropzone.addEventListener("drop", handleDrop);

@@ -16,8 +16,6 @@
   import { getUsers } from "../api/user-data";
   import { goto } from "$app/navigation";
 
-
-
   export let patient_id: string;
   export let user_owner: string;
 

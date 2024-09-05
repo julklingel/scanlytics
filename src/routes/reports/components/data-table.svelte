@@ -98,16 +98,16 @@
       <Table.TableBody>
         {#each filteredReports as report}
           <Table.TableRow>
-            <Table.TableCell on:click={() => handleReportView(report.id)}
+            <Table.TableCell on:click={() => handleReportView(report.id.id.String)}
               >{report.patient?.name || "N/A"}</Table.TableCell
             >
-            <Table.TableCell on:click={() => handleReportView(report.id)}
+            <Table.TableCell on:click={() => handleReportView(report.id.id.String)}
               >{report.body_type || "N/A"}</Table.TableCell
             >
-            <Table.TableCell on:click={() => handleReportView(report.id)}
+            <Table.TableCell on:click={() => handleReportView(report.id.id.String)}
               >{report.condition || "N/A"}</Table.TableCell
             >
-            <Table.TableCell on:click={() => handleReportView(report.id)}
+            <Table.TableCell on:click={() => handleReportView(report.id.id.String)}
               >{formatDate(report.createdAt)}</Table.TableCell
             >
             <Table.TableCell>

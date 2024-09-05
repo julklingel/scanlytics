@@ -1,7 +1,9 @@
 import { writable } from "svelte/store";
 
 type Report = {
-  id: { String: string };
+  id: {
+    [x: string]: any; String: string 
+};
   reportText: string;
   bodyType: string;
   condition: string;
