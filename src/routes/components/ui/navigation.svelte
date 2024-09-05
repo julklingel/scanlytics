@@ -4,6 +4,7 @@
     import { PatientStore } from "../../../stores/Patient";
     import { UserStore } from "../../../stores/User";
     import { PatientNotesStore } from "../../../stores/PatientNote";
+    import { ReportStore } from "../../../stores/Report";
 
     function convertIdToName(id: string, store: any) {
         const item = store.find((item: any) => item.id === id);
@@ -58,6 +59,20 @@
                 case "Users":
                     breadcrumb[1].name = convertIdToName(parts[1], $UserStore);
                     break;
+                
+                case "Reports":
+                    if (parts[1] === "new") {
+                        breadcrumb[1].name = "New";
+                    } else {
+                        const report = $ReportStore.find(
+                            (report) => report.id.id.String === parts[1]
+                        );
+                        if (report) {
+                            breadcrumb[1].name = report.patient.name;
+                        } else {
+                            breadcrumb[1].name = "Unknown Patient";
+                        }
+                    }
             }
         }
 
