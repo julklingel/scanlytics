@@ -4,6 +4,8 @@ use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
 use tauri::Manager;
 
+use surrealdb::Error as SurrealError;
+
 pub async fn create_report_service(
     db: &Surreal<Client>,
     report_request: models::ReportRequest,
@@ -64,7 +66,11 @@ pub async fn create_report_service(
             .save(&file_path)
             .map_err(|e| format!("Failed to save image: {}", e))?;
 
-        let file_path_str = file_path.to_str().unwrap().to_string();
+        let file_path_str = file_path
+            .to_str()
+            .ok_or_else(|| "File path contains invalid Unicode".to_string())?
+            .to_string();
+
         db.query("UPDATE type::thing($table, $id) SET path = $path")
             .bind(("table", "Image"))
             .bind(("id", &created_image.id))
@@ -106,4 +112,24 @@ pub async fn create_report_service(
     println!("Created report: {:?}", report);
 
     Ok(report)
+}
+
+pub async fn get_reports_service(
+    db: &Surreal<Client>,
+) -> Result<Vec<models::ReportResponse>, SurrealError> {
+    let query = "
+            SELECT
+                id,
+                report_text,
+                body_type,
+                condition,
+                { id: patient.id, name: patient.name } as patient,
+                { id: user_owner.id, name: user_owner.name } as user_owner,
+                created_at,
+                updated_at
+            FROM Report
+            FETCH patient, user_owner;
+        ";
+    let result: Vec<models::ReportResponse> = db.query(query).await?.take(0)?;
+    Ok(result)
 }

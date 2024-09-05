@@ -20,3 +20,15 @@ pub async fn create_report(
 
     Ok(response)
 }
+
+
+#[tauri::command]
+pub async fn get_reports( db: State<'_, RwLock<Surreal<Client>>>,) -> Result<Vec<models::ReportResponse>, String> {
+    let db = db.read().await;
+    let response: Vec<models::ReportResponse> = services::get_reports_service(&db)
+    .await
+    .map_err(|e| e.to_string())?;
+
+
+    Ok(response)
+}
