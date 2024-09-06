@@ -19,4 +19,4 @@ surrealdb = "1.5.4"
 tokio = "1.39.2"
 image = "0.25.2"
 serde_bytes = "0.11.0"
-
+base64 = "0.21.0"

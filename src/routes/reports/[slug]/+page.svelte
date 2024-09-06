@@ -75,6 +75,7 @@ const InfoItem = ({ icon, label, value }: { icon: any, label: any, value: any })
   $: fileNames = files.map((file) => file.name).join(", ");
 </script>
 
+
 <h1 class="my-4 mb-8 text-4xl font-extrabold tracking-tight lg:text-5xl">
   Befund von {selectedReport?.patient.name}:
 </h1>

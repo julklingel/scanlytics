@@ -4498,6 +4498,7 @@ dependencies = [
 name = "scanlytics"
 version = "0.0.0"
 dependencies = [
+ "base64 0.21.7",
  "image",
  "serde",
  "serde_bytes",

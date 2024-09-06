@@ -69,3 +69,12 @@ pub struct UserInfo {
     pub id: Thing,
     pub name: String,
 }
+
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ImageInfo {
+    pub id: Thing,
+    pub path: String,
+    pub name: String,
+}
