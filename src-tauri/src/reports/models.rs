@@ -49,6 +49,16 @@ pub struct ImageRequest {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CreateReportResponse {
+    pub id: Thing,
+    pub patient: Thing,
+    pub user_owner: Thing,
+    pub report_text: String,
+    pub created_at: Datetime,
+    pub updated_at: Datetime,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReportResponse {
     pub id: Thing,
     pub patient: PatientInfo,

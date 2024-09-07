@@ -10,7 +10,7 @@ pub async fn create_report_service(
     db: &Surreal<Client>,
     report_request: models::ReportRequest,
     app_handle: tauri::AppHandle,
-) -> Result<models::ReportResponse, String> {
+) -> Result<models::CreateReportResponse, String> {
     let patient: Option<models::PatientInfo> = db
         .select(("Patient", &report_request.patient_id))
         .await
@@ -87,7 +87,7 @@ pub async fn create_report_service(
         report_text: report_request.report_text,
     };
 
-    let created_report: Vec<models::ReportResponse> = db
+    let created_report: Vec<models::CreateReportResponse> = db
         .create("Report")
         .content(report_record)
         .await
@@ -139,7 +139,6 @@ pub async fn get_report_images_service(
     db: &Surreal<Client>,
     report_id: String,
 ) -> Result<Vec<models::ImageInfo>, SurrealError> {
-    println!("Getting images for report: {}", report_id);
     let query = "
         SELECT 
             image.id,
