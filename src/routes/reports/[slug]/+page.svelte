@@ -19,9 +19,23 @@
   import { page } from "$app/stores";
   import { Calendar, User, PersonStanding } from 'lucide-svelte';
 
+  export let report_id: string;
 
-  export let patient_id: string;
-  export let user_owner: string;
+  let images: { id: string, path: string, name: string }[] = [];
+  let loadedImages: { [key: string]: string } = {};
+
+  onMount(async () => {
+    try {
+      images = await invoke("get_report_images", { reportId: report_id });
+      for (let image of images) {
+        const base64Image = await invoke("read_image_file", { path: image.path });
+        loadedImages[image.id] = `data:image/jpeg;base64,${base64Image}`;
+      }
+      console.log("Loaded images:", loadedImages);  
+    } catch (error) {
+      console.error("Failed to load images:", error);
+    }
+  });
 
   $: selectedReport = $ReportStore.find(
   (report) => report.id.id.String === $page.params.slug
@@ -33,24 +47,12 @@ const InfoItem = ({ icon, label, value }: { icon: any, label: any, value: any })
     value
   });
 
-  
-
   let carouselApi: any;
   let files: File[] = [];
   $: report_text = selectedReport?.reportText || "";
   $: createdAt = formatDate(selectedReport?.createdAt || "") 
+  $: report_id = selectedReport?.id.id.String;
 
-  $: console.log(selectedReport?.reportText);
-
-
-  onMount(async () => {
-    try {
-      await getUsers();
-      await getPatients();
-    } catch (error) {
-      console.error(error);
-    }
-  });
 
   async function fileToUint8Array(file: File): Promise<Uint8Array> {
     return new Uint8Array(await file.arrayBuffer());
@@ -121,7 +123,7 @@ const InfoItem = ({ icon, label, value }: { icon: any, label: any, value: any })
           <div class="relative">
             <Carousel.Root bind:api={carouselApi}>
               <Carousel.Content>
-                {#each files as file, index (file)}
+                {#each Object.entries(loadedImages) as [id, src], index (id)}
                   <Carousel.Item>
                     <div class="relative">
                       <button
@@ -131,8 +133,8 @@ const InfoItem = ({ icon, label, value }: { icon: any, label: any, value: any })
                         <XIcon size={16} />
                       </button>
                       <img
-                        src={URL.createObjectURL(file)}
-                        alt={`Uploaded image ${index + 1}`}
+                        src={src}
+                        alt={`Image ${index + 1}`}
                         class="object-cover w-full h-full"
                         aria-hidden="true"
                       />

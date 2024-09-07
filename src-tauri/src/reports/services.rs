@@ -139,18 +139,20 @@ pub async fn get_report_images_service(
     db: &Surreal<Client>,
     report_id: String,
 ) -> Result<Vec<models::ImageInfo>, SurrealError> {
+    println!("Getting images for report: {}", report_id);
     let query = "
         SELECT 
             image.id,
             image.path,
             image.name
         FROM Images_Reports_Join
-        FETCH image := in
-        WHERE out = $report_id;
+     
+        WHERE out = type::thing('Report', $report_id)
+        FETCH image;
     ";
     let result: Vec<models::ImageInfo> = db
         .query(query)
-        .bind(("report_id", &report_id))
+        .bind(("report_id", report_id))
         .await?
         .take(0)?;
     Ok(result)

@@ -71,7 +71,6 @@ pub struct UserInfo {
 }
 
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageInfo {
     pub id: Thing,
