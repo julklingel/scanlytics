@@ -92,7 +92,6 @@ pub async fn create_report_service(
         .content(report_record)
         .await
         .map_err(|e| {
-            println!("Error creating report: {:?}", e);
             e.to_string()
         })?;
 
@@ -108,8 +107,6 @@ pub async fn create_report_service(
             .await
             .map_err(|e| e.to_string())?;
     }
-
-    println!("Created report: {:?}", report);
 
     Ok(report)
 }
@@ -134,20 +131,13 @@ pub async fn get_reports_service(
     Ok(result)
 }
 
-
 pub async fn get_report_images_service(
     db: &Surreal<Client>,
     report_id: String,
 ) -> Result<Vec<models::ImageInfo>, SurrealError> {
     let query = "
-        SELECT 
-            image.id,
-            image.path,
-            image.name
-        FROM Images_Reports_Join
-     
-        WHERE out = type::thing('Report', $report_id)
-        FETCH image;
+    SELECT id, name, path FROM (SELECT * FROM Images_Reports_Join WHERE out = type::thing('Report', $report_id)).in
+ 
     ";
     let result: Vec<models::ImageInfo> = db
         .query(query)

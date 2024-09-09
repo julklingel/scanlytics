@@ -14,7 +14,7 @@ use notes::controller::{
 };
 use organizations::controller::get_organizations;
 use patients::controller::{create_patient, delete_patient, get_patients, update_patient};
-use reports::controller::{create_report, get_reports, get_report_images, read_image_file};
+use reports::controller::{create_report, get_reports, get_report_images};
 use tauri::Manager;
 use testapi::controller::{test_db_delete, test_db_read, test_db_write};
 use users::controller::get_users;
@@ -59,7 +59,7 @@ fn main() {
             create_report,
             get_reports,
             get_report_images,
-            read_image_file,
+            
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
