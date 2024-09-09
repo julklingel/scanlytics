@@ -1,10 +1,6 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Datetime, Thing};
 
-
-
-
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserRequest {
     pub name: String,
@@ -17,10 +13,7 @@ pub struct UserRequest {
     pub statements: Option<Vec<surrealdb::sql::Thing>>,
     pub images: Option<Vec<surrealdb::sql::Thing>>,
     pub reports: Option<Vec<surrealdb::sql::Thing>>,
-
 }
-
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserRecord {
@@ -35,9 +28,6 @@ pub struct UserRecord {
     pub images: Option<Vec<surrealdb::sql::Thing>>,
     pub reports: Option<Vec<surrealdb::sql::Thing>>,
 }
-
-
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserResponse {

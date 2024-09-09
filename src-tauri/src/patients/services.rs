@@ -3,8 +3,6 @@ use super::models::{PatientRecord, PatientRequest, PatientResponse, UserResponse
 use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
 
-
-
 pub async fn create_patient_service(
     db: &Surreal<Client>,
     data: PatientRequest,

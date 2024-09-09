@@ -3,18 +3,23 @@ use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
 use tokio::sync::RwLock;
 
+// Should be moved on the main thread rm async
 pub async fn init_db() -> Result<RwLock<Surreal<Client>>, String> {
-    let db = Surreal::new::<Ws>("127.0.0.1:8000").await.map_err(|e| e.to_string())?;
+    let db = Surreal::new::<Ws>("127.0.0.1:8000")
+        .await
+        .map_err(|e| e.to_string())?;
     db.signin(Root {
         username: "root",
         password: "root",
     })
     .await
     .map_err(|e| e.to_string())?;
-    db.use_ns("namespace").use_db("database").await.map_err(|e| e.to_string())?;
+    db.use_ns("namespace")
+        .use_db("database")
+        .await
+        .map_err(|e| e.to_string())?;
     Ok(RwLock::new(db))
 }
-
 
 pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
     let define_statements = vec![
@@ -87,19 +92,20 @@ pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
         "DEFINE FIELD user_owner ON Statement TYPE record(User);",
 
         "DEFINE TABLE Report SCHEMAFULL;",
-        "DEFINE FIELD body_type ON Report TYPE string;",
-        "DEFINE FIELD condition ON Report TYPE string;",
+        "DEFINE FIELD body_part ON Report TYPE option<string>;",
+        "DEFINE FIELD condition ON Report TYPE option<string>;",
         "DEFINE FIELD report_text ON Report TYPE string;",
         "DEFINE FIELD created_at ON Report TYPE datetime DEFAULT time::now();",
         "DEFINE FIELD updated_at ON Report TYPE datetime DEFAULT time::now() VALUE time::now();",
         "DEFINE FIELD in ON TABLE Statements_Reports_Join TYPE record<Statement>;",
         "DEFINE FIELD out ON TABLE Statements_Reports_Join TYPE record<Report>;",
         "DEFINE FIELD patient ON Report TYPE record(Patient);",
+        "DEFINE FIELD user_owner ON Report TYPE record(User);",
 
         "DEFINE TABLE Image SCHEMAFULL;",
         "DEFINE FIELD name ON Image TYPE string;",
         "DEFINE FIELD path ON Image TYPE string;",
-        "DEFINE FIELD body_type ON Image TYPE string;",
+        "DEFINE FIELD body_type ON Image TYPE option<string>;",
         "DEFINE FIELD modal_type ON Image TYPE string ASSERT $value IN ['xray', 'mri', 'ct'];",
         "DEFINE FIELD file_type ON Image TYPE string;",
         "DEFINE FIELD created_at ON Image TYPE datetime DEFAULT time::now();",
