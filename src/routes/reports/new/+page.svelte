@@ -18,6 +18,7 @@
 
   export let patient_id: string;
   export let user_owner: string;
+  let body_part: string = "";
 
   let carouselApi: any;
   let files: File[] = [];
@@ -65,6 +66,7 @@
   const reportData = {
     patient_id,
     user_owner,
+    body_part,
     report_text,
     files: fileData
   };
@@ -166,6 +168,7 @@
         type="text"
         placeholder="Search for type"
         class="mt-1 block w-full"
+        bind:value={body_part}
       />
     </div>
   </div>

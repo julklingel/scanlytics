@@ -4,7 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 type ReportResponse = {
   id: { String: string };
   report_text: string;
-  body_type: string;
+  body_part: string;
   condition: string;
   patient: {
     id: { String: string };
@@ -26,7 +26,7 @@ export async function getReports() {
     const reports = data.map((report) => ({
       id: report.id,
       reportText: report.report_text,
-      bodyType: report.body_type,
+      bodyPart: report.body_part,
       condition: report.condition,
       patient: {
         id: report.patient.id,

@@ -85,6 +85,7 @@ pub async fn create_report_service(
         patient: patient.id,
         user_owner: user_owner.id,
         report_text: report_request.report_text,
+        body_part: report_request.body_part,
     };
 
     let created_report: Vec<models::CreateReportResponse> = db
@@ -108,6 +109,8 @@ pub async fn create_report_service(
             .map_err(|e| e.to_string())?;
     }
 
+
+
     Ok(report)
 }
 
@@ -118,7 +121,7 @@ pub async fn get_reports_service(
             SELECT
                 id,
                 report_text,
-                body_type,
+                body_part,
                 condition,
                 { id: patient.id, name: patient.name } as patient,
                 { id: user_owner.id, name: user_owner.name } as user_owner,

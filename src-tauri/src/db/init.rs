@@ -92,7 +92,7 @@ pub async fn define_db_on_startup(db: &Surreal<Client>) -> Result<(), String> {
         "DEFINE FIELD user_owner ON Statement TYPE record(User);",
 
         "DEFINE TABLE Report SCHEMAFULL;",
-        "DEFINE FIELD body_type ON Report TYPE option<string>;",
+        "DEFINE FIELD body_part ON Report TYPE option<string>;",
         "DEFINE FIELD condition ON Report TYPE option<string>;",
         "DEFINE FIELD report_text ON Report TYPE string;",
         "DEFINE FIELD created_at ON Report TYPE datetime DEFAULT time::now();",

@@ -5,7 +5,7 @@ type Report = {
     [x: string]: any; String: string 
 };
   reportText: string;
-  bodyType: string;
+  bodyPart: string;
   condition: string;
   patient: {
     id: { String: string };

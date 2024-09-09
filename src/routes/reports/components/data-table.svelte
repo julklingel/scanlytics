@@ -42,7 +42,7 @@
           (report.condition || "")
             .toLowerCase()
             .includes($filterValue.toLowerCase()) ||
-          (report.bodyType || "")
+          (report.bodyPart || "")
             .toLowerCase()
             .includes($filterValue.toLowerCase()),
       )
@@ -102,7 +102,7 @@
               >{report.patient?.name || "N/A"}</Table.TableCell
             >
             <Table.TableCell on:click={() => handleReportView(report.id.id.String)}
-              >{report.body_type || "N/A"}</Table.TableCell
+              >{report.bodyPart || "N/A"}</Table.TableCell
             >
             <Table.TableCell on:click={() => handleReportView(report.id.id.String)}
               >{report.condition || "N/A"}</Table.TableCell

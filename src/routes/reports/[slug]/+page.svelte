@@ -58,6 +58,7 @@
   $: report_text = selectedReport?.reportText || "";
   $: createdAt = formatDate(selectedReport?.createdAt || "");
   $: report_id = selectedReport?.id.id.String;
+  $: body_part = selectedReport?.bodyPart;
 
   function goToSlide(index: number) {
     if (carouselApi) {
@@ -82,7 +83,7 @@
 <section class="py-6 bg-white rounded-lg shadow-md p-6">
   <section class="flex flex-col pb-6">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      {#each [InfoItem( { icon: User, label: "Doctor", value: selectedReport?.userOwner.name } ), InfoItem( { icon: User, label: "Patient", value: selectedReport?.patient.name } ), InfoItem( { icon: PersonStanding, label: "Bodypart", value: selectedReport?.bodyType } ), InfoItem( { icon: Calendar, label: "Date", value: createdAt } )] as item, i}
+      {#each [InfoItem( { icon: User, label: "Doctor", value: selectedReport?.userOwner.name } ), InfoItem( { icon: User, label: "Patient", value: selectedReport?.patient.name } ), InfoItem( { icon: PersonStanding, label: "Bodypart", value: selectedReport?.bodyPart } ), InfoItem( { icon: Calendar, label: "Date", value: createdAt } )] as item, i}
         <div class="flex flex-col items-start space-y-1">
           <div class="flex items-center space-x-2">
             <svelte:component

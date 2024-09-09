@@ -6,6 +6,7 @@ pub struct ReportRequest {
     pub patient_id: String,
     pub user_owner: String,
     pub report_text: String,
+    pub body_part: String,
     pub files: Vec<FileData>,
 }
 
@@ -23,6 +24,7 @@ pub struct ReportRecord {
     pub patient: Thing,
     pub user_owner: Thing,
     pub report_text: String,
+    pub body_part: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -64,6 +66,7 @@ pub struct ReportResponse {
     pub patient: PatientInfo,
     pub user_owner: UserInfo,
     pub report_text: String,
+    pub body_part: String,
     pub created_at: Datetime,
     pub updated_at: Datetime,
 }
