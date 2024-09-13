@@ -87,16 +87,6 @@
 }
 
 
-async function runONNX() {
-  const image_path = "Users/julklingel/Library/Application Support/com.scanlytics.dev/saved_images/Image:c2cfeuydnkdcpb42fjeg.jpg"
-  const response = await invoke("test_onnx_model", {
-      reportRequest: JSON.stringify(image_path),
-    });
-    console.log(response);
-    let res_string = JSON.stringify(response)
-    toast.success(res_string);
-}
-
 
 
 
@@ -335,5 +325,3 @@ async function runONNX() {
 
 
 
-
-<button class=" p-20" on:click={runONNX}>ONNX</button>

@@ -3,7 +3,7 @@ use surrealdb::sql::Thing;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ONNXRequest {
-    pub image_paths: Vec<String>,
+    pub image_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
