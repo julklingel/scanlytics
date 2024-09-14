@@ -8,6 +8,7 @@
   import { invoke } from "@tauri-apps/api/core";
   import ErrorMsg from "../../components/ui/errormodal.svelte";
   import { goto } from "$app/navigation";
+  import * as Select from "$lib/components/ui/select";
 
   import CalendarIcon from "lucide-svelte/icons/calendar";
   import {
@@ -44,6 +45,12 @@
 
   let value: DateValue | undefined = undefined;
 
+  let selected: any;
+  $: if (selected) {
+    gender = selected.value;
+  }
+
+
   onMount(async () => {
     try {
       await getUsers();
@@ -51,8 +58,6 @@
       console.error(error);
     }
   });
-
-
 
   async function handleSubmit() {
     const formData = {
@@ -127,7 +132,7 @@
             variant="outline"
             class={cn(
               "w-[280px] justify-start text-left font-normal",
-              !value && "text-muted-foreground",
+              !value && "text-muted-foreground"
             )}
             builders={[builder]}
           >
@@ -144,20 +149,17 @@
     </div>
 
     <div>
-      <Label for="gender" class="block text-sm font-medium text-gray-700"
-        >Gender</Label
-      >
-      <select
-        id="gender"
-        bind:value={gender}
-        required
-        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-      >
-        <option value="" disabled selected>Select gender</option>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-        <option value="other">Other</option>
-      </select>
+      <Label> Gender</Label>
+      <Select.Root bind:selected>
+        <Select.Trigger>
+          <Select.Value placeholder="Select your Gender" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="male">Male</Select.Item>
+          <Select.Item value="female">Female</Select.Item>
+          <Select.Item value="other">Other</Select.Item>
+        </Select.Content>
+      </Select.Root>
     </div>
 
     <div>
