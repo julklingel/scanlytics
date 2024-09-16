@@ -24,6 +24,32 @@
   let files: File[] = [];
   let report_text: string = "";
 
+  async function sendFilesToBackend(files: File[]) {
+    try {
+      const fileData = await Promise.all(
+        files.map(async (file) => ({
+          filename: file.name,
+          extension: file.name.split(".").pop() || "",
+          data: Array.from(new Uint8Array(await file.arrayBuffer())),
+        }))
+      );
+
+      const result = await invoke("process_images", {
+        images: fileData,
+      });
+      console.log("Images processed:", result);
+    } catch (error) {
+      console.error("Error processing images:", error);
+      toast.error("Error processing images");
+    }
+  }
+
+  $: {
+    if (files.length > 0) {
+      sendFilesToBackend(files);
+    }
+  }
+
   onMount(async () => {
     try {
       await getUsers();
@@ -34,9 +60,8 @@
   });
 
   async function fileToUint8Array(file: File): Promise<Uint8Array> {
-  return new Uint8Array(await file.arrayBuffer());
-}
-
+    return new Uint8Array(await file.arrayBuffer());
+  }
 
   export let suggestions: { id: number; text: string }[] = [
     {
@@ -57,43 +82,35 @@
   let addedSugg: { id: number; text: string }[] = [];
 
   async function handleSubmit() {
-  const fileData = await Promise.all(files.map(async (file) => ({
-    filename: file.name,
-    extension: file.name.split('.').pop() || '',
-    data: Array.from(await fileToUint8Array(file))  
-  })));
+    const fileData = await Promise.all(
+      files.map(async (file) => ({
+        filename: file.name,
+        extension: file.name.split(".").pop() || "",
+        data: Array.from(await fileToUint8Array(file)),
+      }))
+    );
 
-  const reportData = {
-    patient_id,
-    user_owner,
-    body_part,
-    report_text,
-    files: fileData
-  };
+    const reportData = {
+      patient_id,
+      user_owner,
+      body_part,
+      report_text,
+      files: fileData,
+    };
 
-  try {
-    const response = await invoke("create_report", {
-      reportRequest: JSON.stringify(reportData),
-    });
-    toast.success("Report created successfully");
-    goto("/reports");
-  } catch (error) {
-    console.error(error);
-    alert(error)
-    let stringerror = JSON.stringify(error)
-    toast.error(stringerror);
-    
+    try {
+      const response = await invoke("create_report", {
+        reportRequest: JSON.stringify(reportData),
+      });
+      toast.success("Report created successfully");
+      goto("/reports");
+    } catch (error) {
+      console.error(error);
+      alert(error);
+      let stringerror = JSON.stringify(error);
+      toast.error(stringerror);
+    }
   }
-}
-
-
-
-
-
-
-
-
-
 
   function handleClick() {
     const input = document.createElement("input");
@@ -105,7 +122,6 @@
       if (target.files) {
         files = [...files, ...Array.from(target.files)];
       }
-      console.log(files);
     };
     input.click();
   }
@@ -142,8 +158,6 @@
       }
     }
   }
-
-  $: fileNames = files.map((file) => file.name).join(", ");
 </script>
 
 <h1 class="my-4 mb-8 text-4xl font-extrabold tracking-tight lg:text-5xl">
@@ -322,6 +336,3 @@
   <!-- <Button class=" ">Preview</Button> -->
   <Button on:click={handleSubmit} class=" ">Save</Button>
 </section>
-
-
-

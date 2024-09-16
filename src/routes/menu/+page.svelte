@@ -7,7 +7,7 @@
 
 
 async function runONNX() {
-  const image_path = "Users/julklingel/Library/Application Support/com.scanlytics.dev/saved_images/Image:c2cfeuydnkdcpb42fjeg.jpg"
+  const image_path = 'Users/julklingel/Library/Application Support/com.scanlytics.dev/saved_images/Image:c2cfeuydnkdcpb42fjeg.jpg'
   const response = await invoke("test_onnx_model", {
     imagePath: JSON.stringify(image_path),
     });

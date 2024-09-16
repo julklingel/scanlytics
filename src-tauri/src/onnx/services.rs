@@ -1,41 +1,30 @@
 use super::models;
 use image::imageops::FilterType;
-use ndarray::{Array, ArrayView};
-use tauri::AppHandle;
-use tract_onnx::prelude::*;
-use log::{info, error};
+use ndarray::Array;
 use std::fs;
+use tract_onnx::prelude::*;
 
 use tauri::Manager;
 
-
-pub async fn test_onnx_model_service(image_path: String, app_handle: tauri::AppHandle) -> Result<models::ONNXResponse, String> {
-
-    
+pub async fn test_onnx_model_service(
+    image_path: String,
+    model_type: String,
+    app_handle: tauri::AppHandle,
+) -> Result<models::ONNXResponse, String> {
     let app_local_data_dir = app_handle
         .path()
         .app_local_data_dir()
         .map_err(|e| format!("Failed to get app local data directory: {}", e))?;
 
-    println!("app_local_data_dir: {:?}", app_local_data_dir);
-
-
     let load_dir = app_local_data_dir.join("onnx");
 
-    println!("load_dir: {:?}", load_dir);
-
     if !load_dir.exists() {
-        info!("Creating ONNX directory");
         fs::create_dir_all(&load_dir).map_err(|e| format!("Failed to create directory: {}", e))?;
     }
 
     let model_path = load_dir.join("MNST_med.onnx");
 
-
-    println!("model_path: {:?}", model_path);
-
     if !model_path.exists() {
-        error!("ONNX model file not found at {:?}", model_path);
         return Err(format!(
             "ONNX model file not found at {:?}",
             model_path
@@ -44,7 +33,6 @@ pub async fn test_onnx_model_service(image_path: String, app_handle: tauri::AppH
         ));
     }
 
-    // Load and prepare the model
     let model = tract_onnx::onnx()
         .model_for_path(model_path)
         .unwrap()
@@ -53,15 +41,12 @@ pub async fn test_onnx_model_service(image_path: String, app_handle: tauri::AppH
         .into_runnable()
         .unwrap();
 
+    let image_path = image_path.trim_matches('"');
+    println!("Image path {:?}", image_path);
 
-
-    println!("model: {:?}", model);
-
-    let image_path = app_local_data_dir.join("saved_images").join("Image:p49wval1te4tf7lboyj6.bmp");
-
-    println!("image_path: {:?}", image_path);
-
-    // Load and preprocess the image
+    if image_path.is_empty() {
+        return Err(format!("Image file not found at {:?}", image_path));
+    }
     let img = image::open(&image_path)
         .map_err(|e| e.to_string())?
         .resize_exact(28, 28, FilterType::Lanczos3)
@@ -71,18 +56,15 @@ pub async fn test_onnx_model_service(image_path: String, app_handle: tauri::AppH
         (img[(x as _, y as _)][0] as f32 - 127.5) / 127.5
     });
 
-    // Convert the array to a Tensor
     let (vec, offset) = img_array.into_raw_vec_and_offset();
     let input =
         tract_ndarray::Array4::from_shape_vec((1, 1, 28, 28), vec).map_err(|e| e.to_string())?;
     let input_tensor = input.into_tensor();
 
-    // Run inference
     let result = model
         .run(tvec!(input_tensor.into()))
         .map_err(|e| e.to_string())?;
 
-    // Process the output
     let output = result[0]
         .to_array_view::<f32>()
         .map_err(|e| e.to_string())?;
@@ -109,4 +91,21 @@ pub async fn test_onnx_model_service(image_path: String, app_handle: tauri::AppH
         image_type: image_type.to_string(),
         confidence: *confidence,
     })
+}
+
+
+
+pub async fn process_image_service(
+    image_data: models::ImageData,
+
+) -> Result<models::ONNXResponse, String> {
+    println!("Processing image data {:?}", image_data);
+
+    let mock_response = models::ONNXResponse {
+        image_type: "AbdomenCT".to_string(),
+        confidence: 0.99,
+    };
+
+    return Ok(mock_response);
+
 }
