@@ -25,24 +25,42 @@
   let report_text: string = "";
 
   async function sendFilesToBackend(files: File[]) {
-    try {
-      const fileData = await Promise.all(
-        files.map(async (file) => ({
-          filename: file.name,
-          extension: file.name.split(".").pop() || "",
-          data: Array.from(new Uint8Array(await file.arrayBuffer())),
-        }))
-      );
+  try {
+    let fileData = await Promise.all(
+      files.map(async (file) => ({
+        filename: file.name,
+        extension: file.name.split(".").pop() || "",
+        data: Array.from(new Uint8Array(await file.arrayBuffer())),
+      }))
+    );
 
-      const result = await invoke("process_images", {
-        images: fileData,
-      });
-      console.log("Images processed:", result);
-    } catch (error) {
-      console.error("Error processing images:", error);
-      toast.error("Error processing images");
-    }
+    const result: ONNXResponse = await invoke("process_images", {
+      imageData: JSON.stringify(fileData)
+    });
+
+    let responseString = JSON.stringify(result);
+    
+    toast.success(responseString);
+    console.log("Images processed:", result.results);
+    
+
+    result.results.forEach(imageResult => {
+      console.log(`File: ${imageResult.filename}, Type: ${imageResult.image_type}, Confidence: ${imageResult.confidence}`);
+    });
+  } catch (error) {
+    console.error("Error processing images:", error);
+    toast.error("Error processing images");
   }
+}
+
+interface ONNXResponse {
+  results: {
+    filename: string;
+    image_type: string;
+    confidence: number;
+  }[];
+}
+
 
   $: {
     if (files.length > 0) {

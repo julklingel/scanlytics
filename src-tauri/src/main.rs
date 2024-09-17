@@ -19,7 +19,7 @@ use reports::controller::{create_report, get_reports, get_report_images};
 use tauri::Manager;
 use testapi::controller::{test_db_delete, test_db_read, test_db_write};
 use users::controller::get_users;
-use onnx::controller::test_onnx_model;
+use onnx::controller::{process_images};
 
 fn main() {
     tauri::Builder::default()
@@ -61,7 +61,7 @@ fn main() {
             create_report,
             get_reports,
             get_report_images,
-            test_onnx_model,
+            process_images,
 
 
             
