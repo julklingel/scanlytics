@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Card from "../components/ui/card.svelte";
-	import ErrorModal from "../components/ui/errormodal.svelte";
+	
+
 </script>
 
 <h1 class=" my-4 text-4xl font-extrabold tracking-tight lg:text-5xl">Menu</h1>
@@ -26,4 +27,7 @@
 		description="Erstelle eine Rechung"
 		link={"./invoices"}
 	/>
+
 </div>
+
+
