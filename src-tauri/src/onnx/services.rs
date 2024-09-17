@@ -1,17 +1,21 @@
 use super::models;
 use image::imageops::FilterType;
 use ndarray::Array;
-use tract_onnx::prelude::*;
 use tauri::Manager;
-
+use tract_onnx::prelude::*;
 
 pub async fn process_images_service(
     image_data: String,
+    classification_model: String,
     app_handle: tauri::AppHandle,
 ) -> Result<models::ONNXResponse, String> {
-    
     let image_data: Vec<models::ImageData> = serde_json::from_str(&image_data)
         .map_err(|e| format!("Failed to parse image data: {}", e))?;
+
+    let classifcation_model: String = serde_json::from_str(&classification_model)
+        .map_err(|e| format!("Failed to parse classification model: {}", e))?;
+
+    println!("Classification model: {}", classifcation_model);
 
     let app_local_data_dir = app_handle
         .path()
@@ -19,8 +23,7 @@ pub async fn process_images_service(
         .map_err(|e| format!("Failed to get app local data directory: {}", e))?;
 
     let load_dir = app_local_data_dir.join("onnx");
-    let model_path = load_dir.join("MNST_med.onnx");
-
+    let model_path = load_dir.join(format!("{}.onnx", classifcation_model));
 
     let model = tract_onnx::onnx()
         .model_for_path(model_path)
@@ -43,7 +46,8 @@ pub async fn process_images_service(
         });
 
         let (vec, offset) = img_array.into_raw_vec_and_offset();
-        let input = tract_ndarray::Array4::from_shape_vec((1, 1, 28, 28), vec).map_err(|e| e.to_string())?;
+        let input = tract_ndarray::Array4::from_shape_vec((1, 1, 28, 28), vec)
+            .map_err(|e| e.to_string())?;
 
         let input_tensor = input.into_tensor();
 
@@ -79,7 +83,6 @@ pub async fn process_images_service(
             confidence: *confidence,
         });
     }
-    
 
     println!("Results: {:?}", results);
 
