@@ -1,7 +1,6 @@
 use super::models;
 use image::imageops::FilterType;
 use ndarray::Array;
-use std::fs;
 use tract_onnx::prelude::*;
 use tauri::Manager;
 
@@ -43,8 +42,9 @@ pub async fn process_images_service(
             (img[(x as _, y as _)][0] as f32 - 127.5) / 127.5
         });
 
-        let input = tract_ndarray::Array4::from_shape_vec((1, 1, 28, 28), img_array.into_raw_vec())
-            .map_err(|e| format!("Failed to create input tensor: {}", e))?;
+        let (vec, offset) = img_array.into_raw_vec_and_offset();
+        let input = tract_ndarray::Array4::from_shape_vec((1, 1, 28, 28), vec).map_err(|e| e.to_string())?;
+
         let input_tensor = input.into_tensor();
 
         let result = model
