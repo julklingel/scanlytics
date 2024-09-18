@@ -29,13 +29,13 @@ pub async fn signup_service(
 
     if score_value < 3 {
         return Err(
-            "This password seems weak - make it stronger so your data stays secure.".to_string(),
+            "This password is weak!".to_string(),
         );
     }
 
     let client = HttpClient::new();
     let response = client
-        .post("https://fp.com/signup")
+        .post("https://scanlyticsbe.fly.dev/auth/user_signup")
         .json(&signup_request)
         .send()
         .await

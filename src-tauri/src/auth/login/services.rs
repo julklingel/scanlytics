@@ -11,7 +11,7 @@ pub async fn login_service(
         .map_err(|e| format!("Failed to parse login request: {}", e))?;
     let client = HttpClient::new();
     let response = client
-        .post("https://fp.com/login")
+        .post("https://scanlyticsbe.fly.dev/auth/login")
         .json(&login_request)
         .send()
         .await
