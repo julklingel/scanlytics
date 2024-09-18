@@ -3,6 +3,11 @@
     import Button from "$lib/components/ui/button/button.svelte";
     import { toast } from "svelte-sonner";
     import { Input } from "$lib/components/ui/input/index.js";
+    import { goto } from "$app/navigation";
+
+    function navigate2landing() {
+    goto("/");
+  }
   
     function handleSubmit(event: Event) {
       event.preventDefault();
@@ -20,11 +25,20 @@
     </div>
   
     <div class="w-full md:w-1/2 flex flex-col justify-center p-8">
-      <h1
-        class="text-center text-4xl font-extrabold tracking-tight lg:text-5xl mb-8"
-      >
-        Sign Up
-      </h1>
+     
+            <div class="flex justify-center gap-3">
+              <div class="">
+                <button on:click={navigate2landing}>
+                  <img src="/logo.png" alt="Logo" class=" h-12 w-12" />
+                </button>
+              </div>
+        
+              <h1
+                class="text-center text-4xl font-extrabold tracking-tight lg:text-5xl"
+              >
+                Login
+              </h1>
+            </div>
   
       <form on:submit={handleSubmit} class="space-y-4 max-w-md mx-auto w-full">
         <div class="space-y-2 w-full">
