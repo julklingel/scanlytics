@@ -1,19 +1,61 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { Label } from "$lib/components/ui/label/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { toast } from "svelte-sonner";
   import { Input } from "$lib/components/ui/input/index.js";
   import { goto } from "$app/navigation";
   import { mode } from "mode-watcher";
+  import { invoke } from "@tauri-apps/api/core";
+  import { Progress } from "$lib/components/ui/progress";
 
   let logoSrc: string;
+  let isLoading = false;
+  let progressValue = 0;
+
+  let loginData = {
+    username: "",
+    password: "",
+  };
 
   $: logoSrc = $mode === "dark" ? "/logo-dark.png" : "/logo.png";
 
-  function handleSubmit(event: Event) {
+  async function handleSubmit(event: Event) {
     event.preventDefault();
-    toast.success("Login successful!");
+    if (!loginData.username || !loginData.password) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+
+    isLoading = true;
+    progressValue = 0;
+
+    const progressInterval = setInterval(() => {
+      progressValue += 10;
+      if (progressValue >= 90) {
+        clearInterval(progressInterval);
+      }
+    }, 200);
+
+    try {
+      const response = await invoke("login", {
+        loginData: JSON.stringify(loginData),
+      });
+      progressValue = 100;
+      toast.success("Login successful!");
+      setTimeout(() => {
+        isLoading = false;
+        goto("/menu");
+      }, 500);
+    } catch (error) {
+      let stringerror = JSON.stringify(error);
+      toast.error(stringerror);
+      isLoading = false;
+    } finally {
+      clearInterval(progressInterval);
+    }
   }
+
   function navigate2landing() {
     goto("/");
   }
@@ -53,6 +95,7 @@
           id="email"
           placeholder="Enter your email"
           class=""
+          bind:value={loginData.username}
         />
       </div>
       <div class="space-y-2">
@@ -62,6 +105,7 @@
           id="password"
           placeholder="Enter your password"
           class=""
+          bind:value={loginData.password}
         />
       </div>
       <div class="flex justify-end">
@@ -69,7 +113,12 @@
           >Forgot Password?</a
         >
       </div>
-      <Button type="submit" class="w-full">Login</Button>
+      {#if isLoading}
+        <Progress value={progressValue} max={100} class="w-full" />
+      {/if}
+      <Button type="submit" class="w-full" disabled={isLoading}>
+        {isLoading ? "Logging in..." : "Login"}
+      </Button>
     </form>
 
     <div class="mt-6 text-center">

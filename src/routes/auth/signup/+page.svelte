@@ -1,22 +1,65 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { Label } from "$lib/components/ui/label/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { toast } from "svelte-sonner";
   import { Input } from "$lib/components/ui/input/index.js";
   import { goto } from "$app/navigation";
   import { mode } from "mode-watcher";
+  import { invoke } from "@tauri-apps/api/core";
+  import { Progress } from "$lib/components/ui/progress";
 
   let logoSrc: string;
+  let isLoading = false;
+  let progressValue = 0;
 
   $: logoSrc = $mode === "dark" ? "/logo-dark.png" : "/logo.png";
+
+  let signupData = {
+    full_name: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+  };
 
   function navigate2landing() {
     goto("/");
   }
 
-  function handleSubmit(event: Event) {
+  async function handleSubmit(event: Event) {
     event.preventDefault();
-    toast.success("Signup successful!");
+    if (!signupData.full_name || !signupData.email || !signupData.password || !signupData.confirm_password) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+    
+    isLoading = true;
+    progressValue = 0;
+
+    const progressInterval = setInterval(() => {
+      progressValue += 10;
+      if (progressValue >= 90) {
+        clearInterval(progressInterval);
+      }
+    }, 200);
+
+    try {
+      const response = await invoke("signup", {
+        signupData: JSON.stringify(signupData),
+      });
+      progressValue = 100;
+      toast.success("Signup successful!");
+      setTimeout(() => {
+        isLoading = false;
+        goto("/menu");
+      }, 500);
+    } catch (error) {
+      let stringerror = JSON.stringify(error);
+      toast.error(stringerror);
+      isLoading = false;
+    } finally {
+      clearInterval(progressInterval);
+    }
   }
 </script>
 
@@ -54,6 +97,7 @@
           id="name"
           placeholder="Enter your full name"
           class=""
+          bind:value={signupData.full_name}
         />
       </div>
       <div class="space-y-2 w-full">
@@ -63,6 +107,7 @@
           id="email"
           placeholder="Enter your email"
           class=""
+          bind:value={signupData.email}
         />
       </div>
       <div class="space-y-2">
@@ -72,6 +117,7 @@
           id="password"
           placeholder="Create a password"
           class=""
+          bind:value={signupData.password}
         />
       </div>
       <div class="space-y-2">
@@ -83,9 +129,15 @@
           id="confirm-password"
           placeholder="Confirm your password"
           class=""
+          bind:value={signupData.confirm_password}
         />
       </div>
-      <Button type="submit" class="w-full">Sign Up</Button>
+      {#if isLoading}
+        <Progress value={progressValue} max={100} class="w-full" />
+      {/if}
+      <Button type="submit" class="w-full" disabled={isLoading}>
+        {isLoading ? 'Signing Up...' : 'Sign Up'}
+      </Button>
     </form>
 
     <div class="mt-6 text-center">
