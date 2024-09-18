@@ -36,7 +36,7 @@
               <h1
                 class="text-center text-4xl font-extrabold tracking-tight lg:text-5xl"
               >
-                Login
+                Sign Up
               </h1>
             </div>
   
