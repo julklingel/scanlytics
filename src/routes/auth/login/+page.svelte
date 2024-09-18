@@ -8,6 +8,7 @@
   import { mode } from "mode-watcher";
   import { invoke } from "@tauri-apps/api/core";
   import { Progress } from "$lib/components/ui/progress";
+  import ForgotPassword from "../components/forgot-password.svelte";
 
   let logoSrc: string;
   let isLoading = false;
@@ -109,9 +110,7 @@
         />
       </div>
       <div class="flex justify-end">
-        <a href="/forgot-password" class="text-sm text-blue-600 hover:underline"
-          >Forgot Password?</a
-        >
+    <ForgotPassword />
       </div>
       {#if isLoading}
         <Progress value={progressValue} max={100} class="w-full" />
