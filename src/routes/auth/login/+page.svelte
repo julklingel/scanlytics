@@ -4,6 +4,11 @@
   import { toast } from "svelte-sonner";
   import { Input } from "$lib/components/ui/input/index.js";
   import { goto } from "$app/navigation";
+  import { mode } from "mode-watcher";
+
+  let logoSrc: string;
+
+  $: logoSrc = $mode === "dark" ? "/logo-dark.png" : "/logo.png";
 
   function handleSubmit(event: Event) {
     event.preventDefault();
@@ -29,7 +34,7 @@
     <div class="flex justify-center gap-3">
       <div class="">
         <button on:click={navigate2landing}>
-          <img src="/logo.png" alt="Logo" class=" h-12 w-12" />
+          <img src={logoSrc} alt="Logo" class=" h-12 w-12" />
         </button>
       </div>
 
