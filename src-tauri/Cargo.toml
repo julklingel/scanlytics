@@ -22,3 +22,4 @@ serde_bytes = "0.11.0"
 base64 = "0.21.0"
 tract-onnx = "0.21.6"
 ndarray = "0.16.0"
+
