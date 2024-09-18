@@ -31,3 +31,18 @@ pub async fn login_service(
         Err(format!("Login failed: {}", response.status()))
     }
 }
+
+
+pub async fn reset_password_service(
+    reset_data: String,
+) -> Result<models::ResetPasswordResponse, String> {
+    let reset_request: models::ResetPasswordRequest = serde_json::from_str(&reset_data)
+        .map_err(|e| format!("Failed to parse reset password request: {}", e))?;
+
+    println!("Reset password request: {:?}", reset_request);
+
+    Ok(models::ResetPasswordResponse {
+        success: true,
+        message: "Password reset successfully".to_string(),
+    })
+}

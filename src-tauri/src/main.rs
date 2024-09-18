@@ -21,7 +21,7 @@ use tauri::Manager;
 use testapi::controller::{test_db_delete, test_db_read, test_db_write};
 use users::controller::get_users;
 use onnx::controller::{process_images};
-use auth::login::controller::login;
+use auth::login::controller::{login, reset_password};
 use auth::signup::controller::signup;
 
 
@@ -69,7 +69,8 @@ fn main() {
 
             // Auth APIs
             login,
-            signup
+            signup,
+            reset_password
 
 
             

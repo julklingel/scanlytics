@@ -10,3 +10,15 @@ pub struct LoginRequest {
 pub struct LoginResponse {
     pub token: String,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ResetPasswordRequest {
+    pub username: String,
+
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ResetPasswordResponse {
+    pub success: bool,
+    pub message: String,
+}
