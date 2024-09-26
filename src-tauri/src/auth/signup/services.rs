@@ -1,3 +1,5 @@
+use crate::auth::signup;
+
 use super::models;
 use reqwest::Client as HttpClient;
 use surrealdb::engine::remote::ws::Client;
@@ -33,10 +35,18 @@ pub async fn signup_service(
         );
     }
 
+    /// Refactor later so it matches with the backend
+    let signup_record = models::SignupRecord {
+        user_password: signup_request.password,
+        user_name: signup_request.full_name,
+        user_email: signup_request.email,
+        user_role: "user".to_string(),
+    };
+
     let client = HttpClient::new();
     let response = client
         .post("https://scanlyticsbe.fly.dev/auth/user_signup")
-        .json(&signup_request)
+        .json(&signup_record)
         .send()
         .await
         .map_err(|e| format!("Failed to send request: {}", e))?;

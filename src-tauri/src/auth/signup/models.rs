@@ -14,3 +14,12 @@ pub struct SignupResponse {
     pub user_id: String,
 }
 
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SignupRecord {
+    pub user_name: String,
+    pub user_email: String,
+    pub user_password: String,
+    pub user_role: String,
+}
