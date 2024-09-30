@@ -7,6 +7,12 @@ pub struct LoginRequest {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LoginRecord {
+    pub user_email: String,
+    pub user_password: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LoginResponse {
     pub access_token: String,
     pub token_type: String,

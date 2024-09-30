@@ -13,12 +13,14 @@ pub async fn login_service(
         .map_err(|e| format!("Failed to parse login request: {}", e))?;
     let client = HttpClient::new();
 
+    let login_record = models::LoginRecord {
+        user_email: login_request.username.clone(),
+        user_password: login_request.password.clone(),
+    };
+
     let response = client
         .post("https://scanlyticsbe.fly.dev/auth/login")
-        .form(&[
-            ("username", &login_request.username),
-            ("password", &login_request.password),
-        ])
+        .json(&login_record) 
         .send()
         .await
         .map_err(|e| format!("Failed to send request: {}", e))?;
@@ -26,42 +28,44 @@ pub async fn login_service(
     println!("Response status: {}", response.status());
 
     if response.status().is_success() {
-        let response_text = response
-            .text()
-            .await
-            .map_err(|e| format!("Failed to get response text: {}", e))?;
+        let login_response: models::LoginResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse JSON response: {}", e))?;
 
-        let v: Value = serde_json::from_str(&response_text)
-            .map_err(|e| format!("Failed to parse JSON response: {}", e))?;
+    if login_response.token_type.to_lowercase() != "bearer" {
+        return Err("Token type is not bearer".into());
+    }
 
-        let access_token = v["access_token"]
-            .as_str()
-            .ok_or("access_token not found or not a string")?;
+    let entry = Entry::new("Scanlytics", &login_request.username)
+        .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
+ 
+    entry
+        .set_password(&login_response.access_token)
+        .map_err(|e| format!("Failed to store token: {}", e))?;
 
-        let token_type = v["token_type"]
-            .as_str()
-            .ok_or("token_type not found or not a string")?;
 
-        if token_type.to_lowercase() != "bearer" {
-            return Err("Token type is not bearer".into());
-        }
+    let stored_token = entry
+        .get_password()
+        .map_err(|e| format!("Failed to retrieve stored token: {}", e))?;
 
-        let login_response = models::LoginResponse {
-            access_token: access_token.to_string(),
-            token_type: token_type.to_string(),
-        };
+    if stored_token != login_response.access_token {
+        return Err("Token verification failed: stored token does not match the received token".into());
+    }
 
-        let entry = Entry::new("Scanlytics", &login_request.username)
-            .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
-        entry
-            .set_password(&login_response.access_token)
-            .map_err(|e| format!("Failed to store token: {}", e))?;
+    println!("Token successfully stored and verified in keyring");
 
-        Ok(login_response)
+    Ok(login_response)
     } else {
-        Err(format!("Login failed: {}", response.status()))
+        let error_response: Value = response
+            .json()
+            .await
+            .map_err(|e| format!("Failed to parse error response: {}", e))?;
+        
+        Err(format!("Login failed: {}", error_response["detail"].as_str().unwrap_or("Unknown error")))
     }
 }
+
 
 pub async fn reset_password_service(
     reset_data: String,

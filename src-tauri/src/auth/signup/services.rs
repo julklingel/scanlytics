@@ -1,5 +1,3 @@
-use crate::auth::signup;
-
 use super::models;
 use reqwest::Client as HttpClient;
 use surrealdb::engine::remote::ws::Client;

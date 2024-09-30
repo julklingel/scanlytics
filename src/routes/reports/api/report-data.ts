@@ -20,7 +20,9 @@ type ReportResponse = {
 
 export async function getReports() {
   try {
-    const data = await invoke<ReportResponse[]>("get_reports");
+    const data = await invoke<ReportResponse[]>("get_reports",
+      { username: "tauri@tauri.com" }
+    );
     console.log("Reports data:", data);
 
     const reports = data.map((report) => ({

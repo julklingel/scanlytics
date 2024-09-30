@@ -1,9 +1,12 @@
+use crate::middleware::auth::auth_middleware;
 use super::models;
 use super::services;
 use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
 use tauri::State;
 use tokio::sync::RwLock;
+
+
 
 #[tauri::command]
 pub async fn create_report(
@@ -24,14 +27,16 @@ pub async fn create_report(
 #[tauri::command]
 pub async fn get_reports(
     db: State<'_, RwLock<Surreal<Client>>>,
+    username: String,
 ) -> Result<Vec<models::ReportResponse>, String> {
-    let db = db.read().await;
-    let response: Vec<models::ReportResponse> = services::get_reports_service(&db)
-        .await
-        .map_err(|e| e.to_string())?;
-
-    Ok(response)
+    auth_middleware(&username, || async {
+        let db = db.read().await;
+        services::get_reports_service(&db)
+            .await
+            .map_err(|e| e.to_string())
+    }).await
 }
+
 
 #[tauri::command]
 pub async fn get_report_images(
