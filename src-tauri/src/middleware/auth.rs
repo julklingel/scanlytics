@@ -4,23 +4,23 @@ use serde_json::json;
 use super::models;
 
 pub async fn validate_token(username: &str) -> Result<(), String> {
-    println!("Attempting to validate token for user: {}", username);
-
-    let keyring_entry = Entry::new("Scanlytics", username)
-        .map_err(|e| format!("Failed to create keyring entry: {} (username: {})", e, username))?;
+ 
+    let username = username.trim(); 
     
-    println!("Keyring entry created successfully");
+    let entry = Entry::new("com.scanlytics.dev", username)
+        .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
+    
+    
+    let stored_token = entry
+        .get_password()
+        .map_err(|e| format!("Failed to retrieve stored token: {}", e))?;
 
-    let token = keyring_entry.get_password()
-        .map_err(|e| format!("Failed to retrieve token: {} (username: {})", e, username))?;
-
-    println!("Token retrieved successfully");
 
     let client = Client::new();
     let response = client
         .post("https://scanlyticsbe.fly.dev/auth/validate")
         .json(&json!({
-            "token": token
+            "token": stored_token
         }))
         .send()
         .await
