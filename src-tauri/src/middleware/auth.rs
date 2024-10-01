@@ -1,6 +1,6 @@
 use keyring::Entry;
 use reqwest::Client;
-
+use super::models;
 
 pub async fn validate_token(username: &str) -> Result<(), String> {
     let username = username.trim(); 
@@ -20,6 +20,22 @@ pub async fn validate_token(username: &str) -> Result<(), String> {
         .map_err(|e| format!("Failed to send validation request: {}", e))?;
 
     if response.status().is_success() {
+        let token_response: models::TokenResponse = response
+            .json()
+            .await
+            .map_err(|e| format!("Failed to parse JSON response: {}", e))?;
+
+        if token_response.token_type.to_lowercase() != "bearer" {
+            return Err("Token type is not bearer".into());
+        }
+    
+        let entry = Entry::new("com.scanlytics.dev", username)
+            .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
+
+        entry
+            .set_password(&token_response.access_token)
+            .map_err(|e| format!("Failed to store token: {}", e))?;
+        
         Ok(())
     } else {
         Err(format!("Token validation failed: {}", response.status()))
