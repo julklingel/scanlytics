@@ -46,17 +46,6 @@ pub async fn login_service(
             .set_password(&login_response.access_token)
             .map_err(|e| format!("Failed to store token: {}", e))?;
 
-        let stored_token = entry
-            .get_password()
-            .map_err(|e| format!("Failed to retrieve stored token: {}", e))?;
-
-
-        if stored_token != login_response.access_token {
-            return Err(
-                "Token verification failed: stored token does not match the received token".into(),
-            );
-        }
-
         Ok(login_response)
     } else {
         let error_response: Value = response
