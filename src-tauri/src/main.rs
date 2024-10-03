@@ -8,6 +8,7 @@ mod reports;
 mod testapi;
 mod users;
 mod onnx;
+mod auth;
 
 use db::init::{define_db_on_startup, init_db};
 use notes::controller::{
@@ -20,6 +21,12 @@ use tauri::Manager;
 use testapi::controller::{test_db_delete, test_db_read, test_db_write};
 use users::controller::get_users;
 use onnx::controller::{process_images};
+use auth::login::controller::{login, reset_password};
+use auth::signup::controller::signup;
+use auth::validate::controller::validate_token;
+
+
+
 
 fn main() {
     tauri::Builder::default()
@@ -62,6 +69,12 @@ fn main() {
             get_reports,
             get_report_images,
             process_images,
+
+            // Auth APIs
+            login,
+            signup,
+            reset_password,
+            validate_token
 
 
             

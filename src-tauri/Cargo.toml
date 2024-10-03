@@ -22,3 +22,6 @@ serde_bytes = "0.11.0"
 base64 = "0.21.0"
 tract-onnx = "0.21.6"
 ndarray = "0.16.0"
+reqwest = { version = "0.12.7", features = ["json"] }
+zxcvbn = "3.1.0"
+keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service"] }

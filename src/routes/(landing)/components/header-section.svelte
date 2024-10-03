@@ -1,13 +1,19 @@
 <script lang="ts">
 	import DarkMode from '../../components/ui/darkmode.svelte';
-	import { Button } from "$lib/components/ui/button";
+	import { Button } from '$lib/components/ui/button';
 
-    export let variant: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" = "link";
+	import { goto } from '$app/navigation';
+
+
+	async function navigate2menu() {
+    await goto("/menu");
+  }
 </script>
 
 <div class="absolute right-0 m-2">
 	<div class="flex">
-		<Button {variant}> Signup </Button>
+		<Button variant={"link"} on:click={navigate2menu}>Directly to Menu - DEV</Button>
+	
 		<DarkMode />
 	</div>
 </div>
