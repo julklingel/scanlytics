@@ -1,7 +1,5 @@
 <script lang="ts">
-    import type { LayoutData } from './$types';
     import Navigation from '../components/ui/navigation.svelte'
-    import { page } from '$app/stores';
     import AuthService from '../../stores/Auth';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
