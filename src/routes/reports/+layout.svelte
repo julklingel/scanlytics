@@ -17,14 +17,13 @@
             await AuthService.validate();
         } catch (error) {
             console.error('Authentication failed:', error);
-            goto('/login');
+            goto('auth/login');
         }
     });
 </script>
 
 <div class="container mx-auto py-3">
     <Navigation/>
-
     {#if isAuthenticated}
         <slot></slot>
     {:else}

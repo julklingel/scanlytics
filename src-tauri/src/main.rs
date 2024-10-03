@@ -9,7 +9,6 @@ mod testapi;
 mod users;
 mod onnx;
 mod auth;
-mod middleware;
 
 use db::init::{define_db_on_startup, init_db};
 use notes::controller::{
@@ -24,6 +23,7 @@ use users::controller::get_users;
 use onnx::controller::{process_images};
 use auth::login::controller::{login, reset_password};
 use auth::signup::controller::signup;
+use auth::validate::controller::validate_token;
 
 
 
@@ -73,7 +73,8 @@ fn main() {
             // Auth APIs
             login,
             signup,
-            reset_password
+            reset_password,
+            validate_token
 
 
             

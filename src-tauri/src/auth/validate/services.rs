@@ -1,12 +1,14 @@
-use keyring::Entry;
 use reqwest::Client;
+use keyring::Entry;
 use super::models;
 
-pub async fn validate_token(username: &str) -> Result<(), String> {
-    let username = username.trim(); 
+
+
+pub async fn validate_token_service(username: &str) -> Result<(), String> {
+    let username = username.trim();
     let entry = Entry::new("com.scanlytics.dev", username)
         .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
-    
+
     let stored_token = entry
         .get_password()
         .map_err(|e| format!("Failed to retrieve stored token: {}", e))?;
@@ -28,20 +30,19 @@ pub async fn validate_token(username: &str) -> Result<(), String> {
         if token_response.token_type.to_lowercase() != "bearer" {
             return Err("Token type is not bearer".into());
         }
-    
+
         let entry = Entry::new("com.scanlytics.dev", username)
             .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
 
         entry
             .set_password(&token_response.access_token)
             .map_err(|e| format!("Failed to store token: {}", e))?;
-        
+
         Ok(())
     } else {
         Err(format!("Token validation failed: {}", response.status()))
     }
 }
-
 
 
 pub async fn auth_middleware<F, Fut, R>(
@@ -52,6 +53,6 @@ where
     F: FnOnce() -> Fut,
     Fut: std::future::Future<Output = Result<R, String>>,
 {
-    validate_token(username).await?;
+    validate_token_service(username).await?;
     f().await
 }

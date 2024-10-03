@@ -1,4 +1,4 @@
-use crate::middleware::auth::auth_middleware;
+use crate::auth::validate::services::auth_middleware;
 use super::models;
 use super::services;
 use surrealdb::engine::remote::ws::Client;
