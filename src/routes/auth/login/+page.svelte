@@ -9,6 +9,8 @@
   import { invoke } from "@tauri-apps/api/core";
   import { Progress } from "$lib/components/ui/progress";
   import ForgotPassword from "../components/forgot-password.svelte";
+  import AuthService from "../../../stores/Auth";
+
 
   let logoSrc: string;
   let isLoading = false;
@@ -42,6 +44,7 @@
       const response = await invoke("login", {
         loginData: JSON.stringify(loginData),
       });
+      AuthService.login(loginData.username);
       progressValue = 100;
       toast.success("Login successful!");
       setTimeout(() => {
@@ -110,7 +113,7 @@
         />
       </div>
       <div class="flex justify-end">
-    <ForgotPassword />
+        <ForgotPassword />
       </div>
       {#if isLoading}
         <Progress value={progressValue} max={100} class="w-full" />

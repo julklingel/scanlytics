@@ -8,6 +8,7 @@
   import { mode } from "mode-watcher";
   import { invoke } from "@tauri-apps/api/core";
   import { Progress } from "$lib/components/ui/progress";
+  import AuthService from "../../../stores/Auth";
 
   let logoSrc: string;
   let isLoading = false;
@@ -17,7 +18,7 @@
 
   let signupData = {
     full_name: "",
-    email: "",
+    username: "",
     password: "",
     confirm_password: "",
   };
@@ -28,7 +29,7 @@
 
   async function handleSubmit(event: Event) {
     event.preventDefault();
-    if (!signupData.full_name || !signupData.email || !signupData.password || !signupData.confirm_password) {
+    if (!signupData.full_name || !signupData.username || !signupData.password || !signupData.confirm_password) {
       toast.error("Please fill in all fields.");
       return;
     }
@@ -47,6 +48,7 @@
       const response = await invoke("signup", {
         signupData: JSON.stringify(signupData),
       });
+      AuthService.login(signupData.username);
       progressValue = 100;
       toast.success("Signup successful!");
       setTimeout(() => {
@@ -107,7 +109,7 @@
           id="email"
           placeholder="Enter your email"
           class=""
-          bind:value={signupData.email}
+          bind:value={signupData.username}
         />
       </div>
       <div class="space-y-2">
