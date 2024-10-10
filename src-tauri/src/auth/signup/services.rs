@@ -1,12 +1,12 @@
 use super::models;
 use reqwest::Client as HttpClient;
-use surrealdb::engine::remote::ws::Client;
-use surrealdb::Surreal;
 use zxcvbn::zxcvbn;
 use zxcvbn::Score;
+use surrealdb::engine::local::Db;
+use surrealdb::Surreal;
 
 pub async fn signup_service(
-    _db: &Surreal<Client>,
+    db: &Surreal<Db>,
     signup_data: String,
 ) -> Result<models::SignupResponse, String> {
     let signup_request: models::SignupRequest = serde_json::from_str(&signup_data)

@@ -4,6 +4,7 @@ use tauri::Manager;
 
 mod db;
 mod users;
+mod auth;
 
 
 // mod notes;
@@ -12,10 +13,15 @@ mod users;
 // mod reports;
 
 // mod onnx;
-// mod auth;
+
 
 use db::init::init_db;
 use users::controller::get_users;
+use auth::login::controller::{login, reset_password};
+use auth::signup::controller::signup;
+use auth::validate::controller::validate_token;
+
+
 // use notes::controller::{
 //     create_patient_note, delete_patient_note, get_patient_notes, update_patient_note,
 // };
@@ -25,9 +31,8 @@ use users::controller::get_users;
 // use tauri::Manager;
 
 // use onnx::controller::{process_images};
-// use auth::login::controller::{login, reset_password};
-// use auth::signup::controller::signup;
-// use auth::validate::controller::validate_token;
+
+// 
 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -41,7 +46,7 @@ pub fn run() {
             });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_users])
+        .invoke_handler(tauri::generate_handler![get_users, login, reset_password, signup, validate_token])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

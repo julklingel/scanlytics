@@ -5,9 +5,6 @@
 
 
 fn main() {
-
-    scanlytics_lib::run();
-    
-  
+    scanlytics_lib::run(); 
 }
 

@@ -1,18 +1,19 @@
 
 use super::models;
 use super::services;
-use surrealdb::engine::remote::ws::Client;
-use surrealdb::Surreal;
+
 use tauri::State;
-use tokio::sync::RwLock;
+use crate::db::models::DbConnection;
+
 
 
 #[tauri::command]
 pub async fn signup(
-    db: State<'_, RwLock<Surreal<Client>>>,
+    db_connection: State<'_, DbConnection>,
     signup_data: String,
 ) -> Result<models::SignupResponse, String> {
-    let db = db.read().await;
+    let db = db_connection.get().lock().await;
+    
     let response = services::signup_service(&db, signup_data).await?;
     Ok(response)
 }

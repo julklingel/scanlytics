@@ -2,11 +2,8 @@ use super::models;
 use keyring::Entry;
 use reqwest::Client as HttpClient;
 use serde_json::Value;
-use surrealdb::engine::remote::ws::Client;
-use surrealdb::Surreal;
 
 pub async fn login_service(
-    _db: &Surreal<Client>,
     login_data: String,
 ) -> Result<models::LoginResponse, String> {
     let login_request: models::LoginRequest = serde_json::from_str(&login_data)
