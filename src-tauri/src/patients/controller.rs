@@ -1,46 +1,28 @@
 use super::models;
 use super::services;
-use surrealdb::engine::remote::ws::Client;
-use surrealdb::Surreal;
+
+use crate::db::models::DbConnection;
 use tauri::State;
-use tokio::sync::RwLock;
 
 #[tauri::command]
 pub async fn create_patient(
-    db: State<'_, RwLock<Surreal<Client>>>,
+    db_connection: State<'_, DbConnection>,
     patient_request: String,
 ) -> Result<models::PatientResponse, String> {
+    let db = db_connection.get().lock().await;
     let patient_request: models::PatientRequest = serde_json::from_str(&patient_request)
         .map_err(|e| format!("Failed to parse patient request: {}", e))?;
-    let db = db.write().await;
-    let mut data: Vec<models::PatientResponse> =
+    
+    let response: models::PatientResponse =
         services::create_patient_service(&db, patient_request).await?;
-    if data.is_empty() {
-        return Err("No record created".to_string());
-    }
-    let response = data.pop().unwrap();
-    let response = models::PatientResponse {
-        id: response.id,
-        name: response.name,
-        date_of_birth: response.date_of_birth,
-        gender: response.gender,
-        contact_number: response.contact_number,
-        address: response.address,
-        notes: response.notes,
-        reports: response.reports,
-        images: response.images,
-        created_at: response.created_at,
-        updated_at: response.updated_at,
-    };
-
     Ok(response)
 }
 
 #[tauri::command]
 pub async fn get_patients(
-    db: State<'_, RwLock<Surreal<Client>>>,
+    db_connection: State<'_, DbConnection>,
 ) -> Result<Vec<models::PatientResponse>, String> {
-    let db = db.write().await;
+    let db = db_connection.get().lock().await;
     let response: Vec<models::PatientResponse> = services::get_patient_service(&db)
         .await?
         .into_iter()
@@ -63,14 +45,15 @@ pub async fn get_patients(
 
 #[tauri::command]
 pub async fn update_patient(
-    db: State<'_, RwLock<Surreal<Client>>>,
+    db_connection: State<'_, DbConnection>,
     id: String,
     patient_request: String,
 ) -> Result<models::PatientResponse, String> {
+    let db = db_connection.get().lock().await;
     let patient_request: models::PatientRequest = serde_json::from_str(&patient_request)
         .map_err(|e| format!("Failed to parse patient request: {}", e))?;
 
-    let db = db.write().await;
+   
     let updated_record = services::update_patient_service(&db, id, patient_request).await?;
 
     if let Some(record) = updated_record {
@@ -96,11 +79,10 @@ pub async fn update_patient(
 
 #[tauri::command]
 pub async fn delete_patient(
-    db: State<'_, RwLock<Surreal<Client>>>,
+    db_connection: State<'_, DbConnection>,
     id: String,
 ) -> Result<models::PatientResponse, String> {
-    println!("delete_patient: id: {}", id);
-    let db = db.write().await;
+    let db = db_connection.get().lock().await;
     let deleted_record = services::delete_patient_service(&db, id).await?;
 
     if let Some(record) = deleted_record {
