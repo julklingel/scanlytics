@@ -5,14 +5,9 @@ mod db;
 mod users;
 mod auth;
 mod patients;
-
-
-// mod notes;
-// mod organizations;
-// mod patients;
-// mod reports;
-
-// mod onnx;
+mod notes;
+mod reports;
+mod onnx;
 
 
 use db::init::{init_db, define_db_on_startup};
@@ -21,19 +16,11 @@ use auth::login::controller::{login, reset_password};
 use auth::signup::controller::signup;
 use auth::validate::controller::validate_token;
 use patients::controller::{create_patient, delete_patient, get_patients, update_patient};
+use notes::controller::{create_patient_note, delete_patient_note, get_patient_notes, update_patient_note};
+use reports::controller::{create_report, get_reports, get_report_images};
+use onnx::controller::{process_images};
 
 
-// use notes::controller::{
-//     create_patient_note, delete_patient_note, get_patient_notes, update_patient_note,
-// };
-// use organizations::controller::get_organizations;
-// 
-// use reports::controller::{create_report, get_reports, get_report_images};
-// use tauri::Manager;
-
-// use onnx::controller::{process_images};
-
-// 
 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -44,7 +31,6 @@ pub fn run() {
             tauri::async_runtime::block_on(async {
                 let db_connection = init_db().await.expect("Failed to initialize database");
                 
-                // Define the database schema
                 define_db_on_startup(db_connection.clone())
                     .await
                     .expect("Failed to define database schema");
@@ -62,7 +48,17 @@ pub fn run() {
             create_patient, 
             delete_patient, 
             get_patients, 
-            update_patient
+            update_patient,
+            create_patient_note,
+            delete_patient_note,
+            get_patient_notes,
+            update_patient_note,
+            create_report,
+            get_reports,
+            get_report_images,
+            process_images
+            
+            
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

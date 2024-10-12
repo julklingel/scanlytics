@@ -2,16 +2,16 @@ use super::models::{
     PatientNoteRecord, PatientNoteRequest, PatientNoteResponse, PatientNoteWithPatientResponse,
     PatientResponse, UserResponse,
 };
-use surrealdb::engine::remote::ws::Client;
 
+use surrealdb::engine::local::Db;
 use surrealdb::sql::Thing;
 use surrealdb::Error as SurrealError;
 use surrealdb::Surreal;
 
 pub async fn create_patient_note_service(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
     data: PatientNoteRequest,
-) -> Result<Vec<PatientNoteResponse>, String> {
+) -> Result<PatientNoteResponse, String> {
     let patient: Option<PatientResponse> = db
         .select(("Patient", &data.patient_id))
         .await
@@ -34,31 +34,36 @@ pub async fn create_patient_note_service(
         user_owner: user_owner.id.clone(),
     };
 
-    let created: Vec<PatientNoteResponse> = db
+    let note: PatientNoteResponse = db
         .create("PatientNote")
         .content(patient_note_record)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| e.to_string())?
+        .ok_or_else(|| "Failed to create patient note".to_string())?;
+
+    let patient_id = patient.id.clone();
+    let note_id = note.id.clone();
+    let user_owner_id = data.user_owner.clone();
 
     db.query("UPDATE type::thing($table, $id) SET notes += $note")
         .bind(("table", "Patient"))
-        .bind(("id", &data.patient_id))
-        .bind(("note", &created[0].id))
+        .bind(("id", patient_id))
+        .bind(("note", note_id.clone()))
         .await
         .map_err(|e| e.to_string())?;
 
     db.query("UPDATE type::thing($table, $id) SET notes += $note")
         .bind(("table", "User"))
-        .bind(("id", &data.user_owner))
-        .bind(("note", &created[0].id))
+        .bind(("id", user_owner_id))
+        .bind(("note", note_id))
         .await
         .map_err(|e| e.to_string())?;
 
-    Ok(created)
+    Ok(note)
 }
 
 pub async fn get_patient_notes_service(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
 ) -> Result<Vec<PatientNoteWithPatientResponse>, SurrealError> {
     let query = "
         SELECT
@@ -80,7 +85,7 @@ pub async fn get_patient_notes_service(
 }
 
 pub async fn update_patient_note_service(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
     id: String,
     data: PatientNoteRequest,
 ) -> Result<Option<PatientNoteResponse>, String> {
@@ -116,7 +121,7 @@ pub async fn update_patient_note_service(
 }
 
 pub async fn delete_patient_note_service(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
     id: String,
 ) -> Result<Option<PatientNoteResponse>, String> {
     let deleted: Option<PatientNoteResponse> = db

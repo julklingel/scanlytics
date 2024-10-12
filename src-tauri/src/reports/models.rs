@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Datetime, Thing};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ReportRequest {
     pub patient_id: String,
     pub user_owner: String,
@@ -10,7 +10,7 @@ pub struct ReportRequest {
     pub files: Vec<FileData>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FileData {
     pub filename: String,
     pub extension: String,
@@ -27,7 +27,7 @@ pub struct ReportRecord {
     pub body_part: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ImageResponse {
     pub id: Thing,
     pub name: String,
@@ -40,7 +40,7 @@ pub struct ImageResponse {
     pub updated_at: Datetime,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,Clone)]
 pub struct ImageRequest {
     pub name: String,
     pub path: String,
@@ -84,7 +84,7 @@ pub struct UserInfo {
 }
 
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,Clone)]
 pub struct ImageInfo {
     pub id: Thing,
     pub path: String,

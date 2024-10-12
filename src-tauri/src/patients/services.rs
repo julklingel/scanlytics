@@ -40,8 +40,6 @@ pub async fn create_patient_service(
         .await
         .map_err(|e| e.to_string())?;
 
-    println!("Patient created: {:?}", created);
-
     Ok(created)
 }
 
