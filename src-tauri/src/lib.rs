@@ -29,16 +29,22 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             tauri::async_runtime::block_on(async {
-                let db_connection = init_db().await.expect("Failed to initialize database");
-                
-                define_db_on_startup(db_connection.clone())
-                    .await
-                    .expect("Failed to define database schema");
-                
-                app.manage(db_connection);
+                match init_db().await {
+                    Ok(db_connection) => {
+                        match define_db_on_startup(db_connection.clone()).await {
+                            Ok(_) => {
+                                app.manage(db_connection);
+                                println!("Database setup completed successfully");
+                            },
+                            Err(e) => eprintln!("Failed to define database schema: {:?}", e),
+                        }
+                    },
+                    Err(e) => eprintln!("Failed to initialize database: {:?}", e),
+                }
             });
             Ok(())
         })
+        
         .invoke_handler(tauri::generate_handler![
             get_users, 
             login, 
