@@ -1,13 +1,16 @@
 use super::models;
 use std::fs;
-use surrealdb::engine::remote::ws::Client;
+
+
+use surrealdb::engine::local::Db;
 use surrealdb::Surreal;
-use tauri::Manager;
+
 
 use surrealdb::Error as SurrealError;
+use tauri::Manager;
 
 pub async fn create_report_service(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
     report_request: models::ReportRequest,
     app_handle: tauri::AppHandle,
 ) -> Result<models::CreateReportResponse, String> {
@@ -45,17 +48,13 @@ pub async fn create_report_service(
             modal_type: "xray".to_string(),
         };
 
-        let created_image: Vec<models::ImageResponse> = db
-            .create("Image")
-            .content(&image_request)
-            .await
-            .map_err(|e| e.to_string())?;
-
-        let created_image = created_image
-            .into_iter()
-            .next()
-            .ok_or_else(|| "Failed to create image".to_string())?;
-
+        let created_image: models::ImageResponse = db
+        .create("Image")
+        .content(image_request)
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or_else(|| "Failed to create image".to_string())?;
+    
         let file_name = format!("{}.{}", created_image.id, file.extension);
         let file_path = save_dir.join(&file_name);
 
@@ -71,14 +70,17 @@ pub async fn create_report_service(
             .ok_or_else(|| "File path contains invalid Unicode".to_string())?
             .to_string();
 
+        let image_id = created_image.id.clone();
+
         db.query("UPDATE type::thing($table, $id) SET path = $path")
             .bind(("table", "Image"))
-            .bind(("id", &created_image.id))
-            .bind(("path", &file_path_str))
+            .bind(("id", created_image.id))
+            .bind(("path", file_path_str))
             .await
             .map_err(|e| e.to_string())?;
+       
+            image_ids.push(image_id);
 
-        image_ids.push(created_image.id);
     }
 
     let report_record = models::ReportRecord {
@@ -88,34 +90,29 @@ pub async fn create_report_service(
         body_part: report_request.body_part,
     };
 
-    let created_report: Vec<models::CreateReportResponse> = db
+    let report: models::CreateReportResponse = db
         .create("Report")
         .content(report_record)
         .await
-        .map_err(|e| {
-            e.to_string()
-        })?;
-
-    let report = created_report
-        .into_iter()
-        .next()
+        .map_err(|e| e.to_string())?
         .ok_or_else(|| "Failed to create report".to_string())?;
+
+    let report_id = report.id.clone();
+    
 
     for image_id in image_ids {
         db.query("RELATE $image -> Images_Reports_Join -> $report")
-            .bind(("image", &image_id))
-            .bind(("report", &report.id))
+            .bind(("image", image_id))
+            .bind(("report", report_id.clone()))
             .await
             .map_err(|e| e.to_string())?;
     }
-
-
 
     Ok(report)
 }
 
 pub async fn get_reports_service(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
 ) -> Result<Vec<models::ReportResponse>, SurrealError> {
     let query = "
             SELECT
@@ -135,7 +132,7 @@ pub async fn get_reports_service(
 }
 
 pub async fn get_report_images_service(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
     report_id: String,
 ) -> Result<Vec<models::ImageInfo>, SurrealError> {
     let query = "

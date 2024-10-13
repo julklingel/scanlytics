@@ -1,12 +1,12 @@
 use super::models::{PatientRecord, PatientRequest, PatientResponse, UserResponse};
 
-use surrealdb::engine::remote::ws::Client;
+use surrealdb::engine::local::Db;
 use surrealdb::Surreal;
 
 pub async fn create_patient_service(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
     data: PatientRequest,
-) -> Result<Vec<PatientResponse>, String> {
+) -> Result<PatientResponse, String> {
     let doctor: Option<UserResponse> = db
         .select(("User", &data.primary_doctor))
         .await
@@ -24,31 +24,33 @@ pub async fn create_patient_service(
         images: data.images,
     };
 
-    let created: Vec<PatientResponse> = db
+    let created: PatientResponse = db
         .create("Patient")
         .content(patient_record)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| e.to_string())?
+        .ok_or_else(|| "Failed to create patient".to_string())?;
 
-    if let Some(patient) = created.first() {
-        db.query("RELATE $patient -> Treated_By -> $doctor")
-            .bind(("patient", &patient.id))
-            .bind(("doctor", &doctor.id))
-            .await
-            .map_err(|e| e.to_string())?;
-        println!("Patient created: {:?}", patient);
-    }
+    let patient_id = created.id.clone();
+    let doctor_id = doctor.id.clone();
+
+    db.query("RELATE $patient -> Treated_By -> $doctor")
+        .bind(("patient", patient_id))
+        .bind(("doctor", doctor_id))
+        .await
+        .map_err(|e| e.to_string())?;
 
     Ok(created)
 }
 
-pub async fn get_patient_service(db: &Surreal<Client>) -> Result<Vec<PatientResponse>, String> {
+
+pub async fn get_patient_service( db: &Surreal<Db>,) -> Result<Vec<PatientResponse>, String> {
     let records: Vec<PatientResponse> = db.select("Patient").await.map_err(|e| e.to_string())?;
     Ok(records)
 }
 
 pub async fn update_patient_service(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
     id: String,
     data: PatientRequest,
 ) -> Result<Option<PatientResponse>, String> {
@@ -75,7 +77,7 @@ pub async fn update_patient_service(
 }
 
 pub async fn delete_patient_service(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
     id: String,
 ) -> Result<Option<PatientResponse>, String> {
     let deleted: Option<PatientResponse> = db

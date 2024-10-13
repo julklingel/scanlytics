@@ -1,15 +1,16 @@
 use super::models;
 use super::services;
-use surrealdb::engine::remote::ws::Client;
-use surrealdb::Surreal;
 use tauri::State;
-use tokio::sync::RwLock;
+use crate::db::models::DbConnection;
+
+
 
 #[tauri::command]
 pub async fn get_users(
-    db: State<'_, RwLock<Surreal<Client>>>,
+    db_connection: State<'_, DbConnection>
 ) -> Result<Vec<models::UserResponse>, String> {
-    let db = db.write().await;
+    let db = db_connection.get().lock().await;
+    
     let response: Vec<models::UserResponse> = services::get_users_service(&db)
         .await?
         .into_iter()

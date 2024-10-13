@@ -1,4 +1,4 @@
-use super::{models, services};
+use super::services;
 
 #[tauri::command]
 pub async fn validate_token(username: String) -> Result<(), String> {
