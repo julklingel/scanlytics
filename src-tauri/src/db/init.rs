@@ -119,7 +119,7 @@ pub async fn define_db_on_startup(db_connection: models::DbConnection) -> Result
         "DEFINE FIELD data ON TABLE models TYPE bytes;",
         "DEFINE FIELD version ON TABLE models TYPE string;",
         "DEFINE FIELD format ON TABLE models TYPE string;",
-        "DEFINE FIELD created_at ON TABLE models TYPE datetime;",
+        "DEFINE FIELD created_at ON TABLE models TYPE datetime DEFAULT time::now();",
     ];
 
     for statement in define_statements {
