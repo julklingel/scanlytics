@@ -3,17 +3,26 @@ use image::imageops::FilterType;
 use ndarray::Array;
 use tauri::Manager;
 use tract_onnx::prelude::*;
-
-use reqwest;
+use keyring::Entry;
 use std::fs::File;
 use std::io::copy;
 
-pub async fn download_model(model_name: &str, app_handle: &tauri::AppHandle) -> Result<(), String> {
+pub async fn download_model(model_name: &str, app_handle: &tauri::AppHandle, username: String) -> Result<(), String> {
     let backend_url = format!("https://scanlyticsbe.fly.dev/get_model_url/{}", model_name);
 
+    let username = username.trim();
+    let entry = Entry::new("com.scanlytics.dev", username)
+        .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
+
+    let stored_token = entry
+        .get_password()
+        .map_err(|e| format!("Failed to retrieve stored token: {}", e))?;
+
     let client = reqwest::Client::new();
+
     let response = client
         .get(&backend_url)
+        .header("Authorization", format!("Bearer {}", stored_token))
         .send()
         .await
         .map_err(|e| format!("Failed to get pre-signed URL: {}", e))?;
@@ -57,6 +66,7 @@ pub async fn download_model(model_name: &str, app_handle: &tauri::AppHandle) -> 
 
 pub async fn process_images_service(
     image_data: String,
+    username: String,
     classification_model: String,
     app_handle: tauri::AppHandle,
 ) -> Result<models::ONNXResponse, String> {
@@ -69,7 +79,7 @@ pub async fn process_images_service(
     let model_path = load_dir.join(format!("{}.onnx", classification_model));
 
     if !model_path.exists() {
-        download_model(&classification_model, &app_handle).await?;
+        download_model(&classification_model, &app_handle, username).await?;
     }
 
     let image_data: Vec<models::ImageData> = serde_json::from_str(&image_data)
