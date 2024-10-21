@@ -4,6 +4,52 @@ use ndarray::Array;
 use tauri::Manager;
 use tract_onnx::prelude::*;
 
+use reqwest;
+use std::fs::File;
+use std::io::copy;
+
+
+pub async fn download_model(model_name: &str, app_handle: &tauri::AppHandle) -> Result<(), String> {
+    let backend_url = format!("https://scanlyticsbe.fly.dev/get_model_url/{}", model_name);
+
+    let client = reqwest::Client::new();
+    let response = client.get(&backend_url)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to get pre-signed URL: {}", e))?;
+
+    let url_response: serde_json::Value = response.json()
+        .await
+        .map_err(|e| format!("Failed to parse response: {}", e))?;
+    
+    let presigned_url = url_response["url"].as_str()
+        .ok_or_else(|| "Invalid response format".to_string())?;
+
+    let model_response = client.get(presigned_url)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to download model: {}", e))?;
+
+    let app_local_data_dir = app_handle.path()
+        .app_local_data_dir()
+        .map_err(|e| format!("Failed to get app local data directory: {}", e))?;
+
+    let onnx_dir = app_local_data_dir.join("onnx");
+    std::fs::create_dir_all(&onnx_dir)
+        .map_err(|e| format!("Failed to create onnx directory: {}", e))?;
+
+    let file_path = onnx_dir.join(format!("{}.onnx", model_name));
+
+    let mut file = File::create(file_path)
+        .map_err(|e| format!("Failed to create file: {}", e))?;
+
+    copy(&mut model_response.bytes().await.unwrap().as_ref(), &mut file)
+        .map_err(|e| format!("Failed to write file: {}", e))?;
+
+    Ok(())
+}
+
+
 pub async fn process_images_service(
     image_data: String,
     classification_model: String,
