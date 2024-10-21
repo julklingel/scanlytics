@@ -8,29 +8,33 @@ use reqwest;
 use std::fs::File;
 use std::io::copy;
 
-
 pub async fn download_model(model_name: &str, app_handle: &tauri::AppHandle) -> Result<(), String> {
     let backend_url = format!("https://scanlyticsbe.fly.dev/get_model_url/{}", model_name);
 
     let client = reqwest::Client::new();
-    let response = client.get(&backend_url)
+    let response = client
+        .get(&backend_url)
         .send()
         .await
         .map_err(|e| format!("Failed to get pre-signed URL: {}", e))?;
 
-    let url_response: serde_json::Value = response.json()
+    let url_response: serde_json::Value = response
+        .json()
         .await
         .map_err(|e| format!("Failed to parse response: {}", e))?;
-    
-    let presigned_url = url_response["url"].as_str()
+
+    let presigned_url = url_response["url"]
+        .as_str()
         .ok_or_else(|| "Invalid response format".to_string())?;
 
-    let model_response = client.get(presigned_url)
+    let model_response = client
+        .get(presigned_url)
         .send()
         .await
         .map_err(|e| format!("Failed to download model: {}", e))?;
 
-    let app_local_data_dir = app_handle.path()
+    let app_local_data_dir = app_handle
+        .path()
         .app_local_data_dir()
         .map_err(|e| format!("Failed to get app local data directory: {}", e))?;
 
@@ -40,36 +44,37 @@ pub async fn download_model(model_name: &str, app_handle: &tauri::AppHandle) -> 
 
     let file_path = onnx_dir.join(format!("{}.onnx", model_name));
 
-    let mut file = File::create(file_path)
-        .map_err(|e| format!("Failed to create file: {}", e))?;
+    let mut file = File::create(file_path).map_err(|e| format!("Failed to create file: {}", e))?;
 
-    copy(&mut model_response.bytes().await.unwrap().as_ref(), &mut file)
-        .map_err(|e| format!("Failed to write file: {}", e))?;
+    copy(
+        &mut model_response.bytes().await.unwrap().as_ref(),
+        &mut file,
+    )
+    .map_err(|e| format!("Failed to write file: {}", e))?;
 
     Ok(())
 }
-
 
 pub async fn process_images_service(
     image_data: String,
     classification_model: String,
     app_handle: tauri::AppHandle,
 ) -> Result<models::ONNXResponse, String> {
-    let image_data: Vec<models::ImageData> = serde_json::from_str(&image_data)
-        .map_err(|e| format!("Failed to parse image data: {}", e))?;
-
-    let classifcation_model: String = serde_json::from_str(&classification_model)
-        .map_err(|e| format!("Failed to parse classification model: {}", e))?;
-
-    println!("Classification model: {}", classifcation_model);
-
     let app_local_data_dir = app_handle
         .path()
         .app_local_data_dir()
         .map_err(|e| format!("Failed to get app local data directory: {}", e))?;
 
     let load_dir = app_local_data_dir.join("onnx");
-    let model_path = load_dir.join(format!("{}.onnx", classifcation_model));
+    let model_path = load_dir.join(format!("{}.onnx", classification_model));
+
+    if !model_path.exists() {
+        download_model(&classification_model, &app_handle).await?;
+    }
+
+    let image_data: Vec<models::ImageData> = serde_json::from_str(&image_data)
+        .map_err(|e| format!("Failed to parse image data: {}", e))?;
+
 
     let model = tract_onnx::onnx()
         .model_for_path(model_path)
