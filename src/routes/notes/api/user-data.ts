@@ -12,7 +12,7 @@ interface UserResponse {
   email: string;
   password: string;
   role: string;
-  organization: { id: string, tb: string };
+  organization?: { id: string, tb: string };
   patients?: { id: string, tb: string }[];
   patient_notes?: { id: string, tb: string }[];
   images?: { id: string, tb: string }[];
@@ -34,7 +34,7 @@ export async function getUsers() {
       name: user.name,
       email: user.email,
       role: user.role,
-      organization: user.organization.id,
+      organization: user.organization?.id,
       patients: user.patients?.map(p => p.id),
       patient_notes: user.patient_notes?.map(n => n.id),
       statements: user.statements?.map(s => s.id),
@@ -47,6 +47,7 @@ export async function getUsers() {
     processedUsers.sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
+    console.log(processedUsers);
     UserStore.set(processedUsers);
   } catch (error) {
     console.error("Failed to load users:", error);

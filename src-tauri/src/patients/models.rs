@@ -48,7 +48,7 @@ pub struct UserResponse {
     pub email: String,
     pub password: String,
     pub role: String,
-    pub organization: Thing,
+    pub organization: Option<Thing>,
     pub patients: Option<Vec<surrealdb::sql::Thing>>,
     pub patient_notes: Option<Vec<surrealdb::sql::Thing>>,
     pub statements: Option<Vec<surrealdb::sql::Thing>>,
