@@ -1,18 +1,25 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import Button from "$lib/components/ui/button/button.svelte";
   import { toast } from "svelte-sonner";
-  import { Input } from "$lib/components/ui/input/index.js";
+
   import { goto } from "$app/navigation";
   import { mode } from "mode-watcher";
   import { invoke } from "@tauri-apps/api/core";
   import { Progress } from "$lib/components/ui/progress";
   import AuthService from "../../../stores/Auth";
+  import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
+  import {
+    Button,
+    buttonVariants
+  } from "$lib/components/ui/button/index.js";
+
 
   let logoSrc: string;
   let isLoading = false;
   let progressValue = 0;
+  let verifyEmailsend = false;
 
   $: logoSrc = $mode === "dark" ? "/logo-dark.png" : "/logo.png";
 
@@ -29,11 +36,16 @@
 
   async function handleSubmit(event: Event) {
     event.preventDefault();
-    if (!signupData.full_name || !signupData.username || !signupData.password || !signupData.confirm_password) {
+    if (
+      !signupData.full_name ||
+      !signupData.username ||
+      !signupData.password ||
+      !signupData.confirm_password
+    ) {
       toast.error("Please fill in all fields.");
       return;
     }
-    
+
     isLoading = true;
     progressValue = 0;
 
@@ -48,12 +60,12 @@
       const response = await invoke("signup", {
         signupData: JSON.stringify(signupData),
       });
-      AuthService.login(signupData.username);
+
       progressValue = 100;
-      toast.success("Signup successful!");
+      
       setTimeout(() => {
         isLoading = false;
-        goto("/menu");
+        verifyEmailsend = true;
       }, 500);
     } catch (error) {
       let stringerror = JSON.stringify(error);
@@ -64,6 +76,24 @@
     }
   }
 </script>
+
+
+  <Dialog.Root open={verifyEmailsend}>
+    <Dialog.Content class="sm:max-w-[425px]">
+      <Dialog.Header>
+        <Dialog.Title>Thank you for signing up!</Dialog.Title>
+        <Dialog.Description>
+          We have sent you an email to verify your account. Please check your
+          inbox, and then come back to login.
+        </Dialog.Description>
+      </Dialog.Header>
+
+      <Dialog.Footer>
+        <Button href="/auth/login" variant="link" class="">Login</Button>
+      </Dialog.Footer>
+    </Dialog.Content>
+  </Dialog.Root>
+
 
 <div class="min-h-screen flex flex-col md:flex-row">
   <div
@@ -138,7 +168,7 @@
         <Progress value={progressValue} max={100} class="w-full" />
       {/if}
       <Button type="submit" class="w-full" disabled={isLoading}>
-        {isLoading ? 'Signing Up...' : 'Sign Up'}
+        {isLoading ? "Signing Up..." : "Sign Up"}
       </Button>
     </form>
 
