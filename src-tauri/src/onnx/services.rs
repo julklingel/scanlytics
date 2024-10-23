@@ -5,10 +5,10 @@ use tauri::Manager;
 use tract_onnx::prelude::*;
 use keyring::Entry;
 use std::fs::File;
-use std::io::copy;
+
 
 pub async fn download_model(model_name: &str, app_handle: &tauri::AppHandle, username: String) -> Result<(), String> {
-    let backend_url = format!("https://scanlyticsbe.fly.dev/get_model_url/{}", model_name);
+    let backend_url = "http://localhost:8001/ml_models";
 
     let username = username.trim();
     let entry = Entry::new("com.scanlytics.dev", username)
@@ -20,12 +20,28 @@ pub async fn download_model(model_name: &str, app_handle: &tauri::AppHandle, use
 
     let client = reqwest::Client::new();
 
+   
+    let payload = serde_json::json!({
+        "model_name": model_name
+    });
+
     let response = client
-        .get(&backend_url)
+        .post(backend_url)  
         .header("Authorization", format!("Bearer {}", stored_token))
+        .header("Content-Type", "application/json")
+        .json(&payload)  
         .send()
         .await
         .map_err(|e| format!("Failed to get pre-signed URL: {}", e))?;
+
+
+    if !response.status().is_success() {
+        return Err(format!(
+            "Server returned error: {} - {}",
+            response.status(),
+            response.text().await.unwrap_or_default()
+        ));
+    }
 
     let url_response: serde_json::Value = response
         .json()
@@ -36,11 +52,23 @@ pub async fn download_model(model_name: &str, app_handle: &tauri::AppHandle, use
         .as_str()
         .ok_or_else(|| "Invalid response format".to_string())?;
 
+   
+    println!("Downloading from presigned URL: {}", presigned_url);
+
     let model_response = client
         .get(presigned_url)
         .send()
         .await
         .map_err(|e| format!("Failed to download model: {}", e))?;
+
+    
+    if !model_response.status().is_success() {
+        return Err(format!(
+            "Failed to download model. Status: {} - {}",
+            model_response.status(),
+            model_response.text().await.unwrap_or_default()
+        ));
+    }
 
     let app_local_data_dir = app_handle
         .path()
@@ -53,16 +81,24 @@ pub async fn download_model(model_name: &str, app_handle: &tauri::AppHandle, use
 
     let file_path = onnx_dir.join(format!("{}.onnx", model_name));
 
-    let mut file = File::create(file_path).map_err(|e| format!("Failed to create file: {}", e))?;
+    let mut file = File::create(&file_path)
+        .map_err(|e| format!("Failed to create file: {}", e))?;
 
-    copy(
-        &mut model_response.bytes().await.unwrap().as_ref(),
+    let bytes = model_response
+        .bytes()
+        .await
+        .map_err(|e| format!("Failed to get response bytes: {}", e))?;
+
+    std::io::copy(
+        &mut std::io::Cursor::new(bytes),
         &mut file,
     )
     .map_err(|e| format!("Failed to write file: {}", e))?;
 
+    println!("Model successfully downloaded to: {:?}", file_path);
     Ok(())
 }
+
 
 pub async fn process_images_service(
     image_data: String,
