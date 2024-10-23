@@ -21,7 +21,8 @@ type ReportResponse = {
 export async function getReports() {
   try {
     const data = await invoke<ReportResponse[]>("get_reports",
-      { username: "tauri@tauri.com" }
+      // This is still hardcoded please rp with value from authstore
+      { username: "9gx2n3l94k@somelora.com" }
     );
     console.log("Reports data:", data);
 
