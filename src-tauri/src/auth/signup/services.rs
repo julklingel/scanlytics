@@ -4,6 +4,8 @@ use zxcvbn::zxcvbn;
 use zxcvbn::Score;
 use surrealdb::engine::local::Db;
 use surrealdb::Surreal;
+use crate::users::services::create_user_service;
+use crate::users::models::UserRecord;
 
 pub async fn signup_service(
     db: &Surreal<Db>,
@@ -33,12 +35,24 @@ pub async fn signup_service(
         );
     }
 
-    /// Refactor later so it matches with the backend
     let signup_record = models::SignupRecord {
-        user_password: signup_request.password,
-        user_name: signup_request.full_name,
-        user_email: signup_request.email,
+        user_password: signup_request.password.clone(),
+        user_name: signup_request.full_name.clone(),
+        user_email: signup_request.username.clone(),
         user_role: "user".to_string(),
+    };
+
+    let user_data = UserRecord {
+        name: signup_request.full_name,
+        email: signup_request.username,
+        password: signup_request.password,
+        role: "user".to_string(),
+        organization: None,
+        patients: None,
+        patient_notes: None,
+        statements: None,
+        images: None,
+        reports: None,
     };
 
     let client = HttpClient::new();
@@ -57,7 +71,7 @@ pub async fn signup_service(
             .await
             .map_err(|e| format!("Failed to parse response: {}", e))?;
 
-        println!("Signup successful: {:?}", signup_response);
+        create_user_service(user_data, db).await?;
         Ok(signup_response)
     } else {
         Err(format!("Signup failed: {}", response.status()))

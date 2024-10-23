@@ -39,7 +39,7 @@ pub async fn define_db_on_startup(db_connection: models::DbConnection) -> Result
         "DEFINE FIELD Statement.* ON User TYPE option<record<Statement>>;",
         "DEFINE FIELD Image ON TABLE User TYPE option<array<record<Image>>>;",
         "DEFINE FIELD Image.* ON User TYPE option<record<Image>>;",
-        "DEFINE FIELD organization ON User TYPE record<Organization>;",
+        "DEFINE FIELD organization ON User TYPE option<record<Organization>>;",
         "DEFINE FIELD in ON TABLE Write_Reports TYPE record<User>;",
         "DEFINE FIELD out ON TABLE Write_Reports TYPE record<Report>;",
         "DEFINE FIELD in ON TABLE Access_Statements TYPE record<User>;",
