@@ -78,7 +78,7 @@
 </script>
 
 
-  <Dialog.Root open={verifyEmailsend}>
+  <Dialog.Root bind:open={verifyEmailsend}>
     <Dialog.Content class="sm:max-w-[425px]">
       <Dialog.Header>
         <Dialog.Title>Thank you for signing up!</Dialog.Title>

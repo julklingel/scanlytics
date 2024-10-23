@@ -37,7 +37,7 @@ pub async fn signup_service(
     let signup_record = models::SignupRecord {
         user_password: signup_request.password,
         user_name: signup_request.full_name,
-        user_email: signup_request.email,
+        user_email: signup_request.username,
         user_role: "user".to_string(),
     };
 
