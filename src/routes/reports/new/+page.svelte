@@ -17,12 +17,12 @@
   import { goto } from "$app/navigation";
 
   export let patient_id: string;
-  export let user_owner: string;
+  export let user_owner: string = "jck-8@outlook.com";
   let body_part: string = "";
   
 
   let models: {id: number, label: string, type: string, variant: "default" | "secondary", selected: boolean}[] = [
-  { id: 1, label: "Speedy", type: "MNST_med", variant: "secondary", selected: true },
+  { id: 1, label: "Speedy", type: "body_part_classifier", variant: "secondary", selected: true },
   { id: 2, label: "Balanced", type: "ResNet16", variant: "secondary", selected: false },
   { id: 3, label: "Accurate", type: "ResNet60", variant: "secondary", selected: false },
 ];
@@ -56,7 +56,8 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
 
       const result: ONNXResponse = await invoke("process_images", {
         imageData: JSON.stringify(fileData),
-        classificationModel: JSON.stringify(selectedModel),
+        userName: JSON.stringify(user_owner) ,
+        modelName: JSON.stringify(selectedModel),
       });
 
       let responseString = JSON.stringify(result);
