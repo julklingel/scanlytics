@@ -115,6 +115,12 @@ pub async fn define_db_on_startup(db_connection: models::DbConnection) -> Result
         "DEFINE TABLE Images_Reports_Join SCHEMAFULL;",
         "DEFINE TABLE Write_Reports SCHEMAFULL;",
 
+        "DEFINE TABLE models SCHEMAFULL;",
+        "DEFINE FIELD name ON TABLE models TYPE string;",
+        "DEFINE FIELD version ON TABLE models TYPE string;",
+        "DEFINE FIELD category ON TABLE models TYPE string;",
+        "DEFINE FIELD link ON TABLE models TYPE string;",
+        "DEFINE FIELD created_at ON TABLE models TYPE datetime DEFAULT time::now();",
     ];
 
     for statement in define_statements {
