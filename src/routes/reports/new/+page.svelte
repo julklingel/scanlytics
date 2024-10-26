@@ -15,11 +15,14 @@
   import { getPatients } from "../api/patient-data";
   import { getUsers } from "../api/user-data";
   import { goto } from "$app/navigation";
+  import AuthService from "../../../stores/Auth";
+  export let user_owner: string;
+  $: user_owner = $AuthService.username;
 
   export let patient_id: string;
-  export let user_owner: string = "jck-8@outlook.com";
   let body_part: string = "";
-  
+
+
 
   let models: {id: number, label: string, type: string, variant: "default" | "secondary", selected: boolean}[] = [
   { id: 1, label: "Speedy", type: "body_part_classifier", variant: "secondary", selected: true },

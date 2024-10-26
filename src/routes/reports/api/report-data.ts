@@ -1,5 +1,9 @@
+import { get } from 'svelte/store';
 import { ReportStore } from "../../../stores/Report";
 import { invoke } from "@tauri-apps/api/core";
+import AuthService from "../../../stores/Auth";
+
+let currentUsername = '';
 
 type ReportResponse = {
   id: { String: string };
@@ -18,14 +22,19 @@ type ReportResponse = {
   updated_at: string;
 };
 
+
+
+// Set up subscription
+AuthService.subscribe(auth => {
+  currentUsername = auth.username;
+});
+
 export async function getReports() {
   try {
-    const data = await invoke<ReportResponse[]>("get_reports",
-      // This is still hardcoded please rp with value from authstore
-      { username: "9gx2n3l94k@somelora.com" }
-    );
-    console.log("Reports data:", data);
-
+    const data = await invoke<ReportResponse[]>("get_reports", { 
+      username: currentUsername 
+    });
+    
     const reports = data.map((report) => ({
       id: report.id,
       reportText: report.report_text,
@@ -52,3 +61,4 @@ export async function getReports() {
     console.error("Failed to load reports:", error);
   }
 }
+    
