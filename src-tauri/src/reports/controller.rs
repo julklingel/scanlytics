@@ -5,9 +5,6 @@ use super::services;
 use crate::db::models::DbConnection;
 use tauri::State;
 
-
-
-
 #[tauri::command]
 pub async fn create_report(
     db_connection: State<'_, DbConnection>,
@@ -17,7 +14,6 @@ pub async fn create_report(
     let db = db_connection.get().lock().await;
     let report_request: models::ReportRequest = serde_json::from_str(&report_request)
         .map_err(|e| format!("Tauri: Failed to parse report request : {}", e))?;
-
    
     let response: models::CreateReportResponse =
         services::create_report_service(&db, report_request, app_handle).await?;
