@@ -16,36 +16,105 @@
   import { getUsers } from "../api/user-data";
   import { goto } from "$app/navigation";
   import AuthService from "../../../stores/Auth";
+
   export let user_owner: string;
   $: user_owner = $AuthService.username;
 
   export let patient_id: string;
   let body_part: string = "";
 
+  let models: {
+    id: number;
+    label: string;
+    type: string;
+    variant: "default" | "secondary";
+    selected: boolean;
+  }[] = [
+    {
+      id: 1,
+      label: "Speedy",
+      type: "body_part_classifier",
+      variant: "secondary",
+      selected: true,
+    },
+    {
+      id: 2,
+      label: "Balanced",
+      type: "ResNet16",
+      variant: "secondary",
+      selected: false,
+    },
+    {
+      id: 3,
+      label: "Accurate",
+      type: "ResNet60",
+      variant: "secondary",
+      selected: false,
+    },
+  ];
 
-
-  let models: {id: number, label: string, type: string, variant: "default" | "secondary", selected: boolean}[] = [
-  { id: 1, label: "Speedy", type: "body_part_classifier", variant: "secondary", selected: true },
-  { id: 2, label: "Balanced", type: "ResNet16", variant: "secondary", selected: false },
-  { id: 3, label: "Accurate", type: "ResNet60", variant: "secondary", selected: false },
-];
-
-let selectedModel: string 
-$: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
-
+  let selectedModel: string;
+  $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
 
   let carouselApi: any;
   let files: File[] = [];
   let report_text: string = "";
 
-  function selectModel(selectedModel: { id: number, label: string, type: string, variant: string, selected: boolean }) {
-  models = models.map(model => ({
-    ...model,
-    variant: model.id === selectedModel.id ? "default" : "secondary",
-    selected: model.id === selectedModel.id ? true : false,
-  }));
-}
+  interface ONNXResponse {
+    results: {
+      filename: string;
+      image_type: string;
+      confidence: number;
+    }[];
+    statements: {
+      indication: string;
+      statement: string;
+      assessment: string;
+    }[];
+  }
 
+  let suggestions: { id: number; text: string }[] = [
+    {
+      id: 1,
+      text: "The X-ray image of the knee shows...",
+    },
+    { id: 2, text: "Notable findings include..." },
+    { id: 3, text: "The overall alignment of the knee joint is..." },
+    { id: 4, text: "The bone density appears to be..." },
+    { id: 5, text: "In the anterior aspect of the knee, we observe..." },
+    { id: 6, text: "The posterior elements of the knee demonstrate..." },
+    { id: 7, text: "The joint space between the femur and tibia is..." },
+    { id: 8, text: "The patella position and structure appear..." },
+    { id: 9, text: "Soft tissue findings, if any, include..." },
+    { id: 10, text: "Comparison with previous studies shows..." },
+  ];
+
+  let addedSugg: { id: number; text: string }[] = [];
+
+  function processStatementsToSuggestions(statements: ONNXResponse['statements']) {
+    let nextId = suggestions.length + 1;
+    
+    const newSuggestions = statements.map(statement => ({
+      id: nextId++,
+      text: `Indication: ${statement.indication}\n${statement.statement}\nAssessment: ${statement.assessment}`
+    }));
+
+    suggestions = [...suggestions, ...newSuggestions];
+  }
+
+  function selectModel(selectedModel: {
+    id: number;
+    label: string;
+    type: string;
+    variant: string;
+    selected: boolean;
+  }) {
+    models = models.map((model) => ({
+      ...model,
+      variant: model.id === selectedModel.id ? "default" : "secondary",
+      selected: model.id === selectedModel.id ? true : false,
+    }));
+  }
 
   async function sendFilesToBackend(files: File[]) {
     try {
@@ -59,32 +128,32 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
 
       const result: ONNXResponse = await invoke("process_images", {
         imageData: JSON.stringify(fileData),
-        userName: JSON.stringify(user_owner) ,
+        userName: JSON.stringify(user_owner),
         modelName: JSON.stringify(selectedModel),
       });
 
       let responseString = JSON.stringify(result);
+      toast.success("Images processed successfully");
+      console.log("Images processed:", result);
 
-      toast.success(responseString);
-      console.log("Images processed:", result.results);
+      // Process the statements into suggestions
+      if (result.statements && result.statements.length > 0) {
+        processStatementsToSuggestions(result.statements);
+      }
 
       result.results.forEach((imageResult) => {
         console.log(
           `File: ${imageResult.filename}, Type: ${imageResult.image_type}, Confidence: ${imageResult.confidence}`
         );
+        // Set body_part based on the first image classification
+        if (!body_part && imageResult.confidence > 0.5) {
+          body_part = imageResult.image_type;
+        }
       });
     } catch (error) {
       console.error("Error processing images:", error);
       toast.error("Error processing images");
     }
-  }
-
-  interface ONNXResponse {
-    results: {
-      filename: string;
-      image_type: string;
-      confidence: number;
-    }[];
   }
 
   $: {
@@ -105,24 +174,6 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
   async function fileToUint8Array(file: File): Promise<Uint8Array> {
     return new Uint8Array(await file.arrayBuffer());
   }
-
-  export let suggestions: { id: number; text: string }[] = [
-    {
-      id: 1,
-      text: "The X-ray image of the knee shows...",
-    },
-    { id: 2, text: "Notable findings include..." },
-    { id: 3, text: "The overall alignment of the knee joint is..." },
-    { id: 4, text: "The bone density appears to be..." },
-    { id: 5, text: "In the anterior aspect of the knee, we observe..." },
-    { id: 6, text: "The posterior elements of the knee demonstrate..." },
-    { id: 7, text: "The joint space between the femur and tibia is..." },
-    { id: 8, text: "The patella position and structure appear..." },
-    { id: 9, text: "Soft tissue findings, if any, include..." },
-    { id: 10, text: "Comparison with previous studies shows..." },
-  ];
-
-  let addedSugg: { id: number; text: string }[] = [];
 
   async function handleSubmit() {
     const fileData = await Promise.all(
@@ -174,6 +225,7 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
       carouselApi.scrollTo(index);
     }
   }
+
   function removeImage(index: number) {
     files = files.filter((_, i) => i !== index);
     if (files.length > 0 && carouselApi) {
@@ -202,6 +254,7 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
     }
   }
 </script>
+
 
 <h1 class="my-4 mb-8 text-4xl font-extrabold tracking-tight lg:text-5xl">
   Erstelle einen Befund:
@@ -377,8 +430,23 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
                   on:click={() => addSugg(suggestion.id)}
                   animate:flip={{ duration: 200 }}
                 >
-                  <div class="bg-gray-100 p-2 mb-2 rounded-md">
-                    {suggestion.text}
+                  <div 
+                    class="bg-gray-100 p-2 mb-2 rounded-md hover:bg-gray-200 transition-colors"
+                    class:border-l-4={suggestion.text.includes('Indication:')}
+                    class:border-blue-500={suggestion.text.includes('Indication:')}
+                  >
+                    {#if suggestion.text.includes('Indication:')}
+                      <div class="text-sm">
+                        {#each suggestion.text.split('\n') as line}
+                          <p class={line.startsWith('Assessment:') ? 'font-semibold mt-1' : 
+                                   line.startsWith('Indication:') ? 'text-blue-600' : ''}>
+                            {line}
+                          </p>
+                        {/each}
+                      </div>
+                    {:else}
+                      {suggestion.text}
+                    {/if}
                   </div>
                 </div>
               {/each}
