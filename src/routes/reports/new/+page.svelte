@@ -99,7 +99,7 @@
       text: `Indication: ${statement.indication}\n${statement.statement}\nAssessment: ${statement.assessment}`
     }));
 
-    suggestions = [...suggestions, ...newSuggestions];
+    suggestions = [...newSuggestions, ...suggestions];
   }
 
   function selectModel(selectedModel: {
@@ -136,7 +136,6 @@
       toast.success("Images processed successfully");
       console.log("Images processed:", result);
 
-      // Process the statements into suggestions
       if (result.statements && result.statements.length > 0) {
         processStatementsToSuggestions(result.statements);
       }
@@ -145,7 +144,7 @@
         console.log(
           `File: ${imageResult.filename}, Type: ${imageResult.image_type}, Confidence: ${imageResult.confidence}`
         );
-        // Set body_part based on the first image classification
+   
         if (!body_part && imageResult.confidence > 0.5) {
           body_part = imageResult.image_type;
         }
@@ -420,39 +419,47 @@
         <Resizable.Handle />
 
         <Resizable.Pane defaultSize={50}>
-          <div class="h-full p-4 overflow-y-auto">
-            <h2 class="text-lg font-semibold mb-2">Vorschläge</h2>
-            <section>
-              {#each suggestions as suggestion (suggestion.id)}
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                <div
-                  on:click={() => addSugg(suggestion.id)}
-                  animate:flip={{ duration: 200 }}
-                >
-                  <div 
-                    class="bg-gray-100 p-2 mb-2 rounded-md hover:bg-gray-200 transition-colors"
-                    class:border-l-4={suggestion.text.includes('Indication:')}
-                    class:border-blue-500={suggestion.text.includes('Indication:')}
+          <div class="h-full flex flex-col" style="height: 60vh;"> <!-- Fixed full viewport height -->
+            <h2 class="text-lg font-semibold p-4 pb-2 bg-white">Vorschläge</h2>
+            <div class="overflow-y-auto flex-1" style="height: calc(60vh - 4rem);"> <!-- Subtract header height -->
+              <div class="px-4">
+                <section class="space-y-2">
+                {#each suggestions as suggestion (suggestion.id)}
+                  <!-- svelte-ignore a11y-click-events-have-key-events -->
+                  <!-- svelte-ignore a11y-no-static-element-interactions -->
+                  <div
+                    on:click={() => addSugg(suggestion.id)}
+                    animate:flip={{ duration: 200 }}
+                    class="cursor-pointer"
                   >
-                    {#if suggestion.text.includes('Indication:')}
-                      <div class="text-sm">
-                        {#each suggestion.text.split('\n') as line}
-                          <p class={line.startsWith('Assessment:') ? 'font-semibold mt-1' : 
-                                   line.startsWith('Indication:') ? 'text-blue-600' : ''}>
-                            {line}
-                          </p>
-                        {/each}
-                      </div>
-                    {:else}
-                      {suggestion.text}
-                    {/if}
+                    <div 
+                      class="bg-gray-100 p-3 rounded-md hover:bg-gray-200 transition-colors"
+                      class:border-l-4={suggestion.text.includes('Indication:')}
+                      class:border-blue-500={suggestion.text.includes('Indication:')}
+                    >
+                      {#if suggestion.text.includes('Indication:')}
+                        <div class="text-sm space-y-1">
+                          {#each suggestion.text.split('\n') as line}
+                            <p class={
+                              line.startsWith('Assessment:') ? 'font-semibold mt-1' : 
+                              line.startsWith('Indication:') ? 'text-blue-600' : 
+                              'text-gray-700'
+                            }>
+                              {line}
+                            </p>
+                          {/each}
+                        </div>
+                      {:else}
+                        <p class="text-gray-700">{suggestion.text}</p>
+                      {/if}
+                    </div>
                   </div>
-                </div>
-              {/each}
-            </section>
+                {/each}
+              </section>
+            </div>
           </div>
-        </Resizable.Pane>
+        </div>
+      </Resizable.Pane>
       </Resizable.PaneGroup>
     </Resizable.Pane>
   </Resizable.PaneGroup>
@@ -463,3 +470,28 @@
   <!-- <Button class=" ">Preview</Button> -->
   <Button on:click={handleSubmit} class=" ">Save</Button>
 </section>
+
+
+<style>
+  :global(.overflow-y-auto) {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  }
+
+  :global(.overflow-y-auto::-webkit-scrollbar) {
+    width: 6px;
+  }
+
+  :global(.overflow-y-auto::-webkit-scrollbar-track) {
+    background: transparent;
+  }
+
+  :global(.overflow-y-auto::-webkit-scrollbar-thumb) {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
+  }
+
+  :global(.overflow-y-auto::-webkit-scrollbar-thumb:hover) {
+    background-color: rgba(156, 163, 175, 0.7);
+  }
+</style>
