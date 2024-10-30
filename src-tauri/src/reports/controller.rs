@@ -11,7 +11,8 @@ pub async fn create_report(
     report_request: String,
     app_handle: tauri::AppHandle,
 ) -> Result<models::CreateReportResponse, String> {
-    let db = db_connection.get().lock().await;
+    println!("Creating report");
+    let db: tokio::sync::MutexGuard<'_, surrealdb::Surreal<surrealdb::engine::local::Db>> = db_connection.get().lock().await;
     let report_request: models::ReportRequest = serde_json::from_str(&report_request)
         .map_err(|e| format!("Tauri: Failed to parse report request : {}", e))?;
    

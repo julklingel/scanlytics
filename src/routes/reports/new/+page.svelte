@@ -17,8 +17,10 @@
   import { goto } from "$app/navigation";
   import AuthService from "../../../stores/Auth";
 
-  export let user_owner: string;
-  $: user_owner = $AuthService.username;
+  export let active_user: string;
+  $: active_user = $AuthService.username;
+
+  let user_owner: string
 
   export let patient_id: string;
   let body_part: string = "";
@@ -128,7 +130,7 @@
 
       const result: ONNXResponse = await invoke("process_images", {
         imageData: JSON.stringify(fileData),
-        userName: JSON.stringify(user_owner),
+        userName: JSON.stringify(active_user),
         modelName: JSON.stringify(selectedModel),
       });
 
