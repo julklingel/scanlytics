@@ -101,7 +101,7 @@
       text: `Indikation: ${statement.indication}\n${statement.statement}\nBefund: ${statement.assessment}`
     }));
 
-    suggestions = [...newSuggestions, ...suggestions];
+    suggestions = [...newSuggestions];
   }
 
   function selectModel(selectedModel: {
@@ -249,7 +249,7 @@
       const lastSuggestion = addedSugg.pop();
       if (lastSuggestion) {
         report_text = report_text.slice(0, -lastSuggestion.text.length);
-        suggestions = [...suggestions, lastSuggestion];
+        suggestions = [lastSuggestion, ...suggestions, ];
         addedSugg = [...addedSugg];
       }
     }
