@@ -91,6 +91,8 @@
     { id: 10, text: "Comparison with previous studies shows..." },
   ];
 
+
+
   let addedSugg: { id: number; text: string }[] = [];
 
   function processStatementsToSuggestions(statements: ONNXResponse['statements']) {
@@ -411,7 +413,10 @@
 
         <Resizable.Pane defaultSize={50}>
           <div class="h-full flex flex-col" style="height: 60vh;"> <!-- Fixed full viewport height -->
+            <div class="flex justify-between">
             <h2 class="text-lg font-semibold p-4 pb-2 bg-white">Vorschläge</h2>
+            <p class="p-4">{suggestions.length}</p>
+          </div>
             <div class="overflow-y-auto flex-1" style="height: calc(60vh - 4rem);"> <!-- Subtract header height -->
               <div class="px-4">
                 <section class="space-y-2">
