@@ -567,12 +567,6 @@ pub async fn define_db_on_startup(db_connection: models::DbConnection) -> Result
 
         "CREATE Statement SET \
             body_part = 'knee', \
-            indication = 'Aktivierte Arthrose bei RA', \
-            statement = 'Osteophytäre Anbauten, Erosive Veränderungen, Synovitis, Gelenkspaltver­schmälerung medial betont', \
-            assessment = 'Aktivierte Gonarthrose bei rheumatoider Grunderkrankung'",
-
-        "CREATE Statement SET \
-            body_part = 'knee', \
             indication = 'Septische Arthritis', \
             statement = 'Rasche Gelenkdestruktion, Massive Weichteilschwellung, Gelenkerguss, Periartikuläre Osteolyse', \
             assessment = 'Radiologische Zeichen einer septischen Arthritis'",
@@ -655,11 +649,6 @@ pub async fn define_db_on_startup(db_connection: models::DbConnection) -> Result
             statement = 'Gemischtes Erosionsmuster, Arthritis-Arthrose, Subluxationstendenz, Periartikuläre Osteopenie', \
             assessment = 'Komplexes arthritisches Geschehen bei Overlap-Syndrom'",
 
-        "CREATE Statement SET \
-            body_part = 'knee', \
-            indication = 'Aktivierte Arthrose bei RA', \
-            statement = 'Osteophytäre Anbauten, Erosive Veränderungen, Synovitis, Gelenkspaltver­schmälerung medial betont', \
-            assessment = 'Aktivierte Gonarthrose bei rheumatoider Grunderkrankung'",
 
         "CREATE Statement SET \
             body_part = 'knee', \
@@ -893,12 +882,7 @@ pub async fn define_db_on_startup(db_connection: models::DbConnection) -> Result
         body_part = 'angio', \
         indication = 'Dialyseshunt-Dysfunktion', \
         statement = 'Höchstgradige Anastomosenstenose, Elongierte Shuntvene, Kollateralen, Thrombosierte Outflow-Stenose', \
-        assessment = 'Komplexe Shuntdysfunktion mit Thrombose'"
-
-
-    
-
-        
+        assessment = 'Komplexe Shuntdysfunktion mit Thrombose'" 
     ];
 
     for statement in initial_statements {

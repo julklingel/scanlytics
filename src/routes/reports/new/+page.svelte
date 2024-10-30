@@ -96,7 +96,7 @@
     
     const newSuggestions = statements.map(statement => ({
       id: nextId++,
-      text: `Indication: ${statement.indication}\n${statement.statement}\nAssessment: ${statement.assessment}`
+      text: `Indikation: ${statement.indication}\n${statement.statement}\nBefund: ${statement.assessment}`
     }));
 
     suggestions = [...newSuggestions, ...suggestions];
@@ -434,15 +434,15 @@
                   >
                     <div 
                       class="bg-gray-100 p-3 rounded-md hover:bg-gray-200 transition-colors"
-                      class:border-l-4={suggestion.text.includes('Indication:')}
-                      class:border-blue-500={suggestion.text.includes('Indication:')}
+                      class:border-l-4={suggestion.text.includes('Indikation:')}
+                      class:border-blue-500={suggestion.text.includes('Indikation:')}
                     >
-                      {#if suggestion.text.includes('Indication:')}
+                      {#if suggestion.text.includes('Indikation:')}
                         <div class="text-sm space-y-1">
                           {#each suggestion.text.split('\n') as line}
                             <p class={
-                              line.startsWith('Assessment:') ? 'font-semibold mt-1' : 
-                              line.startsWith('Indication:') ? 'text-blue-600' : 
+                              line.startsWith('Befund:') ? 'font-semibold mt-1' : 
+                              line.startsWith('Indikation:') ? 'text-blue-600' : 
                               'text-gray-700'
                             }>
                               {line}
