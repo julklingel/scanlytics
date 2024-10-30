@@ -276,18 +276,7 @@
       >
       <DoctorCombobox bind:selectedDoctorId={user_owner} />
     </div>
-    <div class="">
-      <Label
-        for="attendingDoctor"
-        class="block text-sm font-medium text-gray-700">Körperteil</Label
-      >
-      <Input
-        type="text"
-        placeholder="Search for type"
-        class="mt-1 block w-full"
-        bind:value={body_part}
-      />
-    </div>
+
   </div>
 </section>
 
