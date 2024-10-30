@@ -1,5 +1,12 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
+
+  function gohome() {
+    goto("/menu");
+  }
+
+
 </script>
 
 <section class="flex justify-center items-center w-full h-screen">
@@ -12,6 +19,9 @@
           An error occurred.
         {/if}
       </p>
+      <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" on:click={gohome}>
+        Go back to menu
+      </button>
     </div>
   </section>
   

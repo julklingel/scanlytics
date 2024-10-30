@@ -16,36 +16,109 @@
   import { getUsers } from "../api/user-data";
   import { goto } from "$app/navigation";
   import AuthService from "../../../stores/Auth";
-  export let user_owner: string;
-  $: user_owner = $AuthService.username;
+
+  export let active_user: string;
+  $: active_user = $AuthService.username;
+
+  let user_owner: string
 
   export let patient_id: string;
   let body_part: string = "";
 
+  let models: {
+    id: number;
+    label: string;
+    type: string;
+    variant: "default" | "secondary";
+    selected: boolean;
+  }[] = [
+    {
+      id: 1,
+      label: "Speedy",
+      type: "body_part_classifier",
+      variant: "secondary",
+      selected: true,
+    },
+    {
+      id: 2,
+      label: "Balanced",
+      type: "ResNet16",
+      variant: "secondary",
+      selected: false,
+    },
+    {
+      id: 3,
+      label: "Accurate",
+      type: "ResNet60",
+      variant: "secondary",
+      selected: false,
+    },
+  ];
 
-
-  let models: {id: number, label: string, type: string, variant: "default" | "secondary", selected: boolean}[] = [
-  { id: 1, label: "Speedy", type: "body_part_classifier", variant: "secondary", selected: true },
-  { id: 2, label: "Balanced", type: "ResNet16", variant: "secondary", selected: false },
-  { id: 3, label: "Accurate", type: "ResNet60", variant: "secondary", selected: false },
-];
-
-let selectedModel: string 
-$: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
-
+  let selectedModel: string;
+  $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
 
   let carouselApi: any;
   let files: File[] = [];
   let report_text: string = "";
 
-  function selectModel(selectedModel: { id: number, label: string, type: string, variant: string, selected: boolean }) {
-  models = models.map(model => ({
-    ...model,
-    variant: model.id === selectedModel.id ? "default" : "secondary",
-    selected: model.id === selectedModel.id ? true : false,
-  }));
-}
+  interface ONNXResponse {
+    results: {
+      filename: string;
+      image_type: string;
+      confidence: number;
+    }[];
+    statements: {
+      indication: string;
+      statement: string;
+      assessment: string;
+    }[];
+  }
 
+  let suggestions: { id: number; text: string }[] = [
+    {
+      id: 1,
+      text: "The X-ray image of the knee shows...",
+    },
+    { id: 2, text: "Notable findings include..." },
+    { id: 3, text: "The overall alignment of the knee joint is..." },
+    { id: 4, text: "The bone density appears to be..." },
+    { id: 5, text: "In the anterior aspect of the knee, we observe..." },
+    { id: 6, text: "The posterior elements of the knee demonstrate..." },
+    { id: 7, text: "The joint space between the femur and tibia is..." },
+    { id: 8, text: "The patella position and structure appear..." },
+    { id: 9, text: "Soft tissue findings, if any, include..." },
+    { id: 10, text: "Comparison with previous studies shows..." },
+  ];
+
+
+
+  let addedSugg: { id: number; text: string }[] = [];
+
+  function processStatementsToSuggestions(statements: ONNXResponse['statements']) {
+    let nextId = suggestions.length + 1;
+    
+    const newSuggestions = statements.map(statement => ({
+      id: nextId++,
+      text: `Indikation: ${statement.indication}\n${statement.statement}\nBefund: ${statement.assessment}`
+    }));
+
+    suggestions = [...newSuggestions];
+  }
+
+  function selectModel(selectedModel: {
+    id: number;
+    label: string;
+    type: string;
+    variant: string;
+    selected: boolean;
+  }) {
+    models = models.map((model) => ({
+      ...model,
+      variant: model.id === selectedModel.id ? "default" : "secondary",
+      selected: model.id === selectedModel.id ? true : false,
+    }));
+  }
 
   async function sendFilesToBackend(files: File[]) {
     try {
@@ -59,32 +132,31 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
 
       const result: ONNXResponse = await invoke("process_images", {
         imageData: JSON.stringify(fileData),
-        userName: JSON.stringify(user_owner) ,
+        userName: JSON.stringify(active_user),
         modelName: JSON.stringify(selectedModel),
       });
 
       let responseString = JSON.stringify(result);
+      toast.success("Images processed successfully");
+      console.log("Images processed:", result);
 
-      toast.success(responseString);
-      console.log("Images processed:", result.results);
+      if (result.statements && result.statements.length > 0) {
+        processStatementsToSuggestions(result.statements);
+      }
 
       result.results.forEach((imageResult) => {
         console.log(
           `File: ${imageResult.filename}, Type: ${imageResult.image_type}, Confidence: ${imageResult.confidence}`
         );
+   
+        if (!body_part && imageResult.confidence > 0.5) {
+          body_part = imageResult.image_type;
+        }
       });
     } catch (error) {
       console.error("Error processing images:", error);
       toast.error("Error processing images");
     }
-  }
-
-  interface ONNXResponse {
-    results: {
-      filename: string;
-      image_type: string;
-      confidence: number;
-    }[];
   }
 
   $: {
@@ -105,24 +177,6 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
   async function fileToUint8Array(file: File): Promise<Uint8Array> {
     return new Uint8Array(await file.arrayBuffer());
   }
-
-  export let suggestions: { id: number; text: string }[] = [
-    {
-      id: 1,
-      text: "The X-ray image of the knee shows...",
-    },
-    { id: 2, text: "Notable findings include..." },
-    { id: 3, text: "The overall alignment of the knee joint is..." },
-    { id: 4, text: "The bone density appears to be..." },
-    { id: 5, text: "In the anterior aspect of the knee, we observe..." },
-    { id: 6, text: "The posterior elements of the knee demonstrate..." },
-    { id: 7, text: "The joint space between the femur and tibia is..." },
-    { id: 8, text: "The patella position and structure appear..." },
-    { id: 9, text: "Soft tissue findings, if any, include..." },
-    { id: 10, text: "Comparison with previous studies shows..." },
-  ];
-
-  let addedSugg: { id: number; text: string }[] = [];
 
   async function handleSubmit() {
     const fileData = await Promise.all(
@@ -174,6 +228,7 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
       carouselApi.scrollTo(index);
     }
   }
+
   function removeImage(index: number) {
     files = files.filter((_, i) => i !== index);
     if (files.length > 0 && carouselApi) {
@@ -196,12 +251,13 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
       const lastSuggestion = addedSugg.pop();
       if (lastSuggestion) {
         report_text = report_text.slice(0, -lastSuggestion.text.length);
-        suggestions = [...suggestions, lastSuggestion];
+        suggestions = [lastSuggestion, ...suggestions, ];
         addedSugg = [...addedSugg];
       }
     }
   }
 </script>
+
 
 <h1 class="my-4 mb-8 text-4xl font-extrabold tracking-tight lg:text-5xl">
   Erstelle einen Befund:
@@ -222,18 +278,7 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
       >
       <DoctorCombobox bind:selectedDoctorId={user_owner} />
     </div>
-    <div class="">
-      <Label
-        for="attendingDoctor"
-        class="block text-sm font-medium text-gray-700">Körperteil</Label
-      >
-      <Input
-        type="text"
-        placeholder="Search for type"
-        class="mt-1 block w-full"
-        bind:value={body_part}
-      />
-    </div>
+
   </div>
 </section>
 
@@ -267,7 +312,7 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
                       <div class="relative">
                         <button
                           on:click={() => removeImage(index)}
-                          class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md"
+                          class="absolute z-10 top-2 right-2 bg-white rounded-full p-1 shadow-md"
                         >
                           <XIcon size={16} />
                         </button>
@@ -367,24 +412,50 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
         <Resizable.Handle />
 
         <Resizable.Pane defaultSize={50}>
-          <div class="h-full p-4 overflow-y-auto">
-            <h2 class="text-lg font-semibold mb-2">Vorschläge</h2>
-            <section>
-              {#each suggestions as suggestion (suggestion.id)}
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                <div
-                  on:click={() => addSugg(suggestion.id)}
-                  animate:flip={{ duration: 200 }}
-                >
-                  <div class="bg-gray-100 p-2 mb-2 rounded-md">
-                    {suggestion.text}
-                  </div>
-                </div>
-              {/each}
-            </section>
+          <div class="h-full flex flex-col" style="height: 60vh;"> <!-- Fixed full viewport height -->
+            <div class="flex justify-between">
+            <h2 class="text-lg font-semibold p-4 pb-2 bg-white">Vorschläge</h2>
+            <p class="p-4">{suggestions.length}</p>
           </div>
-        </Resizable.Pane>
+            <div class="overflow-y-auto flex-1" style="height: calc(60vh - 4rem);"> <!-- Subtract header height -->
+              <div class="px-4">
+                <section class="space-y-2">
+                {#each suggestions as suggestion (suggestion.id)}
+                  <!-- svelte-ignore a11y-click-events-have-key-events -->
+                  <!-- svelte-ignore a11y-no-static-element-interactions -->
+                  <div
+                    on:click={() => addSugg(suggestion.id)}
+                    animate:flip={{ duration: 200 }}
+                    class="cursor-pointer"
+                  >
+                    <div 
+                      class="bg-gray-100 p-3 rounded-md hover:bg-gray-200 transition-colors"
+                      class:border-l-4={suggestion.text.includes('Indikation:')}
+                      class:border-blue-500={suggestion.text.includes('Indikation:')}
+                    >
+                      {#if suggestion.text.includes('Indikation:')}
+                        <div class="text-sm space-y-1">
+                          {#each suggestion.text.split('\n') as line}
+                            <p class={
+                              line.startsWith('Befund:') ? 'font-semibold mt-1' : 
+                              line.startsWith('Indikation:') ? 'text-blue-600' : 
+                              'text-gray-700'
+                            }>
+                              {line}
+                            </p>
+                          {/each}
+                        </div>
+                      {:else}
+                        <p class="text-gray-700">{suggestion.text}</p>
+                      {/if}
+                    </div>
+                  </div>
+                {/each}
+              </section>
+            </div>
+          </div>
+        </div>
+      </Resizable.Pane>
       </Resizable.PaneGroup>
     </Resizable.Pane>
   </Resizable.PaneGroup>
@@ -395,3 +466,28 @@ $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
   <!-- <Button class=" ">Preview</Button> -->
   <Button on:click={handleSubmit} class=" ">Save</Button>
 </section>
+
+
+<style>
+  :global(.overflow-y-auto) {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  }
+
+  :global(.overflow-y-auto::-webkit-scrollbar) {
+    width: 6px;
+  }
+
+  :global(.overflow-y-auto::-webkit-scrollbar-track) {
+    background: transparent;
+  }
+
+  :global(.overflow-y-auto::-webkit-scrollbar-thumb) {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
+  }
+
+  :global(.overflow-y-auto::-webkit-scrollbar-thumb:hover) {
+    background-color: rgba(156, 163, 175, 0.7);
+  }
+</style>

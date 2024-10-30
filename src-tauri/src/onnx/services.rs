@@ -4,10 +4,14 @@ use keyring::Entry;
 use ndarray::Array;
 use reqwest::StatusCode;
 use serde_json::json;
+use surrealdb::engine::local::Db;
 use std::fs::File;
 use std::fs::{self};
 use std::path::PathBuf;
 use tauri::Manager;
+use surrealdb::Surreal;
+
+
 
 use tract_onnx::prelude::*;
 
@@ -89,7 +93,8 @@ pub async fn process_images_service(
     user_name: String,
     model_name: String,
     app_handle: tauri::AppHandle,
-    ) -> Result<models::ONNXResponse, String> {
+    db: &Surreal<Db>,
+) -> Result<models::ONNXResponse, String> {
     let app_local_data_dir = app_handle
     .path()
     .app_local_data_dir()
@@ -148,17 +153,19 @@ pub async fn process_images_service(
             .unwrap();
     
         let image_type = match class_idx {
-            0 => "AbdomenCT",
-            1 => "AngioXR",
-            2 => "BreastMRI",
-            3 => "ChestCT",
-            4 => "ChestXR",
-            5 => "HandXR",
-            6 => "HeadCT",
-            7 => "KneeXR",
-            8 => "ShoulderXR",
-            _ => "Unknown",
+            0 => "abdomen",
+            1 => "angio",
+            2 => "breast",
+            3 => "thorax",
+            4 => "thorax",
+            5 => "hand",
+            6 => "head",
+            7 => "knee",
+            8 => "shoulder",
+            _ => "unknown",
         };
+
+
     
         results.push(models::ImageResult {
             filename: img_data.filename,
@@ -166,9 +173,34 @@ pub async fn process_images_service(
             confidence: *confidence,
         });
     }
+
+    let mut all_statements = Vec::new();
     
+    
+    for result in &results {
+        let query = format!("
+            SELECT 
+                indication,
+                statement,
+                assessment
+            FROM Statement 
+            WHERE body_part = '{}'
+            ORDER BY indication;
+        ", result.image_type);
+
+        let statements: Vec<models::StatementResponse> = db.query(&query)
+            .await
+            .map_err(|e| format!("Database query failed: {}", e))?
+            .take(0)
+            .map_err(|e| format!("Failed to extract results: {}", e))?;
+
+        all_statements.extend(statements);
+    }
+
     println!("Results: {:?}", results);
     
-    Ok(models::ONNXResponse { results })
-    }
-    
+    Ok(models::ONNXResponse { 
+        results,
+        statements: all_statements,
+    })
+}

@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use reqwest::StatusCode;
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageData {
     pub filename: String,
@@ -10,12 +9,11 @@ pub struct ImageData {
     pub data: Vec<u8>,
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ONNXResponse {
     pub results: Vec<ImageResult>,
+    pub statements: Vec<StatementResponse>, // Added this field
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageResult {
@@ -23,6 +21,15 @@ pub struct ImageResult {
     pub image_type: String,
     pub confidence: f32,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct StatementResponse {
+    pub indication: String,
+    pub statement: String,
+    pub assessment: String,
+}
+
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserName {

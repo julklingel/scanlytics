@@ -6,7 +6,6 @@ type User = {
   name: string;
   email: string;
   role: string;
-  organization: string | undefined;
   patients: string[] | undefined;
   patient_notes: string[] | undefined;
   statements: string[] | undefined;
