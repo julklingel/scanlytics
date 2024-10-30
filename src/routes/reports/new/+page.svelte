@@ -312,7 +312,7 @@
                       <div class="relative">
                         <button
                           on:click={() => removeImage(index)}
-                          class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md"
+                          class="absolute z-10 top-2 right-2 bg-white rounded-full p-1 shadow-md"
                         >
                           <XIcon size={16} />
                         </button>
