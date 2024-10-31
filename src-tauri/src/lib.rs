@@ -48,7 +48,8 @@ pub fn run() {
         
         .invoke_handler(tauri::generate_handler![
             get_users, 
-            login, 
+            login,
+            logout,
             reset_password, 
             signup, 
             validate_token, 
