@@ -13,6 +13,7 @@ use db::init::{init_db, define_db_on_startup};
 use users::controller::get_users;
 use auth::login::controller::{login, reset_password};
 use auth::signup::controller::signup;
+use auth::logout::controller::logout;
 use auth::validate::controller::validate_token;
 use patients::controller::{create_patient, delete_patient, get_patients, update_patient};
 use notes::controller::{create_patient_note, delete_patient_note, get_patient_notes, update_patient_note};
@@ -44,7 +45,8 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             get_users, 
-            login, 
+            login,
+            logout,
             reset_password, 
             signup, 
             validate_token, 
