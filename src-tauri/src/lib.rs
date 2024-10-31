@@ -1,6 +1,5 @@
 
 use tauri::Manager;
-
 mod db;
 mod users;
 mod auth;
@@ -22,14 +21,13 @@ use onnx::controller::{process_images};
 
 
 
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             tauri::async_runtime::block_on(async {
-                match init_db().await {
+                match init_db(&app.app_handle()).await {
                     Ok(db_connection) => {
                         match define_db_on_startup(db_connection.clone()).await {
                             Ok(_) => {
@@ -44,7 +42,6 @@ pub fn run() {
             });
             Ok(())
         })
-        
         .invoke_handler(tauri::generate_handler![
             get_users, 
             login, 
@@ -63,8 +60,6 @@ pub fn run() {
             get_reports,
             get_report_images,
             process_images
-            
-            
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
