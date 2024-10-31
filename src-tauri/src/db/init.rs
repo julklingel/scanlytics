@@ -2,19 +2,34 @@ use std::sync::Arc;
 use surrealdb::Surreal;
 
 use super::models;
-use surrealdb::engine::local::File;
 use tokio::sync::Mutex;
 
-pub async fn init_db() -> Result<models::DbConnection, String> {
-    let db = Surreal::new::<File>("db/test-db.db")
+use tauri::Manager;
+
+
+use surrealdb::engine::local::RocksDb;
+
+
+pub async fn init_db(app_handle: &tauri::AppHandle) -> Result<models::DbConnection, String> {
+    let app_local_data_dir = app_handle
+        .path()
+        .app_local_data_dir()
+        .map_err(|e| format!("Failed to get app local data directory: {}", e))?;
+
+    let db_path_prod = app_local_data_dir.join("database.db");
+
+    let db = Surreal::new::<RocksDb>(db_path_prod)
         .await
         .map_err(|e| e.to_string())?;
+
     db.use_ns("namespace")
         .use_db("database")
         .await
         .map_err(|e| e.to_string())?;
+
     Ok(models::DbConnection(Arc::new(Mutex::new(db))))
 }
+
 
 pub async fn define_db_on_startup(db_connection: models::DbConnection) -> Result<(), String> {
     let define_statements: Vec<&str> = vec![
