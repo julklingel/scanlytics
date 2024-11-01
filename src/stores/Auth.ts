@@ -29,7 +29,7 @@ const AuthService = {
                     return store;
                 }
 
-                invoke("validate_token", { user_email: store.user_email })
+                invoke("validate_token", { userEmail: store.user_email })
                     .then(() => {
                         update(s => ({ ...s, isValidated: true }));
                         resolve();

@@ -11,7 +11,7 @@ mod onnx;
 
 use db::init::{init_db, define_db_on_startup};
 use users::controller::get_users;
-use auth::login::controller::{login, reset_password};
+use auth::login::controller::{login};
 use auth::signup::controller::signup;
 use auth::logout::controller::logout;
 use auth::validate::controller::validate_token;
@@ -47,7 +47,6 @@ pub fn run() {
             get_users, 
             login,
             logout,
-            reset_password, 
             signup, 
             validate_token, 
             create_patient, 

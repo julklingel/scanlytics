@@ -44,6 +44,7 @@
       const response = await invoke("login", {
         loginData: JSON.stringify(loginData),
       });
+      
       AuthService.login(loginData.user_email);
       progressValue = 100;
       toast.success("Login successful!");
@@ -52,13 +53,14 @@
         goto("/menu");
       }, 500);
     } catch (error) {
-      let stringerror = JSON.stringify(error);
-      toast.error(stringerror);
+   
+      toast.error(error as string);
       isLoading = false;
     } finally {
       clearInterval(progressInterval);
     }
   }
+
 
   function navigate2landing() {
     goto("/");

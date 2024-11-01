@@ -2,39 +2,6 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum AuthError {
-    ParseError(String),
-    NetworkError(String),
-    AuthenticationError(String),
-    KeyringError(String),
-}
-
-impl fmt::Display for AuthError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            AuthError::ParseError(msg) => write!(f, "Parse error: {}", msg),
-            AuthError::NetworkError(msg) => write!(f, "Network error: {}", msg),
-            AuthError::AuthenticationError(msg) => write!(f, "Authentication error: {}", msg),
-            AuthError::KeyringError(msg) => write!(f, "Keyring error: {}", msg),
-        }
-    }
-}
-
-impl From<serde_json::Error> for AuthError {
-    fn from(err: serde_json::Error) -> Self {
-        AuthError::ParseError(err.to_string())
-    }
-}
-
-impl From<reqwest::Error> for AuthError {
-    fn from(err: reqwest::Error) -> Self {
-        AuthError::NetworkError(err.to_string())
-    }
-}
-
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LoginRequest {
     pub user_email: String,
@@ -59,6 +26,14 @@ pub struct ApiResponse<T> {
     pub data: Option<T>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub enum AuthError {
+    Authentication(String),
+    Network(String),
+    Parse(String),
+    Keyring(String),
+}
+
 impl<T> ApiResponse<T> {
     pub fn success(data: T) -> Self {
         Self {
@@ -67,12 +42,15 @@ impl<T> ApiResponse<T> {
             data: Some(data),
         }
     }
+}
 
-    pub fn error(message: String) -> Self {
-        Self {
-            success: false,
-            message: Some(message),
-            data: None,
+impl std::fmt::Display for AuthError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AuthError::Authentication(detail) => write!(f, "{}", detail),
+            AuthError::Network(detail) => write!(f, "{}", detail),
+            AuthError::Parse(detail) => write!(f, "{}", detail),
+            AuthError::Keyring(detail) => write!(f, "{}", detail),
         }
     }
 }
