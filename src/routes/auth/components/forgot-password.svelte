@@ -12,12 +12,12 @@
   let progressValue = 0;
 
   let resetData = {
-    username: "",
+    user_name: "",
   };
 
   async function handleSubmit(event: Event) {
     event.preventDefault();
-    if (!resetData.username) {
+    if (!resetData.user_name) {
       toast.error("Please fill in all fields.");
       return;
     }
@@ -72,7 +72,7 @@
           id="email"
           placeholder="Enter your email"
           class=""
-          bind:value={resetData.username}
+          bind:value={resetData.user_name}
         />
       </div>
       <Dialog.Footer>

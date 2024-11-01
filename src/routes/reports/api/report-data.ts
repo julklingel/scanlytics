@@ -26,7 +26,7 @@ type ReportResponse = {
 
 // Set up subscription
 AuthService.subscribe(auth => {
-  currentUsername = auth.username;
+  currentUsername = auth.user_email;
 });
 
 export async function getReports() {
