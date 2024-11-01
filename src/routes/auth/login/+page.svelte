@@ -17,15 +17,15 @@
   let progressValue = 0;
 
   let loginData = {
-    username: "",
-    password: "",
+    user_email: "",
+    user_password: "",
   };
 
   $: logoSrc = $mode === "dark" ? "/logo-dark.png" : "/logo.png";
 
   async function handleSubmit(event: Event) {
     event.preventDefault();
-    if (!loginData.username || !loginData.password) {
+    if (!loginData.user_email || !loginData.user_password) {
       toast.error("Please fill in all fields.");
       return;
     }
@@ -44,7 +44,7 @@
       const response = await invoke("login", {
         loginData: JSON.stringify(loginData),
       });
-      AuthService.login(loginData.username);
+      AuthService.login(loginData.user_email);
       progressValue = 100;
       toast.success("Login successful!");
       setTimeout(() => {
@@ -99,7 +99,7 @@
           id="email"
           placeholder="Enter your email"
           class=""
-          bind:value={loginData.username}
+          bind:value={loginData.user_email}
         />
       </div>
       <div class="space-y-2">
@@ -109,7 +109,7 @@
           id="password"
           placeholder="Enter your password"
           class=""
-          bind:value={loginData.password}
+          bind:value={loginData.user_password}
         />
       </div>
       <div class="flex justify-end">

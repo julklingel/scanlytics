@@ -19,7 +19,7 @@ pub async fn login_service(login_data: String) -> Result<ApiResponse<LoginRespon
             return Ok(ApiResponse::error("Invalid token type".to_string()));
         }
 
-        store_token(&login_request.email, &login_response.access_token)?;
+        store_token(&login_request.user_email, &login_response.access_token)?;
         Ok(ApiResponse::success(login_response))
     } else {
         let error_response: serde_json::Value = response.json().await?;

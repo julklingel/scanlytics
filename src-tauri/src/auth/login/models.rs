@@ -37,8 +37,8 @@ impl From<reqwest::Error> for AuthError {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LoginRequest {
-    pub email: String,
-    pub password: String,
+    pub user_email: String,
+    pub user_password: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -49,7 +49,7 @@ pub struct LoginResponse {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ResetPasswordRequest {
-    pub email: String,
+    pub user_email: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
