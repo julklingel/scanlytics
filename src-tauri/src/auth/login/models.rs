@@ -1,6 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::fmt;
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LoginRequest {

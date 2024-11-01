@@ -1,10 +1,7 @@
-use super::models::{ApiResponse, AuthError, LoginRequest, LoginResponse, ResetPasswordRequest};
+use super::models::{ApiResponse, AuthError, LoginRequest, LoginResponse};
 use keyring::Entry;
 use reqwest::Client as HttpClient;
 use serde_json::Value;
-
-
-
 
 pub async fn login_service(login_data: String) -> Result<ApiResponse<LoginResponse>, AuthError> {
     let login_request: LoginRequest = serde_json::from_str(&login_data)
@@ -47,8 +44,6 @@ pub async fn login_service(login_data: String) -> Result<ApiResponse<LoginRespon
         ))
     }
 }
-
-
 
 
 fn store_token(user_email: &str, token: &str) -> Result<(), AuthError> {
