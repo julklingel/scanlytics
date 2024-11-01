@@ -1,8 +1,8 @@
 use super::services;
 
 #[tauri::command]
-pub async fn validate_token(username: String) -> Result<(), String> {
-    let response = services::validate_token_service(&username).await?;
+pub async fn validate_token(user_email: String) -> Result<(), String> {
+    let response = services::validate_token_service(&user_email).await?;
     Ok(response)
 }
 

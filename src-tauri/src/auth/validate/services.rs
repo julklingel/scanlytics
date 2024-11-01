@@ -4,9 +4,9 @@ use super::models;
 
 
 
-pub async fn validate_token_service(username: &str) -> Result<(), String> {
-    let username = username.trim();
-    let entry = Entry::new("com.scanlytics.dev", username)
+pub async fn validate_token_service(user_email: &str) -> Result<(), String> {
+    let user_email = user_email.trim();
+    let entry = Entry::new("com.scanlytics.dev", user_email)
         .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
 
     let stored_token = entry
@@ -31,7 +31,7 @@ pub async fn validate_token_service(username: &str) -> Result<(), String> {
             return Err("Token type is not bearer".into());
         }
 
-        let entry = Entry::new("com.scanlytics.dev", username)
+        let entry = Entry::new("com.scanlytics.dev", user_email)
             .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
 
         entry
@@ -46,13 +46,13 @@ pub async fn validate_token_service(username: &str) -> Result<(), String> {
 
 
 pub async fn auth_middleware<F, Fut, R>(
-    username: &str,
+    user_email: &str,
     f: F,
 ) -> Result<R, String>
 where
     F: FnOnce() -> Fut,
     Fut: std::future::Future<Output = Result<R, String>>,
 {
-    validate_token_service(username).await?;
+    validate_token_service(user_email).await?;
     f().await
 }
