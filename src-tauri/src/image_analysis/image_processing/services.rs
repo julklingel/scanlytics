@@ -48,7 +48,8 @@ impl ImageProcessor {
             (img[(x as _, y as _)][0] as f32 - 127.5) / 127.5
         });
 
-        let input = tract_ndarray::Array4::from_shape_vec((1, 1, width, height), img_array.into_raw_vec())
+        let (vec, _) = img_array.into_raw_vec_and_offset();
+        let input = tract_ndarray::Array4::from_shape_vec((1, 1, 28, 28), vec)
             .map_err(|e| ModelError::Processing(e.to_string()))?;
 
         let result = self.model
