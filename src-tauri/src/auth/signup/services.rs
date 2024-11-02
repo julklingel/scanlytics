@@ -1,4 +1,3 @@
-// service.rs
 use super::models::{SignupError, SignupRequest, SignupResponse, SignupApiRequest};
 use reqwest::Client as HttpClient;
 use zxcvbn::{zxcvbn, Score};
