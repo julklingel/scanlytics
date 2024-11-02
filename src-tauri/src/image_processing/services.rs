@@ -11,8 +11,6 @@ use std::path::PathBuf;
 use tauri::Manager;
 use surrealdb::Surreal;
 
-
-
 use tract_onnx::prelude::*;
 
 
