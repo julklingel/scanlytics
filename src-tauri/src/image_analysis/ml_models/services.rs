@@ -9,7 +9,7 @@ use tauri::Manager;
 
 const SERVICE_NAME: &str = "com.scanlytics.dev";
 const API_BASE_URL: &str = "https://scanlyticsbe.fly.dev";
-const MODEL_INPUT_SHAPE: (usize, usize) = (28, 28);
+
 
 
 

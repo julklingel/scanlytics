@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use reqwest::StatusCode;
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageData {
@@ -39,9 +39,6 @@ pub enum ModelError {
     
     #[error("File system error: {0}")]
     FileSystem(String),
-    
-    #[error("Server error: {status} - {message}")]
-    Server { status: StatusCode, message: String },
     
     #[error("Model processing error: {0}")]
     Processing(String),

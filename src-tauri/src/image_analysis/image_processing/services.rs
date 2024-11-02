@@ -1,13 +1,13 @@
+use crate::image_analysis::ml_models::services::ModelManager;
+use crate::image_analysis::ml_models::models::{ModelError, ModelConfig};
 use super::models::*;
+
 use image::imageops::FilterType;
 use ndarray::Array;
-use std::fs::{self, File};
 use surrealdb::{engine::local::Db, Surreal};
 
 use tract_onnx::prelude::*;
 
-const SERVICE_NAME: &str = "com.scanlytics.dev";
-const API_BASE_URL: &str = "https://scanlyticsbe.fly.dev";
 const MODEL_INPUT_SHAPE: (usize, usize) = (28, 28);
 
 pub struct ImageProcessor {
@@ -85,7 +85,9 @@ pub async fn process_images_service(
     db: &Surreal<Db>,
 ) -> Result<ONNXResponse, ModelError> {
     let model_manager = ModelManager::new(app_handle);
-    let model_path = model_manager.ensure_model_exists(&model_name, &user_name).await?;
+    let model_path = model_manager.ensure_model_exists(&model_name, &user_name)
+    .await
+    .map_err(|e| ModelError::FileSystem(e.to_string()))?;
     
     let processor = ImageProcessor::new(&model_path)?;
     
