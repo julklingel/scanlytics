@@ -47,7 +47,7 @@ async fn send_signup_to_server(signup_record: &SignupServerRequest) -> Result<Si
         .json(signup_record)
         .send()
         .await
-        .map_err(|e| SignupError::NetworkError(e.to_string()))?;
+        .map_err(|e| SignupError::ServerError(e.to_string()))?;
 
     if response.status().is_success() {
         response
