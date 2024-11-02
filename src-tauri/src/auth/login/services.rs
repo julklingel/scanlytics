@@ -1,72 +1,59 @@
-use super::models;
+use super::models::{ApiResponse, AuthError, LoginRequest, LoginResponse};
 use keyring::Entry;
 use reqwest::Client as HttpClient;
 use serde_json::Value;
 
-pub async fn login_service(
-    login_data: String,
-) -> Result<models::LoginResponse, String> {
-    let login_request: models::LoginRequest = serde_json::from_str(&login_data)
-        .map_err(|e| format!("Failed to parse login request: {}", e))?;
+pub async fn login_service(login_data: String) -> Result<ApiResponse<LoginResponse>, AuthError> {
+    let login_request: LoginRequest = serde_json::from_str(&login_data)
+        .map_err(|_| AuthError::Parse("Invalid login data".to_string()))?;
+    
     let client = HttpClient::new();
-
-    let login_record = models::LoginRecord {
-        user_email: login_request.username.clone(),
-        user_password: login_request.password.clone(),
-    };
 
     let response = client
         .post("https://scanlyticsbe.fly.dev/auth/login")
-        .json(&login_record)
+        .json(&login_request)
         .send()
         .await
-        .map_err(|e| format!("Failed to send request: {}", e))?;
-
-    println!("Response status: {}", response.status());
+        .map_err(|_| AuthError::Network("Failed to connect to server".to_string()))?;
 
     if response.status().is_success() {
-        let login_response: models::LoginResponse = response
+        let login_response: LoginResponse = response
             .json()
             .await
-            .map_err(|e| format!("Failed to parse JSON response: {}", e))?;
+            .map_err(|_| AuthError::Parse("Invalid server response".to_string()))?;
 
         if login_response.token_type.to_lowercase() != "bearer" {
-            return Err("Token type is not bearer".into());
+            return Err(AuthError::Authentication("Invalid token type".to_string()));
         }
 
-        let username = login_record.user_email.trim(); 
-    
-        let entry = Entry::new("com.scanlytics.dev", username)
-            .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
-
-        entry
-            .set_password(&login_response.access_token)
-            .map_err(|e| format!("Failed to store token: {}", e))?;
-
-        Ok(login_response)
+        store_token(&login_request.user_email, &login_response.access_token)?;
+        Ok(ApiResponse::success(login_response))
     } else {
         let error_response: Value = response
             .json()
             .await
-            .map_err(|e| format!("Failed to parse error response: {}", e))?;
+            .map_err(|_| AuthError::Parse("Failed to parse error response".to_string()))?;
 
-        Err(format!(
-            "Login failed: {}",
-            error_response["detail"].as_str().unwrap_or("Unknown error")
+        println!("{:?}", error_response);
+
+        Err(AuthError::Authentication(
+            error_response["detail"]
+                .as_str()
+                .unwrap_or("Unknown error")
+                .to_string(),
         ))
     }
 }
 
-pub async fn reset_password_service(
-    reset_data: String,
-) -> Result<models::ResetPasswordResponse, String> {
-    let reset_request: models::ResetPasswordRequest = serde_json::from_str(&reset_data)
-        .map_err(|e| format!("Failed to parse reset password request: {}", e))?;
 
-    println!("Reset password request: {:?}", reset_request);
+fn store_token(user_email: &str, token: &str) -> Result<(), AuthError> {
+    let entry = Entry::new("com.scanlytics.dev", user_email.trim()).map_err(|e| {
+        AuthError::Keyring(format!("Failed to create keyring entry: {}", e))
+    })?;
 
-    Ok(models::ResetPasswordResponse {
-        success: true,
-        message: "Password reset successfully".to_string(),
-    })
+    entry.set_password(token).map_err(|e| {
+        AuthError::Keyring(format!("Failed to store token: {}", e))
+    })?;
+
+    Ok(())
 }

@@ -25,7 +25,7 @@
 
   let signupData = {
     full_name: "",
-    username: "",
+    user_email: "",
     password: "",
     confirm_password: "",
   };
@@ -38,7 +38,7 @@
     event.preventDefault();
     if (
       !signupData.full_name ||
-      !signupData.username ||
+      !signupData.user_email ||
       !signupData.password ||
       !signupData.confirm_password
     ) {
@@ -139,7 +139,7 @@
           id="email"
           placeholder="Enter your email"
           class=""
-          bind:value={signupData.username}
+          bind:value={signupData.user_email}
         />
       </div>
       <div class="space-y-2">

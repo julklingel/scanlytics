@@ -18,7 +18,7 @@
   import AuthService from "../../../stores/Auth";
 
   export let active_user: string;
-  $: active_user = $AuthService.username;
+  $: active_user = $AuthService.user_email;
 
   let user_owner: string
 

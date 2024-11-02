@@ -2,12 +2,12 @@ import { writable } from 'svelte/store';
 import { invoke } from "@tauri-apps/api/core";
 
 interface Auth {
-    username: string;
+    user_email: string;
     isValidated: boolean;
 }
 
 const initialAuth: Auth = {
-    username: '',
+    user_email: '',
     isValidated: false
 };
 
@@ -15,21 +15,21 @@ const { subscribe, update } = writable<Auth>(initialAuth);
 
 const AuthService = {
     subscribe,
-    login: (username: string) => {
-        update(store => ({ ...store, username, isValidated: true }));
+    login: (user_email: string) => {
+        update(store => ({ ...store, user_email, isValidated: true }));
     },
     logout: () => {
-        update(store => ({ ...store, username: '', isValidated: false }));
+        update(store => ({ ...store, user_email: '', isValidated: false }));
     },
     validate: async (): Promise<void> => {
         return new Promise((resolve, reject) => {
             update(store => {
-                if (!store.username) {
-                    reject(new Error("No username set"));
+                if (!store.user_email) {
+                    reject(new Error("No user_email set"));
                     return store;
                 }
 
-                invoke("validate_token", { username: store.username })
+                invoke("validate_token", { userEmail: store.user_email })
                     .then(() => {
                         update(s => ({ ...s, isValidated: true }));
                         resolve();
