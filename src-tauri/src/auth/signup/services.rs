@@ -1,4 +1,4 @@
-use super::models::{SignupError, SignupRequest, SignupResponse, SignupApiRequest};
+use super::models::{SignupError, SignupRequest, SignupResponse, SignupServerRequest};
 use reqwest::Client as HttpClient;
 use zxcvbn::{zxcvbn, Score};
 use surrealdb::engine::local::Db;
@@ -17,12 +17,11 @@ pub async fn signup_service(
     signup_request.validate()?;
     validate_password_strength(&signup_request.password)?;
 
-    let signup_record: SignupApiRequest = signup_request.clone().into();
+    let signup_record_server: SignupServerRequest = signup_request.clone().into();
 
     let user_data = UserRecord {
         name: signup_request.full_name,
         email: signup_request.user_email,
-        password: signup_request.password,
         role: "user".to_string(),
         organization: None,
         patients: None,
@@ -32,7 +31,7 @@ pub async fn signup_service(
         reports: None,
     };
 
-    let response = send_signup_to_server(&signup_record).await?;
+    let response = send_signup_to_server(&signup_record_server).await?;
 
     create_user_service(user_data, db)
         .await
@@ -41,7 +40,7 @@ pub async fn signup_service(
     Ok(response)
 }
 
-async fn send_signup_to_server(signup_record: &SignupApiRequest) -> Result<SignupResponse, SignupError> {
+async fn send_signup_to_server(signup_record: &SignupServerRequest) -> Result<SignupResponse, SignupError> {
     let client = HttpClient::new();
     let response = client
         .post("https://scanlyticsbe.fly.dev/auth/user_signup")

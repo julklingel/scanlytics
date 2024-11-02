@@ -52,14 +52,14 @@ impl SignupRequest {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SignupApiRequest {
+pub struct SignupServerRequest {
     pub user_name: String,
     pub user_email: String,
     pub user_password: String,
     pub user_role: String,
 }
 
-impl From<SignupRequest> for SignupApiRequest {
+impl From<SignupRequest> for SignupServerRequest {
     fn from(req: SignupRequest) -> Self {
         Self {
             user_name: req.full_name,

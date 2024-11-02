@@ -18,7 +18,6 @@ pub async fn get_users(
             id: record.id,
             name: record.name,
             email: record.email,
-            password: record.password,
             role: record.role,
             organization: record.organization,
             patients: record.patients,
