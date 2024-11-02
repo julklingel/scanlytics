@@ -10,7 +10,6 @@ interface UserResponse {
   id: { id: string, tb: string };
   name: string;
   email: string;
-  password: string;
   role: string;
   patients?: { id: string, tb: string }[];
   patient_notes?: { id: string, tb: string }[];
