@@ -1,0 +1,66 @@
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
+use reqwest::StatusCode;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ImageData {
+    pub filename: String,
+    pub extension: String,
+    pub data: Vec<u8>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ONNXResponse {
+    pub results: Vec<ImageResult>,
+    pub statements: Vec<StatementResponse>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ImageResult {
+    pub filename: String,
+    pub image_type: String,
+    pub confidence: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct StatementResponse {
+    pub indication: String,
+    pub statement: String,
+    pub assessment: String,
+}
+
+#[derive(Debug, Error)]
+pub enum ModelError {
+    #[error("Authentication error: {0}")]
+    Auth(String),
+    
+    #[error("Network error: {0}")]
+    Network(String),
+    
+    #[error("File system error: {0}")]
+    FileSystem(String),
+    
+    #[error("Server error: {status} - {message}")]
+    Server { status: StatusCode, message: String },
+    
+    #[error("Model processing error: {0}")]
+    Processing(String),
+    
+    #[error("Database error: {0}")]
+    Database(String),
+    
+    #[error("Image processing error: {0}")]
+    Image(String),
+    
+    #[error("Serialization error: {0}")]
+    Serialization(String),
+}
+
+#[derive(Debug)]
+pub struct ModelConfig {
+    pub input_shape: (usize, usize),
+    pub class_mapping: Vec<&'static str>,
+}
+
+
+

@@ -12,7 +12,7 @@ pub struct ImageData {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ONNXResponse {
     pub results: Vec<ImageResult>,
-    pub statements: Vec<StatementResponse>, // Added this field
+    pub statements: Vec<StatementResponse>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -29,22 +29,38 @@ pub struct StatementResponse {
     pub assessment: String,
 }
 
-
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserName {
-    pub name: String,
-}
-
-
 #[derive(Debug, Error)]
-pub enum DownloadError {
+pub enum ModelError {
     #[error("Authentication error: {0}")]
-    AuthError(String),
+    Auth(String),
+    
     #[error("Network error: {0}")]
-    NetworkError(String),
+    Network(String),
+    
     #[error("File system error: {0}")]
-    FileSystemError(String),
+    FileSystem(String),
+    
     #[error("Server error: {status} - {message}")]
-    ServerError { status: StatusCode, message: String },
+    Server { status: StatusCode, message: String },
+    
+    #[error("Model processing error: {0}")]
+    Processing(String),
+    
+    #[error("Database error: {0}")]
+    Database(String),
+    
+    #[error("Image processing error: {0}")]
+    Image(String),
+    
+    #[error("Serialization error: {0}")]
+    Serialization(String),
 }
+
+#[derive(Debug)]
+pub struct ModelConfig {
+    pub input_shape: (usize, usize),
+    pub class_mapping: Vec<&'static str>,
+}
+
+
+

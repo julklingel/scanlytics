@@ -6,7 +6,7 @@ mod auth;
 mod patients;
 mod notes;
 mod reports;
-mod image_processing;
+mod image_analysis;
 
 
 use db::init::{init_db, define_db_on_startup};
@@ -18,7 +18,7 @@ use auth::validate::controller::validate_token;
 use patients::controller::{create_patient, delete_patient, get_patients, update_patient};
 use notes::controller::{create_patient_note, delete_patient_note, get_patient_notes, update_patient_note};
 use reports::controller::{create_report, get_reports, get_report_images};
-use image_processing::controller::process_images;
+use image_analysis::controller::process_images;
 
 
 
