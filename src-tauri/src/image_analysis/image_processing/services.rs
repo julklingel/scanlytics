@@ -1,5 +1,4 @@
-use crate::image_analysis::ml_models::services::ModelManager;
-use crate::image_analysis::ml_models::models::{ModelError, ModelConfig};
+use crate::image_analysis::ml_models::models::{ModelError, ModelManager, ModelConfig};
 use super::models::*;
 
 use image::imageops::FilterType;
@@ -10,10 +9,6 @@ use tract_onnx::prelude::*;
 
 const MODEL_INPUT_SHAPE: (usize, usize) = (28, 28);
 
-pub struct ImageProcessor {
-    model: RunnableModel<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>,
-    config: ModelConfig,
-}
 
 impl ImageProcessor {
     pub fn new(model_path: &std::path::Path) -> Result<Self, ModelError> {
@@ -74,7 +69,6 @@ impl ImageProcessor {
         Ok((image_type.to_string(), *confidence))
     }
 }
-
 
 
 

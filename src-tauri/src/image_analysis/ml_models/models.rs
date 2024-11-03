@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use reqwest::Client;
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -59,5 +60,8 @@ pub struct ModelConfig {
     pub class_mapping: Vec<&'static str>,
 }
 
-
-
+#[derive(Debug)]
+pub struct ModelManager {
+    pub client: Client,
+    pub app_handle: tauri::AppHandle,
+}

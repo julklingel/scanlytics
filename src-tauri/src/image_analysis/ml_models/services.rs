@@ -12,12 +12,6 @@ const API_BASE_URL: &str = "https://scanlyticsbe.fly.dev";
 
 
 
-
-pub struct ModelManager {
-    client: Client,
-    app_handle: tauri::AppHandle,
-}
-
 impl ModelManager {
     pub fn new(app_handle: tauri::AppHandle) -> Self {
         Self {
