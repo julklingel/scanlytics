@@ -78,7 +78,7 @@ pub async fn process_images_service(
     model_name: String,
     app_handle: tauri::AppHandle,
     db: &Surreal<Db>,
-) -> Result<ONNXResponse, ModelError> {
+) -> Result<AnalysisResponse, ModelError> {
     let model_manager = ModelManager::new(app_handle);
     let model_path = model_manager.ensure_model_exists(&model_name, &user_name)
     .await
@@ -105,7 +105,7 @@ pub async fn process_images_service(
         all_statements.extend(statements);
     }
 
-    Ok(ONNXResponse {
+    Ok(AnalysisResponse {
         results,
         statements: all_statements,
     })

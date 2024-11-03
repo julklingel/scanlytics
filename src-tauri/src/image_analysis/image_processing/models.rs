@@ -10,7 +10,7 @@ pub struct ImageData {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ONNXResponse {
+pub struct AnalysisResponse {
     pub results: Vec<ImageResult>,
     pub statements: Vec<StatementResponse>,
 }
