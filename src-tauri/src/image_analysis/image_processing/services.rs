@@ -9,7 +9,7 @@ use tract_onnx::prelude::*;
 
 const MODEL_INPUT_SHAPE: (usize, usize) = (28, 28);
 
-impl ImageProcessor {
+impl ImageClassifier {
     pub fn new(model_path: &std::path::Path) -> Result<Self, ModelError> {
         let model = tract_onnx::onnx()
             .model_for_path(model_path)
@@ -86,7 +86,7 @@ pub async fn process_images_service(
         .await
         .map_err(|e| ModelError::FileSystem(e.to_string()))?;
 
-    let processor = ImageProcessor::new(&model_path)?;
+    let processor = ImageClassifier::new(&model_path)?;
 
     let images: Vec<ImageData> =
         serde_json::from_str(&image_data).map_err(|e| ModelError::Serialization(e.to_string()))?;
@@ -104,6 +104,31 @@ pub async fn process_images_service(
             confidence,
         });
 
+        match image_type.as_str() {
+           "knee" => {
+            println!("Knee image detected");
+                // let knee_model_path = model_manager
+                //     .ensure_model_exists("knee_specific_model", &user_name)
+                //     .await
+                //     .map_err(|e| ModelError::FileSystem(e.to_string()))?;
+                
+                // process_knee_image(image_data, &model_path)?;
+
+            },
+
+            "thorax" => {
+            println!("Chest image detected");
+                // let chest_model_path = model_manager
+                //     .ensure_model_exists("chest_specific_model", &user_name)
+                //     .await
+                //     .map_err(|e| ModelError::FileSystem(e.to_string()))?;
+            },
+                // process_chest_image(image_data, &model_path)?;
+
+            _ => {}
+
+        }
+
         if !added_image_type.contains(&image_type) {
             added_image_type.push(image_type.clone());
             let statements = fetch_statements(db, &image_type).await?;
@@ -112,6 +137,7 @@ pub async fn process_images_service(
             continue;
         }
     }
+    println!("{:?}", results);
 
     Ok(AnalysisResponse {
         results,
