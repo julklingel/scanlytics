@@ -106,9 +106,9 @@ pub async fn process_images_service(
             confidence,
         });
 
+        // Subsequent processing based on image type
         match image_type.as_str() {
            "knee" => {
-            println!("Knee image detected");
                 // let knee_model_path = model_manager
                 //     .ensure_model_exists("knee_specific_model", &user_name)
                 //     .await
@@ -119,7 +119,6 @@ pub async fn process_images_service(
             },
 
             "thorax" => {
-            println!("Chest image detected");
                 // let chest_model_path = model_manager
                 //     .ensure_model_exists("chest_specific_model", &user_name)
                 //     .await
