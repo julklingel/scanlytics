@@ -1,6 +1,7 @@
 use reqwest::Client;
 use keyring::Entry;
 use super::models::{TokenError, TokenResponse};
+use serde_json::Value;
 
 const SERVICE_NAME: &str = "com.scanlytics.dev";
 const API_URL: &str = "https://scanlyticsbe.fly.dev/auth/validate";
@@ -39,10 +40,29 @@ async fn validate_token_with_api(token: &str) -> Result<TokenResponse, TokenErro
         )));
     }
 
-    let token_response: TokenResponse = response
+    let response_array: Vec<Value> = response
         .json()
         .await
         .map_err(|e| TokenError::ParseError(e.to_string()))?;
+
+    if response_array.len() < 2 {
+        return Err(TokenError::ValidationError("Incomplete server response".to_string()));
+    }
+
+    let token_data = &response_array[1];
+
+    let token_response = TokenResponse {
+   
+        access_token: token_data["access_token"]
+            .as_str()
+            .ok_or_else(|| TokenError::ParseError("Missing access token".to_string()))?
+            .to_string(),
+        token_type: token_data["token_type"]
+            .as_str()
+            .ok_or_else(|| TokenError::ParseError("Missing token type".to_string()))?
+            .to_string(),
+    };
+
 
     token_response.validate()?;
     Ok(token_response)
