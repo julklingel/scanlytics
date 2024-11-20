@@ -73,6 +73,8 @@ impl ImageClassifier {
     }
 }
 
+
+
 pub async fn process_images_service(
     image_data: String,
     user_name: String,
