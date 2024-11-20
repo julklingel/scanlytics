@@ -17,10 +17,27 @@ pub async fn login_service(login_data: String) -> Result<ApiResponse<LoginRespon
         .map_err(|_| AuthError::Network("Failed to connect to server".to_string()))?;
 
     if response.status().is_success() {
-        let login_response: LoginResponse = response
+        let response_array: Vec<Value> = response
             .json()
             .await
             .map_err(|_| AuthError::Parse("Invalid server response".to_string()))?;
+
+        if response_array.len() < 2 {
+            return Err(AuthError::Parse("Incomplete server response".to_string()));
+        }
+
+        let login_data = &response_array[1];
+        
+        let login_response = LoginResponse {
+            access_token: login_data["access_token"]
+                .as_str()
+                .ok_or_else(|| AuthError::Parse("Missing access token".to_string()))?
+                .to_string(),
+            token_type: login_data["token_type"]
+                .as_str()
+                .ok_or_else(|| AuthError::Parse("Missing token type".to_string()))?
+                .to_string(),
+        };
 
         if login_response.token_type.to_lowercase() != "bearer" {
             return Err(AuthError::Authentication("Invalid token type".to_string()));
