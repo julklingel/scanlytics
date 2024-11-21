@@ -18,12 +18,7 @@ pub struct ImageResult {
     pub confidence: f32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct StatementResponse {
-    pub indication: String,
-    pub statement: String,
-    pub assessment: String,
-}
+
 
 #[derive(Debug, Error)]
 pub enum ModelError {
