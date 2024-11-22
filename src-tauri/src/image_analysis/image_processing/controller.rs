@@ -10,7 +10,7 @@ pub async fn process_images<'a>(
     model_name: String,   
     app_handle: tauri::AppHandle,
     db_connection: State<'_, DbConnection>,
-) -> Result<models::ONNXResponse, String> {
+) -> Result<models::AnalysisResponse, String> {
     let db = db_connection.get().lock().await;
     
     let user_name = serde_json::from_str(&user_name)
@@ -19,7 +19,7 @@ pub async fn process_images<'a>(
     let model_name = serde_json::from_str(&model_name)
         .map_err(|e| format!("Tauri: Failed to parse report request : {}", e))?;
 
-    let response: models::ONNXResponse = services::process_images_service(
+    let response: models::AnalysisResponse = services::process_images_service(
         image_data, 
         user_name, 
         model_name, 
