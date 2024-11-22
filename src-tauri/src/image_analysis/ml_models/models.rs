@@ -1,7 +1,11 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use reqwest::Client;
-use tract_onnx::prelude::RunnableModel;
+
+use image::imageops::FilterType;
+use ndarray::Array;
+
+use tract_onnx::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageData {
@@ -63,4 +67,82 @@ pub struct ModelConfig {
 pub struct ModelManager {
     pub client: Client,
     pub app_handle: tauri::AppHandle,
+}
+
+
+
+impl ImageClassifier {
+    pub fn new(model_path: &std::path::Path) -> Result<Self, ModelError> {
+        let model = tract_onnx::onnx()
+            .model_for_path(model_path)
+            .map_err(|e| ModelError::Processing(e.to_string()))?;
+
+        let input_fact = model
+            .input_fact(0)
+            .map_err(|e| ModelError::Processing(e.to_string()))?;
+
+
+        let dimensions: Vec<_> = input_fact.shape.dims().collect();
+
+        let img_height = dimensions[2].to_string().parse::<usize>().unwrap_or(28);
+        let img_width = dimensions[3].to_string().parse::<usize>().unwrap_or(28);
+
+        let input_shape_size = (img_height, img_width);
+
+        // Model needs to be converted into a runnable model AFTER I collect data from it. 
+        let model = model.into_optimized().unwrap().into_runnable().unwrap();
+
+        let config = ModelConfig {
+            input_shape: input_shape_size,
+            class_mapping: vec![
+                "abdomen", "angio", "breast", "thorax", "thorax", "hand", "head", "knee",
+                "shoulder",
+            ],
+        };
+
+        Ok(Self { model, config })
+    }
+
+
+    pub fn process_image(&self, image_data: &[u8]) -> Result<(String, f32), ModelError> {
+        let (width, height) = self.config.input_shape;
+
+        let img = image::load_from_memory(image_data)
+            .map_err(|e| ModelError::Image(e.to_string()))?
+            .resize_exact(width as u32, height as u32, FilterType::Lanczos3)
+            .to_luma8();
+
+        let img_array: Array<f32, _> =
+            Array::from_shape_fn((1, 1, width, height), |(_, _, y, x)| {
+                (img[(x as _, y as _)][0] as f32 - 127.5) / 127.5
+            });
+
+        let (vec, _) = img_array.into_raw_vec_and_offset();
+        let input = tract_ndarray::Array4::from_shape_vec((1, 1, 28, 28), vec)
+            .map_err(|e| ModelError::Processing(e.to_string()))?;
+
+        let result = self
+            .model
+            .run(tvec!(input.into_tensor().into()))
+            .map_err(|e| ModelError::Processing(e.to_string()))?;
+
+        let output = result[0]
+            .to_array_view::<f32>()
+            .map_err(|e| ModelError::Processing(e.to_string()))?;
+
+        let (class_idx, confidence) = output
+            .iter()
+            .enumerate()
+            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
+            .unwrap();
+
+        let image_type = self
+            .config
+            .class_mapping
+            .get(class_idx)
+            .copied()
+            .unwrap_or("unknown");
+
+        Ok((image_type.to_string(), *confidence))
+    }
 }

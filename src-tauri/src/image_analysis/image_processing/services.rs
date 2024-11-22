@@ -1,91 +1,9 @@
 use super::models::*;
 use crate::image_analysis::ml_models::models::{
-    ImageClassifier, ModelConfig, ModelError, ModelManager,
+    ImageClassifier, ModelError, ModelManager,
 };
 
-use image::imageops::FilterType;
-use ndarray::Array;
 use surrealdb::{engine::local::Db, Surreal};
-
-use tract_onnx::prelude::*;
-
-const MODEL_INPUT_SHAPE: (usize, usize) = (28, 28);
-
-impl ImageClassifier {
-    pub fn new(model_path: &std::path::Path) -> Result<Self, ModelError> {
-    
-    let model = tract_onnx::onnx()
-        .model_for_path(model_path)
-        .map_err(|e| ModelError::Processing(e.to_string()))?;
-    
-
-    let input_shape = model.input_fact(0)
-        .map_err(|e| ModelError::Processing(e.to_string()))?;
-
-    println!("Input shape: {:?}", input_shape);
-    
-    
-    // I need to turn the model into a runable model AFTER I read the input shape!
-    let model = model
-        .into_optimized()
-        .unwrap()
-        .into_runnable()
-        .unwrap();
-
-
-        let config = ModelConfig {
-            input_shape: MODEL_INPUT_SHAPE,
-            class_mapping: vec![
-                "abdomen", "angio", "breast", "thorax", "thorax", "hand", "head", "knee",
-                "shoulder",
-            ],
-        };
-
-        Ok(Self { model, config })
-    }
-
-    pub fn process_image(&self, image_data: &[u8]) -> Result<(String, f32), ModelError> {
-        let (width, height) = self.config.input_shape;
-
-        let img = image::load_from_memory(image_data)
-            .map_err(|e| ModelError::Image(e.to_string()))?
-            .resize_exact(width as u32, height as u32, FilterType::Lanczos3)
-            .to_luma8();
-
-        let img_array: Array<f32, _> =
-            Array::from_shape_fn((1, 1, width, height), |(_, _, y, x)| {
-                (img[(x as _, y as _)][0] as f32 - 127.5) / 127.5
-            });
-
-        let (vec, _) = img_array.into_raw_vec_and_offset();
-        let input = tract_ndarray::Array4::from_shape_vec((1, 1, 28, 28), vec)
-            .map_err(|e| ModelError::Processing(e.to_string()))?;
-
-        let result = self
-            .model
-            .run(tvec!(input.into_tensor().into()))
-            .map_err(|e| ModelError::Processing(e.to_string()))?;
-
-        let output = result[0]
-            .to_array_view::<f32>()
-            .map_err(|e| ModelError::Processing(e.to_string()))?;
-
-        let (class_idx, confidence) = output
-            .iter()
-            .enumerate()
-            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
-            .unwrap();
-
-        let image_type = self
-            .config
-            .class_mapping
-            .get(class_idx)
-            .copied()
-            .unwrap_or("unknown");
-
-        Ok((image_type.to_string(), *confidence))
-    }
-}
 
 pub async fn process_images_service(
     image_data: String,
