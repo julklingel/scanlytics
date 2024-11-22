@@ -1,17 +1,18 @@
-use serde::{Deserialize, Serialize};
-use thiserror::Error;
-use reqwest::Client;
-
 use image::imageops::FilterType;
-use ndarray::Array;
-
-use tract_onnx::prelude::*;
-
 use keyring::Entry;
+use ndarray::Array;
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
 use tauri::Manager;
+use thiserror::Error;
+use tract_onnx::prelude::*;
+
+
+const SERVICE_NAME: &str = "com.scanlytics.dev";
+const API_BASE_URL: &str = "https://scanlyticsbe.fly.dev";
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -21,7 +22,6 @@ pub struct ImageData {
     pub data: Vec<u8>,
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageResult {
     pub filename: String,
@@ -29,6 +29,23 @@ pub struct ImageResult {
     pub confidence: f32,
 }
 
+#[derive(Debug)]
+pub struct ModelConfig {
+    pub input_shape: (usize, usize),
+    pub class_mapping: Vec<&'static str>,
+}
+
+#[derive(Debug)]
+pub struct ImageClassifier {
+    pub(crate) model: RunnableModel<tract_onnx::prelude::TypedFact, Box<dyn tract_onnx::prelude::TypedOp>, tract_onnx::prelude::Graph<tract_onnx::prelude::TypedFact, Box<dyn tract_onnx::prelude::TypedOp>>>,
+    pub(crate) config: ModelConfig,
+}
+
+#[derive(Debug)]
+pub struct ModelManager {
+    pub client: Client,
+    pub app_handle: tauri::AppHandle,
+}
 
 
 #[derive(Debug, Error)]
@@ -56,31 +73,20 @@ pub enum ModelError {
 }
 
 
-#[derive(Debug)]
-pub struct ImageClassifier {
-    pub(crate) model: RunnableModel<tract_onnx::prelude::TypedFact, Box<dyn tract_onnx::prelude::TypedOp>, tract_onnx::prelude::Graph<tract_onnx::prelude::TypedFact, Box<dyn tract_onnx::prelude::TypedOp>>>,
-    pub(crate) config: ModelConfig,
-}
 
 
+async fn get_stored_token(user_name: &str) -> Result<String, ModelError> {
+    let entry = Entry::new(SERVICE_NAME, user_name.trim())
+        .map_err(|e| ModelError::Auth(format!("Failed to access keyring: {}", e)))?;
 
-#[derive(Debug)]
-pub struct ModelConfig {
-    pub input_shape: (usize, usize),
-    pub class_mapping: Vec<&'static str>,
-}
-
-#[derive(Debug)]
-pub struct ModelManager {
-    pub client: Client,
-    pub app_handle: tauri::AppHandle,
+    entry
+        .get_password()
+        .map_err(|e| ModelError::Auth(format!("Failed to retrieve token: {}", e)))
 }
 
 
 
 
-const SERVICE_NAME: &str = "com.scanlytics.dev";
-const API_BASE_URL: &str = "https://scanlyticsbe.fly.dev";
 
 
 
@@ -170,14 +176,7 @@ impl ModelManager {
     }
 }
 
-async fn get_stored_token(user_name: &str) -> Result<String, ModelError> {
-    let entry = Entry::new(SERVICE_NAME, user_name.trim())
-        .map_err(|e| ModelError::Auth(format!("Failed to access keyring: {}", e)))?;
 
-    entry
-        .get_password()
-        .map_err(|e| ModelError::Auth(format!("Failed to retrieve token: {}", e)))
-}
 
 
 impl ImageClassifier {
@@ -190,7 +189,6 @@ impl ImageClassifier {
             .input_fact(0)
             .map_err(|e| ModelError::Processing(e.to_string()))?;
 
-
         let dimensions: Vec<_> = input_fact.shape.dims().collect();
 
         let img_height = dimensions[2].to_string().parse::<usize>().unwrap_or(28);
@@ -198,7 +196,6 @@ impl ImageClassifier {
 
         let input_shape_size = (img_height, img_width);
 
-        // Model needs to be converted into a runnable model AFTER I collect data from it. 
         let model = model.into_optimized().unwrap().into_runnable().unwrap();
 
         let config = ModelConfig {
@@ -211,7 +208,6 @@ impl ImageClassifier {
 
         Ok(Self { model, config })
     }
-
 
     pub fn process_image(&self, image_data: &[u8]) -> Result<(String, f32), ModelError> {
         let (width, height) = self.config.input_shape;
