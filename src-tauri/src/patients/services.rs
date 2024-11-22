@@ -1,7 +1,7 @@
 use super::models::{PatientRecord, PatientRequest, PatientResponse, UserResponse};
 
-use surrealdb::engine::local::Db;
-use surrealdb::Surreal;
+use scanlytics_db::{Surreal, Db};
+
 
 pub async fn create_patient_service(
     db: &Surreal<Db>,

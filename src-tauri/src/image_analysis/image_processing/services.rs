@@ -3,7 +3,7 @@ use crate::image_analysis::ml_models::models::{
     ImageClassifier, ModelError, ModelManager,
 };
 
-use surrealdb::{engine::local::Db, Surreal};
+use scanlytics_db::{Surreal, Db};
 
 pub async fn process_images_service(
     image_data: String,

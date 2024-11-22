@@ -1,6 +1,5 @@
 use super::models;
-use surrealdb::engine::local::Db;
-use surrealdb::Surreal;
+use scanlytics_db::{Surreal, Db};
 
 
 

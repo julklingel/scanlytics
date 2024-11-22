@@ -1,8 +1,11 @@
 use super::models::{SignupError, SignupRequest, SignupResponse, SignupServerRequest};
 use reqwest::Client as HttpClient;
 use zxcvbn::{zxcvbn, Score};
-use surrealdb::engine::local::Db;
-use surrealdb::Surreal;
+
+use scanlytics_db::{Surreal, Db};
+
+
+
 use crate::users::services::create_user_service;
 use crate::users::models::UserRecord;
 

@@ -3,10 +3,9 @@ use super::models::{
     PatientResponse, UserResponse,
 };
 
-use surrealdb::engine::local::Db;
-use surrealdb::sql::Thing;
-use surrealdb::Error as SurrealError;
-use surrealdb::Surreal;
+use scanlytics_db::{Surreal, Db, Thing};
+use scanlytics_db::Error as SurrealError;
+
 
 pub async fn create_patient_note_service(
     db: &Surreal<Db>,
@@ -44,6 +43,8 @@ pub async fn create_patient_note_service(
     let patient_id = patient.id.clone();
     let note_id = note.id.clone();
     let user_owner_id = data.user_owner.clone();
+
+  
 
     db.query("UPDATE type::thing($table, $id) SET notes += $note")
         .bind(("table", "Patient"))

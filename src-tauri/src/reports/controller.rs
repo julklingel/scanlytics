@@ -2,7 +2,10 @@ use crate::auth::validate::services::auth_middleware;
 use super::models;
 use super::services;
 
-use crate::db::models::DbConnection;
+use scanlytics_db::DbConnection;
+use scanlytics_db::{Surreal, Db};
+use tokio::sync::MutexGuard;
+
 use tauri::State;
 
 #[tauri::command]
@@ -12,7 +15,7 @@ pub async fn create_report(
     app_handle: tauri::AppHandle,
 ) -> Result<models::CreateReportResponse, String> {
     println!("Creating report");
-    let db: tokio::sync::MutexGuard<'_, surrealdb::Surreal<surrealdb::engine::local::Db>> = db_connection.get().lock().await;
+    let db: MutexGuard<'_, Surreal<Db>> = db_connection.get().lock().await;
     let report_request: models::ReportRequest = serde_json::from_str(&report_request)
         .map_err(|e| format!("Tauri: Failed to parse report request : {}", e))?;
    

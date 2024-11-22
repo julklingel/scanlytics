@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::{Datetime, Thing};
+use scanlytics_db::{Thing, Datetime};
+
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserRequest {
@@ -7,11 +9,11 @@ pub struct UserRequest {
     pub email: String,
     pub role: String,
     pub organization: Option<Thing>,
-    pub patients: Option<Vec<surrealdb::sql::Thing>>,
-    pub patient_notes: Option<Vec<surrealdb::sql::Thing>>,
-    pub statements: Option<Vec<surrealdb::sql::Thing>>,
-    pub images: Option<Vec<surrealdb::sql::Thing>>,
-    pub reports: Option<Vec<surrealdb::sql::Thing>>,
+    pub patients: Option<Vec<Thing>>,
+    pub patient_notes: Option<Vec<Thing>>,
+    pub statements: Option<Vec<Thing>>,
+    pub images: Option<Vec<Thing>>,
+    pub reports: Option<Vec<Thing>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -20,11 +22,11 @@ pub struct UserRecord {
     pub email: String,
     pub role: String,
     pub organization: Option<Thing>,
-    pub patients: Option<Vec<surrealdb::sql::Thing>>,
-    pub patient_notes: Option<Vec<surrealdb::sql::Thing>>,
-    pub statements: Option<Vec<surrealdb::sql::Thing>>,
-    pub images: Option<Vec<surrealdb::sql::Thing>>,
-    pub reports: Option<Vec<surrealdb::sql::Thing>>,
+    pub patients: Option<Vec<Thing>>,
+    pub patient_notes: Option<Vec<Thing>>,
+    pub statements: Option<Vec<Thing>>,
+    pub images: Option<Vec<Thing>>,
+    pub reports: Option<Vec<Thing>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -34,11 +36,11 @@ pub struct UserResponse {
     pub email: String,
     pub role: String,
     pub organization: Option<Thing>,
-    pub patients: Option<Vec<surrealdb::sql::Thing>>,
-    pub patient_notes: Option<Vec<surrealdb::sql::Thing>>,
-    pub statements: Option<Vec<surrealdb::sql::Thing>>,
-    pub images: Option<Vec<surrealdb::sql::Thing>>,
-    pub reports: Option<Vec<surrealdb::sql::Thing>>,
+    pub patients: Option<Vec<Thing>>,
+    pub patient_notes: Option<Vec<Thing>>,
+    pub statements: Option<Vec<Thing>>,
+    pub images: Option<Vec<Thing>>,
+    pub reports: Option<Vec<Thing>>,
     pub created_at: Datetime,
     pub updated_at: Datetime,
 }

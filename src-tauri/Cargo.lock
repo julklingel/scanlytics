@@ -5357,10 +5357,10 @@ dependencies = [
  "log",
  "ndarray 0.16.1",
  "reqwest",
+ "scanlytics-db",
  "serde",
  "serde_bytes",
  "serde_json",
- "surrealdb",
  "tauri",
  "tauri-build",
  "tauri-plugin-shell",
@@ -5368,6 +5368,17 @@ dependencies = [
  "tokio",
  "tract-onnx",
  "zxcvbn",
+]
+
+[[package]]
+name = "scanlytics-db"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "surrealdb",
+ "tauri",
+ "tokio",
 ]
 
 [[package]]

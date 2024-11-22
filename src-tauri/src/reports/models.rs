@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::{Datetime, Thing};
+use scanlytics_db::{Thing, Datetime};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ReportRequest {
@@ -32,8 +32,8 @@ pub struct ImageResponse {
     pub id: Thing,
     pub name: String,
     pub path: String,
-    pub patient: surrealdb::sql::Thing,
-    pub user: surrealdb::sql::Thing,
+    pub patient: Thing,
+    pub user: Thing,
     pub file_type: String,
     pub modal_type: String,
     pub created_at: Datetime,
