@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use crate::image_analysis::ml_models::models::ModelConfig;
-use tract_onnx::prelude::RunnableModel;
+
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageData {
@@ -27,12 +27,6 @@ pub struct StatementResponse {
     pub indication: String,
     pub statement: String,
     pub assessment: String,
-}
-
-#[derive(Debug)]
-pub struct ImageClassifier {
-    pub(crate) model: RunnableModel<tract_onnx::prelude::TypedFact, Box<dyn tract_onnx::prelude::TypedOp>, tract_onnx::prelude::Graph<tract_onnx::prelude::TypedFact, Box<dyn tract_onnx::prelude::TypedOp>>>,
-    pub(crate) config: ModelConfig,
 }
 
 

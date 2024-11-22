@@ -1,5 +1,7 @@
 use super::models::*;
-use crate::image_analysis::ml_models::models::{ModelConfig, ModelError, ModelManager};
+use crate::image_analysis::ml_models::models::{
+    ImageClassifier, ModelConfig, ModelError, ModelManager,
+};
 
 use image::imageops::FilterType;
 use ndarray::Array;
@@ -11,13 +13,25 @@ const MODEL_INPUT_SHAPE: (usize, usize) = (28, 28);
 
 impl ImageClassifier {
     pub fn new(model_path: &std::path::Path) -> Result<Self, ModelError> {
-        let model = tract_onnx::onnx()
-            .model_for_path(model_path)
-            .map_err(|e| ModelError::Processing(e.to_string()))?
-            .into_optimized()
-            .unwrap()
-            .into_runnable()
-            .unwrap();
+    
+    let model = tract_onnx::onnx()
+        .model_for_path(model_path)
+        .map_err(|e| ModelError::Processing(e.to_string()))?;
+    
+
+    let input_shape = model.input_fact(0)
+        .map_err(|e| ModelError::Processing(e.to_string()))?;
+
+    println!("Input shape: {:?}", input_shape);
+    
+    
+    // I need to turn the model into a runable model AFTER I read the input shape!
+    let model = model
+        .into_optimized()
+        .unwrap()
+        .into_runnable()
+        .unwrap();
+
 
         let config = ModelConfig {
             input_shape: MODEL_INPUT_SHAPE,
@@ -73,8 +87,6 @@ impl ImageClassifier {
     }
 }
 
-
-
 pub async fn process_images_service(
     image_data: String,
     user_name: String,
@@ -108,26 +120,23 @@ pub async fn process_images_service(
 
         // Subsequent processing based on image type
         match image_type.as_str() {
-           "knee" => {
+            "knee" => {
                 // let knee_model_path = model_manager
                 //     .ensure_model_exists("knee_specific_model", &user_name)
                 //     .await
                 //     .map_err(|e| ModelError::FileSystem(e.to_string()))?;
-                
-                // process_knee_image(image_data, &model_path)?;
 
-            },
+                // process_knee_image(image_data, &model_path)?;
+            }
 
             "thorax" => {
                 // let chest_model_path = model_manager
                 //     .ensure_model_exists("chest_specific_model", &user_name)
                 //     .await
                 //     .map_err(|e| ModelError::FileSystem(e.to_string()))?;
-            },
-                // process_chest_image(image_data, &model_path)?;
-
+            }
+            // process_chest_image(image_data, &model_path)?;
             _ => {}
-
         }
 
         if !added_image_type.contains(&image_type) {
