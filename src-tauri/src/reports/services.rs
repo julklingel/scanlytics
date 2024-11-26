@@ -2,11 +2,7 @@ use super::models;
 use std::fs;
 
 
-use surrealdb::engine::local::Db;
-use surrealdb::Surreal;
-
-
-use surrealdb::Error as SurrealError;
+use scanlytics_db::{Surreal, Db, Error as SurrealError};
 use tauri::Manager;
 
 pub async fn create_report_service(

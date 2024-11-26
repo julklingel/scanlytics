@@ -14,3 +14,9 @@ vite.config.ts.timestamp-*
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+
+target/
+**/*.rs.bk
+.cargo/registry/
+.cargo/git/

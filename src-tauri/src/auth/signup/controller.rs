@@ -1,7 +1,7 @@
 use super::models::SignupResponse;
 use super::services;
 use tauri::State;
-use crate::db::models::DbConnection;
+use scanlytics_db::DbConnection;
 
 #[tauri::command]
 pub async fn signup(

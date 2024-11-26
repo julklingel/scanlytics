@@ -1,6 +1,5 @@
 
 use tauri::Manager;
-mod db;
 mod users;
 mod auth;
 mod patients;
@@ -9,7 +8,6 @@ mod reports;
 mod image_analysis;
 
 
-use db::init::{init_db, define_db_on_startup};
 use users::controller::get_users;
 use auth::login::controller::login;
 use auth::signup::controller::signup;
@@ -19,6 +17,8 @@ use patients::controller::{create_patient, delete_patient, get_patients, update_
 use notes::controller::{create_patient_note, delete_patient_note, get_patient_notes, update_patient_note};
 use reports::controller::{create_report, get_reports, get_report_images};
 use image_analysis::image_processing::controller::process_images;
+use scanlytics_db::{init_db, define_db_on_startup};
+
 
 
 

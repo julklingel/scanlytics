@@ -1,7 +1,7 @@
 use super::models;
 use super::services;
 
-use crate::db::models::DbConnection;
+use scanlytics_db::DbConnection;
 use tauri::State;
 
 #[tauri::command]
