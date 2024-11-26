@@ -4,7 +4,7 @@ resolver = "2"
 
 [package]
 name = "scanlytics"
-version = "0.0.0"
+version = "0.0.6"
 description = "A Tauri App"
 authors = ["JK"]
 edition = "2021"
@@ -16,6 +16,14 @@ path = "src/lib.rs"
 [[bin]]
 name = "scanlytics"
 path = "src/main.rs"
+
+[workspace.dependencies]
+surrealdb = { version = "2.0.4", features = ["kv-rocksdb"] }
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.133"
+tokio = { version = "1.41.1", features = ["macros", "rt-multi-thread"] }
+tauri = { version = "2.1.1", features = [] }
+
 
 [build-dependencies]
 tauri-build = { version = "2.0.3", features = [] }
