@@ -1,9 +1,9 @@
 use super::models;
-use scanlytics_db::{Surreal, Db};
+use scanlytics_db::{Surreal, Any};
 
 
 
-pub async fn get_users_service(db: &Surreal<Db>) -> Result<Vec<models::UserResponse>, String> {
+pub async fn get_users_service(db: &Surreal<Any>) -> Result<Vec<models::UserResponse>, String> {
     let records: Vec<models::UserResponse> = db
         .select("User")
         .await
@@ -12,7 +12,7 @@ pub async fn get_users_service(db: &Surreal<Db>) -> Result<Vec<models::UserRespo
 }
 
 
-pub async fn create_user_service(user_record: models::UserRecord, db: &Surreal<Db>) -> Result<models::UserResponse, String> {
+pub async fn create_user_service(user_record: models::UserRecord, db: &Surreal<Any>) -> Result<models::UserResponse, String> {
     let user: models::UserResponse = db
         .create("User")
         .content(user_record)

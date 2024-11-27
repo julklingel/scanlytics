@@ -3,12 +3,12 @@ use super::models::{
     PatientResponse, UserResponse,
 };
 
-use scanlytics_db::{Surreal, Db, Thing};
+use scanlytics_db::{Surreal, Any, Thing};
 use scanlytics_db::Error as SurrealError;
 
 
 pub async fn create_patient_note_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
     data: PatientNoteRequest,
 ) -> Result<PatientNoteResponse, String> {
     let patient: Option<PatientResponse> = db
@@ -64,7 +64,7 @@ pub async fn create_patient_note_service(
 }
 
 pub async fn get_patient_notes_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
 ) -> Result<Vec<PatientNoteWithPatientResponse>, SurrealError> {
     let query = "
         SELECT
@@ -86,7 +86,7 @@ pub async fn get_patient_notes_service(
 }
 
 pub async fn update_patient_note_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
     id: String,
     data: PatientNoteRequest,
 ) -> Result<Option<PatientNoteResponse>, String> {
@@ -122,7 +122,7 @@ pub async fn update_patient_note_service(
 }
 
 pub async fn delete_patient_note_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
     id: String,
 ) -> Result<Option<PatientNoteResponse>, String> {
     let deleted: Option<PatientNoteResponse> = db

@@ -22,13 +22,14 @@ use scanlytics_db::{init_db, define_db_on_startup};
 
 
 
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             tauri::async_runtime::block_on(async {
-                match init_db(&app.app_handle()).await {
+                match init_db(&app.app_handle(), true).await {
                     Ok(db_connection) => {
                         match define_db_on_startup(db_connection.clone()).await {
                             Ok(_) => {

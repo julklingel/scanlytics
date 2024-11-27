@@ -3,7 +3,7 @@ use super::models;
 use super::services;
 
 use scanlytics_db::DbConnection;
-use scanlytics_db::{Surreal, Db};
+use scanlytics_db::{Surreal, Any};
 use tokio::sync::MutexGuard;
 
 use tauri::State;
@@ -15,7 +15,7 @@ pub async fn create_report(
     app_handle: tauri::AppHandle,
 ) -> Result<models::CreateReportResponse, String> {
     println!("Creating report");
-    let db: MutexGuard<'_, Surreal<Db>> = db_connection.get().lock().await;
+    let db: MutexGuard<'_, Surreal<Any>> = db_connection.get().lock().await;
     let report_request: models::ReportRequest = serde_json::from_str(&report_request)
         .map_err(|e| format!("Tauri: Failed to parse report request : {}", e))?;
    

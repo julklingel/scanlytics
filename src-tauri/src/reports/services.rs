@@ -2,11 +2,11 @@ use super::models;
 use std::fs;
 
 
-use scanlytics_db::{Surreal, Db, Error as SurrealError};
+use scanlytics_db::{Surreal, Any, Error as SurrealError};
 use tauri::Manager;
 
 pub async fn create_report_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
     report_request: models::ReportRequest,
     app_handle: tauri::AppHandle,
 ) -> Result<models::CreateReportResponse, String> {
@@ -108,7 +108,7 @@ pub async fn create_report_service(
 }
 
 pub async fn get_reports_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
 ) -> Result<Vec<models::ReportResponse>, SurrealError> {
     let query = "
             SELECT
@@ -128,7 +128,7 @@ pub async fn get_reports_service(
 }
 
 pub async fn get_report_images_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
     report_id: String,
 ) -> Result<Vec<models::ImageInfo>, SurrealError> {
     let query = "

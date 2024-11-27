@@ -18,7 +18,7 @@ name = "scanlytics"
 path = "src/main.rs"
 
 [workspace.dependencies]
-surrealdb = { version = "2.0.4", features = ["kv-rocksdb"] }
+surrealdb = { version = "2.1.2", features = ["kv-rocksdb", "kv-mem"] }
 serde = { version = "1.0.215", features = ["derive"] }
 serde_json = "1.0.133"
 tokio = { version = "1.41.1", features = ["macros", "rt-multi-thread"] }
