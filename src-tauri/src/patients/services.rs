@@ -1,10 +1,10 @@
 use super::models::{PatientRecord, PatientRequest, PatientResponse, UserResponse};
 
-use scanlytics_db::{Surreal, Db};
+use scanlytics_db::{Surreal, Any};
 
 
 pub async fn create_patient_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
     data: PatientRequest,
 ) -> Result<PatientResponse, String> {
     let doctor: Option<UserResponse> = db
@@ -44,13 +44,13 @@ pub async fn create_patient_service(
 }
 
 
-pub async fn get_patient_service( db: &Surreal<Db>,) -> Result<Vec<PatientResponse>, String> {
+pub async fn get_patient_service( db: &Surreal<Any>,) -> Result<Vec<PatientResponse>, String> {
     let records: Vec<PatientResponse> = db.select("Patient").await.map_err(|e| e.to_string())?;
     Ok(records)
 }
 
 pub async fn update_patient_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
     id: String,
     data: PatientRequest,
 ) -> Result<Option<PatientResponse>, String> {
@@ -77,7 +77,7 @@ pub async fn update_patient_service(
 }
 
 pub async fn delete_patient_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
     id: String,
 ) -> Result<Option<PatientResponse>, String> {
     let deleted: Option<PatientResponse> = db

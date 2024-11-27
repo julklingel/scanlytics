@@ -2,7 +2,7 @@ use super::models::{SignupError, SignupRequest, SignupResponse, SignupServerRequ
 use reqwest::Client as HttpClient;
 use zxcvbn::{zxcvbn, Score};
 
-use scanlytics_db::{Surreal, Db};
+use scanlytics_db::{Surreal, Any};
 
 
 
@@ -10,7 +10,7 @@ use crate::users::services::create_user_service;
 use crate::users::models::UserRecord;
 
 pub async fn signup_service(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
     signup_data: String,
 ) -> Result<SignupResponse, SignupError> {
  

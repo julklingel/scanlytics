@@ -3,14 +3,14 @@ use crate::image_analysis::ml_models::models::{
     ImageClassifier, ModelError, ModelManager,
 };
 
-use scanlytics_db::{Surreal, Db};
+use scanlytics_db::{Surreal, Any};
 
 pub async fn process_images_service(
     image_data: String,
     user_name: String,
     model_name: String,
     app_handle: tauri::AppHandle,
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
 ) -> Result<AnalysisResponse, ModelError> {
     let model_manager = ModelManager::new(app_handle);
     let model_path = model_manager
@@ -74,7 +74,7 @@ pub async fn process_images_service(
 }
 
 async fn fetch_statements(
-    db: &Surreal<Db>,
+    db: &Surreal<Any>,
     body_part: &str,
 ) -> Result<Vec<StatementResponse>, ModelError> {
     let query = format!(
