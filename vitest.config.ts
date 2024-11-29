@@ -13,7 +13,12 @@ export default defineConfig({
     setupFiles: ['./src/tests/setup.ts'],
     deps: {
       inline: [/^svelte/]
-    }
+    },
+    alias: {
+        '$app/navigation': '/src/tests/mocks/navigation.ts',
+        '$app/environment': '/src/tests/mocks/navigation.ts',
+        '$app/stores': '/src/tests/mocks/navigation.ts'
+      }
   },
  
 });

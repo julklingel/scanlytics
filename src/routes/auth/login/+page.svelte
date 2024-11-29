@@ -115,7 +115,7 @@
         <ForgotPassword />
       </div>
       {#if isLoading}
-        <Progress value={progressValue} max={100} class="w-full" />
+        <Progress id="progressbar" value={progressValue} max={100} class="w-full" />
       {/if}
       <Button type="submit" class="w-full" disabled={isLoading}>
         {isLoading ? "Logging in..." : "Login"}

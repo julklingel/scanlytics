@@ -1,8 +1,7 @@
-// test-setup.ts
-import { vi } from 'vitest';
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
-// Mock matchMedia
+
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation(query => ({
@@ -17,3 +16,25 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+
+vi.mock('mode-watcher', () => ({
+  mode: {
+    subscribe: (fn: (value: string) => void) => {
+      fn('light');
+      return { unsubscribe: vi.fn() };
+    },
+  },
+}));
+
+
+vi.mock('svelte-sonner', () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+  },
+}));
+
+
+vi.mock('@tauri-apps/api/core', () => ({
+  invoke: vi.fn(),
+}));
