@@ -38,3 +38,5 @@ vi.mock('svelte-sonner', () => ({
 vi.mock('@tauri-apps/api/core', () => ({
   invoke: vi.fn(),
 }));
+
+

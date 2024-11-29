@@ -22,6 +22,7 @@ export {
 	Overlay,
 	Content,
 	Description,
+
 	Close,
 	//
 	Root as Dialog,

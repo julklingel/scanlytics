@@ -10,6 +10,7 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }));
 
+
 describe("Login Component", () => {
   beforeEach(() => {
     vi.useFakeTimers();
