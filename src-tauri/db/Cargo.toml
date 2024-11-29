@@ -1,0 +1,19 @@
+[package]
+name = "scanlytics-db"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "scanlytics_db"
+path = "src/lib.rs"
+
+[dependencies]
+surrealdb = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tauri = { workspace = true }
+
+[features]
+default = []
+dev = []

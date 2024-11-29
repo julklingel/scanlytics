@@ -1,0 +1,12 @@
+mod init;
+mod models;
+
+pub use init::{init_db, define_db_on_startup};
+pub use models::DbConnection;
+
+pub use surrealdb::{
+    Surreal,
+    engine::any::Any,
+    sql::{Thing, Datetime}, 
+    Error,
+};
