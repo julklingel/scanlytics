@@ -5503,6 +5503,7 @@ dependencies = [
  "base64 0.22.1",
  "image",
  "keyring",
+ "lazy_static",
  "log",
  "mockall",
  "ndarray 0.16.1",
