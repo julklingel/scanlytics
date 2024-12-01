@@ -9,10 +9,11 @@ use crate::models::DbConnection;
 
 use surrealdb::engine::any;
 
-pub async fn init_db(app_handle: &tauri::AppHandle, is_test: bool) -> Result<DbConnection, String> {
+pub async fn init_db(app_handle: Option<&tauri::AppHandle> ,is_test: bool) -> Result<DbConnection, String> {
     let endpoint = if is_test {
         "memory".to_string()
     } else {
+        let app_handle = app_handle.ok_or("App handle is None")?;
         let app_local_data_dir = app_handle
             .path()
             .app_local_data_dir()

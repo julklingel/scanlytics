@@ -7,6 +7,7 @@ pub use models::DbConnection;
 pub use surrealdb::{
     Surreal,
     engine::any::Any,
+    engine::local::Mem,
     sql::{Thing, Datetime}, 
     Error,
 };

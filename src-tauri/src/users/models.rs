@@ -27,6 +27,8 @@ pub struct UserRecord {
     pub statements: Option<Vec<Thing>>,
     pub images: Option<Vec<Thing>>,
     pub reports: Option<Vec<Thing>>,
+    
+    
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -41,6 +43,6 @@ pub struct UserResponse {
     pub statements: Option<Vec<Thing>>,
     pub images: Option<Vec<Thing>>,
     pub reports: Option<Vec<Thing>>,
-    pub created_at: Datetime,
-    pub updated_at: Datetime,
+    pub created_at: Option<Datetime>,
+    pub updated_at: Option<Datetime>,
 }

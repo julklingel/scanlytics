@@ -7,10 +7,12 @@ use scanlytics_db::DbConnection;
 pub async fn signup(
     db_connection: State<'_, DbConnection>,
     signup_data: String,
+    base_url: Option<String>,
 ) -> Result<SignupResponse, String> {
     let db = db_connection.get().lock().await;
+
     
-    services::signup_service(&db, signup_data)
+    services::signup_service(&db, signup_data, base_url)
         .await
         .map_err(|e| e.to_string())
 }
