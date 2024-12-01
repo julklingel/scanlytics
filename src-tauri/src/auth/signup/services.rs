@@ -123,7 +123,6 @@ mod tests {
 
         println!("Signup data: {}", signup_data);
 
-     
         let expected_server_request = json!({
             "user_name": "Test User",
             "user_email": "test@example.com",
@@ -140,7 +139,7 @@ mod tests {
         Mock::given(method("POST"))
             .and(path("/auth/user_signup"))
             .and(header("content-type", "application/json"))
-            .and(body_json(&expected_server_request)) 
+            .and(body_json(&expected_server_request))
             .respond_with(
                 ResponseTemplate::new(200)
                     .set_body_json(&mock_response)
@@ -156,7 +155,6 @@ mod tests {
         let response = signup_service(&db, signup_data.to_string(), Some(mock_url)).await;
         println!("Signup response: {:?}", response);
 
-
         match &response {
             Ok(r) => println!("Signup succeeded: {:?}", r),
             Err(e) => println!("Signup failed with error: {:?}", e),
@@ -166,5 +164,141 @@ mod tests {
         if let Ok(signup_response) = response {
             assert_eq!(signup_response.message, "User registered successfully");
         }
+    }
+
+    #[tokio::test]
+    async fn test_invalid_json_data() {
+        let db = setup_test_db().await;
+        let invalid_json = "{ invalid_json: }".to_string();
+
+        let result = signup_service(&db, invalid_json, None).await;
+
+        assert!(matches!(result, Err(SignupError::ParseError(_))));
+    }
+
+    #[tokio::test]
+    async fn test_password_mismatch() {
+        let db = setup_test_db().await;
+        let signup_data = json!({
+            "full_name": "Test User",
+            "user_email": "test@example.com",
+            "password": "StrongP@ssword123!",
+            "confirm_password": "DifferentPassword123!"
+        });
+
+        let result = signup_service(&db, signup_data.to_string(), None).await;
+
+        assert!(matches!(result, Err(SignupError::PasswordMismatch)));
+    }
+
+    #[tokio::test]
+    async fn test_weak_password() {
+        let db = setup_test_db().await;
+        let signup_data = json!({
+            "full_name": "Test User",
+            "user_email": "test@example.com",
+            "password": "weak",
+            "confirm_password": "weak"
+        });
+
+        let result = signup_service(&db, signup_data.to_string(), None).await;
+
+        assert!(matches!(result, Err(SignupError::WeakPassword(_))));
+    }
+
+    #[tokio::test]
+    async fn test_empty_fields() {
+        let db = setup_test_db().await;
+        let signup_data = json!({
+            "full_name": "",
+            "user_email": "test@example.com",
+            "password": "StrongP@ssword123!",
+            "confirm_password": "StrongP@ssword123!"
+        });
+
+        let result = signup_service(&db, signup_data.to_string(), None).await;
+
+        assert!(matches!(result, Err(SignupError::ValidationError(_))));
+
+        let signup_data = json!({
+            "full_name": "Test User",
+            "user_email": "",
+            "password": "StrongP@ssword123!",
+            "confirm_password": "StrongP@ssword123!"
+        });
+
+        let result = signup_service(&db, signup_data.to_string(), None).await;
+
+        assert!(matches!(result, Err(SignupError::ValidationError(_))));
+    }
+
+    #[tokio::test]
+    async fn test_server_error_response() {
+        let mock_server = MockServer::start().await;
+        let mock_url = mock_server.uri();
+
+        let signup_data = json!({
+            "full_name": "Test User",
+            "user_email": "test@example.com",
+            "password": "StrongP@ssword123!",
+            "confirm_password": "StrongP@ssword123!"
+        });
+
+        Mock::given(method("POST"))
+            .and(path("/auth/user_signup"))
+            .respond_with(ResponseTemplate::new(500))
+            .expect(1)
+            .mount(&mock_server)
+            .await;
+
+        let db = setup_test_db().await;
+        let result = signup_service(&db, signup_data.to_string(), Some(mock_url)).await;
+
+        assert!(matches!(result, Err(SignupError::ServerError(_))));
+    }
+
+    #[tokio::test]
+    async fn test_network_error() {
+        let db = setup_test_db().await;
+        let signup_data = json!({
+            "full_name": "Test User",
+            "user_email": "test@example.com",
+            "password": "StrongP@ssword123!",
+            "confirm_password": "StrongP@ssword123!"
+        });
+
+        let result = signup_service(
+            &db,
+            signup_data.to_string(),
+            Some("http://invalid-url".to_string()),
+        )
+        .await;
+
+        assert!(matches!(result, Err(SignupError::NetworkError(_))));
+    }
+
+    #[tokio::test]
+    async fn test_malformed_server_response() {
+        let mock_server = MockServer::start().await;
+        let mock_url = mock_server.uri();
+
+        let signup_data = json!({
+            "full_name": "Test User",
+            "user_email": "test@example.com",
+            "password": "StrongP@ssword123!",
+            "confirm_password": "StrongP@ssword123!"
+        });
+
+        Mock::given(method("POST"))
+            .and(path("/auth/user_signup"))
+            .respond_with(ResponseTemplate::new(200).set_body_string("invalid json"))
+            .expect(1)
+            .mount(&mock_server)
+            .await;
+
+        let db = setup_test_db().await;
+        let result = signup_service(&db, signup_data.to_string(), Some(mock_url)).await;
+
+        assert!(matches!(result, Err(SignupError::ParseError(_))));
     }
 }
