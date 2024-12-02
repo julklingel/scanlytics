@@ -112,8 +112,6 @@ mod tests {
         let mock_server = MockServer::start().await;
         let mock_url = mock_server.uri();
 
-        println!("Mock server URL: {}", mock_url);
-
         let signup_data = json!({
             "full_name": "Test User",
             "user_email": "test@example.com",
@@ -121,7 +119,7 @@ mod tests {
             "confirm_password": "StrongP@ssword123!"
         });
 
-        println!("Signup data: {}", signup_data);
+     
 
         let expected_server_request = json!({
             "user_name": "Test User",
@@ -130,7 +128,7 @@ mod tests {
             "user_role": "user"
         });
 
-        println!("Expected server request: {}", expected_server_request);
+
 
         let mock_response = json!({
             "message": "User registered successfully"
@@ -150,10 +148,8 @@ mod tests {
             .await;
 
         let db = setup_test_db().await;
-        println!("Database setup complete");
-        println!("Mock_url: {:?}", mock_url);
         let response = signup_service(&db, signup_data.to_string(), Some(mock_url)).await;
-        println!("Signup response: {:?}", response);
+        
 
         match &response {
             Ok(r) => println!("Signup succeeded: {:?}", r),
