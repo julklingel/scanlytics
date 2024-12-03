@@ -29,7 +29,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             tauri::async_runtime::block_on(async {
-                match init_db(&app.app_handle(), true).await {
+                match init_db(Some(&app.app_handle()), true).await {
                     Ok(db_connection) => {
                         match define_db_on_startup(db_connection.clone()).await {
                             Ok(_) => {

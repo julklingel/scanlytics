@@ -9,11 +9,10 @@ use std::path::PathBuf;
 use tauri::Manager;
 use thiserror::Error;
 use tract_onnx::prelude::*;
-
+use tauri::Runtime;
 
 const SERVICE_NAME: &str = "com.scanlytics.dev";
 const API_BASE_URL: &str = "https://scanlyticsbe.fly.dev";
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageData {
@@ -30,50 +29,45 @@ pub struct ImageResult {
 }
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(Clone))]
 pub struct ModelConfig {
     pub input_shape: (usize, usize),
     pub class_mapping: Vec<&'static str>,
 }
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(Clone))]
 pub struct ImageClassifier {
-    pub(crate) model: RunnableModel<tract_onnx::prelude::TypedFact, Box<dyn tract_onnx::prelude::TypedOp>, tract_onnx::prelude::Graph<tract_onnx::prelude::TypedFact, Box<dyn tract_onnx::prelude::TypedOp>>>,
+    #[cfg(not(feature = "test-utils"))]
+    pub(crate) model: RunnableModel<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>,
+     #[cfg(feature = "test-utils")]
+    pub(crate) model: (),
     pub(crate) config: ModelConfig,
 }
 
 #[derive(Debug)]
-pub struct ModelManager {
+pub struct ModelManager<R: Runtime> {
     pub client: Client,
-    pub app_handle: tauri::AppHandle,
+    app_handle: tauri::AppHandle<R>,
 }
-
 
 #[derive(Debug, Error)]
 pub enum ModelError {
     #[error("Authentication error: {0}")]
     Auth(String),
-    
     #[error("Network error: {0}")]
     Network(String),
-    
     #[error("File system error: {0}")]
     FileSystem(String),
-    
     #[error("Model processing error: {0}")]
     Processing(String),
-    
     #[error("Database error: {0}")]
     Database(String),
-    
     #[error("Image processing error: {0}")]
     Image(String),
-    
     #[error("Serialization error: {0}")]
     Serialization(String),
 }
-
-
-
 
 async fn get_stored_token(user_name: &str) -> Result<String, ModelError> {
     let entry = Entry::new(SERVICE_NAME, user_name.trim())
@@ -84,14 +78,8 @@ async fn get_stored_token(user_name: &str) -> Result<String, ModelError> {
         .map_err(|e| ModelError::Auth(format!("Failed to retrieve token: {}", e)))
 }
 
-
-
-
-
-
-
-impl ModelManager {
-    pub fn new(app_handle: tauri::AppHandle) -> Self {
+impl<R: Runtime> ModelManager<R> {
+    pub fn new(app_handle: tauri::AppHandle<R>) -> Self {
         Self {
             client: Client::new(),
             app_handle,
@@ -99,14 +87,26 @@ impl ModelManager {
     }
 
     pub async fn ensure_model_exists(&self, model_name: &str, user_name: &str) -> Result<PathBuf, ModelError> {
-        let model_path = self.get_model_path(model_name)?;
-        
-        if !model_path.exists() {
-            self.download_model(model_name, user_name).await?;
+         #[cfg(feature = "test-utils")] {
+            if let Some(state) = self.app_handle.try_state::<PathBuf>() {
+                let path = state.inner().clone();
+                Ok(path.clone())
+            } else {
+                Ok(PathBuf::from("test_model.onnx"))
+            }
         }
-        
-        Ok(model_path)
+
+        #[cfg(not(feature = "test-utils"))] {
+            let model_path = self.get_model_path(model_name)?;
+            
+            if !model_path.exists() {
+                self.download_model(model_name, user_name).await?;
+            }
+            
+            Ok(model_path)
+        }
     }
+
 
     fn get_model_path(&self, model_name: &str) -> Result<PathBuf, ModelError> {
         let app_local_data_dir = self.app_handle
@@ -178,8 +178,8 @@ impl ModelManager {
 
 
 
-
 impl ImageClassifier {
+    #[cfg(not(feature = "test-utils"))]
     pub fn new(model_path: &std::path::Path) -> Result<Self, ModelError> {
         let model = tract_onnx::onnx()
             .model_for_path(model_path)
@@ -209,6 +209,21 @@ impl ImageClassifier {
         Ok(Self { model, config })
     }
 
+     #[cfg(feature = "test-utils")]
+    pub fn new(_model_path: &std::path::Path) -> Result<Self, ModelError> {
+        Ok(Self {
+            model: (),
+            config: ModelConfig {
+                input_shape: (28, 28),
+                class_mapping: vec![
+                    "abdomen", "angio", "breast", "thorax", "thorax", "hand", "head", "knee",
+                    "shoulder",
+                ],
+            },
+        })
+    }
+
+    #[cfg(not(feature = "test-utils"))]
     pub fn process_image(&self, image_data: &[u8]) -> Result<(String, f32), ModelError> {
         let (width, height) = self.config.input_shape;
 
@@ -249,5 +264,10 @@ impl ImageClassifier {
             .unwrap_or("unknown");
 
         Ok((image_type.to_string(), *confidence))
+    }
+
+     #[cfg(feature = "test-utils")]
+    pub fn process_image(&self, _image_data: &[u8]) -> Result<(String, f32), ModelError> {
+        Ok(("knee".to_string(), 0.95))
     }
 }

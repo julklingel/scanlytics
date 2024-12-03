@@ -3,9 +3,8 @@ use super::models::{
     PatientResponse, UserResponse,
 };
 
-use scanlytics_db::{Surreal, Any, Thing};
 use scanlytics_db::Error as SurrealError;
-
+use scanlytics_db::{Any, Surreal, Thing};
 
 pub async fn create_patient_note_service(
     db: &Surreal<Any>,
@@ -31,6 +30,7 @@ pub async fn create_patient_note_service(
         severity: data.severity,
         is_urgent: data.is_urgent,
         user_owner: user_owner.id.clone(),
+
     };
 
     let note: PatientNoteResponse = db
@@ -43,8 +43,6 @@ pub async fn create_patient_note_service(
     let patient_id = patient.id.clone();
     let note_id = note.id.clone();
     let user_owner_id = data.user_owner.clone();
-
-  
 
     db.query("UPDATE type::thing($table, $id) SET notes += $note")
         .bind(("table", "Patient"))
@@ -110,6 +108,8 @@ pub async fn update_patient_note_service(
         severity: data.severity,
         is_urgent: data.is_urgent,
         user_owner: user_owner,
+      
+
     };
 
     let updated: Option<PatientNoteResponse> = db
@@ -130,4 +130,209 @@ pub async fn delete_patient_note_service(
         .await
         .map_err(|e| e.to_string())?;
     Ok(deleted)
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use scanlytics_db::{Datetime, Thing};
+    use serde_json::json;
+
+    async fn setup_test_db() -> Surreal<Any> {
+        let db_conn = scanlytics_db::init_db(None, true).await.unwrap();
+        let db = db_conn.get().lock().await;
+        db.clone()
+    }
+
+    async fn create_test_user(db: &Surreal<Any>) -> (Thing, String) {
+        let user_data = json!({
+            "name": "Test Doctor",
+            "email": "doctor@test.com",
+            "role": "user",
+            "organization": null,
+            "patients": [],
+            "notes": [],
+            "statements": [],
+            "images": [],
+            "reports": [],
+            "created_at": Datetime::default(),
+            "updated_at": Datetime::default()
+        });
+
+        let created: UserResponse = db
+            .create("User")
+            .content(user_data.clone())
+            .await
+            .unwrap()
+            .unwrap();
+
+
+        let id_str = created.id.to_string();
+        let id_only = id_str.split(':').nth(1).unwrap_or("").to_string();
+
+        (created.id.clone(), id_only)
+    }
+
+    async fn create_test_patient(db: &Surreal<Any>) -> (Thing, String) {
+        let patient_data = json!({
+            "name": "Test Patient",
+            "date_of_birth": Datetime::default(),
+            "gender": "M",
+            "contact_number": "1234567890",
+            "address": "Test Address",
+            "notes": [],
+            "reports": [],
+            "images": [],
+            "created_at": Datetime::default(),
+            "updated_at": Datetime::default()
+        });
+
+        let created: PatientResponse = db
+            .create("Patient")
+            .content(patient_data.clone())
+            .await
+            .unwrap()
+            .unwrap();
+
+
+        let id_str = created.id.to_string();
+        let id_only = id_str.split(':').nth(1).unwrap_or("").to_string();
+
+        (created.id.clone(), id_only)
+    }
+   
+
+    #[tokio::test]
+    async fn test_delete_patient_note() {
+        let db = setup_test_db().await;
+        let (_, user_id) = create_test_user(&db).await;
+        let (_, patient_id) = create_test_patient(&db).await;
+
+    
+        let note_request = PatientNoteRequest {
+            patient_id,
+            symptoms: "Test symptoms".to_string(),
+            diagnosis: "Test diagnosis".to_string(),
+            treatment: "Test treatment".to_string(),
+            severity: "Mild".to_string(),
+            is_urgent: false,
+            user_owner: user_id,
+        };
+
+        let created_note = create_patient_note_service(&db, note_request).await.unwrap();
+        let note_id = created_note.id.to_string().split(':').nth(1).unwrap_or("").to_string();
+
+     
+        let result = delete_patient_note_service(&db, note_id).await;
+        assert!(result.is_ok());
+
+  
+        let notes = get_patient_notes_service(&db).await.unwrap();
+        assert!(notes.iter().all(|note| note.id != created_note.id));
+    }
+
+    #[tokio::test]
+    async fn test_create_patient_note_invalid_patient() {
+        let db = setup_test_db().await;
+        let (_, user_id) = create_test_user(&db).await;
+
+        let note_request = PatientNoteRequest {
+            patient_id: "nonexistent_patient".to_string(),
+            symptoms: "Test symptoms".to_string(),
+            diagnosis: "Test diagnosis".to_string(),
+            treatment: "Test treatment".to_string(),
+            severity: "Mild".to_string(),
+            is_urgent: false,
+            user_owner: user_id,
+        };
+
+        let result = create_patient_note_service(&db, note_request).await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Patient not found");
+    }
+
+    #[tokio::test]
+    async fn test_create_patient_note_invalid_user() {
+        let db = setup_test_db().await;
+        let (_, patient_id) = create_test_patient(&db).await;
+
+        let note_request = PatientNoteRequest {
+            patient_id,
+            symptoms: "Test symptoms".to_string(),
+            diagnosis: "Test diagnosis".to_string(),
+            treatment: "Test treatment".to_string(),
+            severity: "Mild".to_string(),
+            is_urgent: false,
+            user_owner: "nonexistent_user".to_string(),
+        };
+
+        let result = create_patient_note_service(&db, note_request).await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "User not found");
+    }
+
+    #[tokio::test]
+    async fn test_delete_nonexistent_note() {
+        let db = setup_test_db().await;
+        
+        let result = delete_patient_note_service(&db, "nonexistent_note".to_string()).await;
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn test_get_patient_notes_empty() {
+        let db = setup_test_db().await;
+        
+        let result = get_patient_notes_service(&db).await;
+        assert!(result.is_ok());
+        
+        let notes = result.unwrap();
+        assert!(notes.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_multiple_notes_for_patient() {
+        let db = setup_test_db().await;
+        let (_, user_id) = create_test_user(&db).await;
+        let (_, patient_id) = create_test_patient(&db).await;
+
+     
+        let note_request1 = PatientNoteRequest {
+            patient_id: patient_id.clone(),
+            symptoms: "First symptoms".to_string(),
+            diagnosis: "First diagnosis".to_string(),
+            treatment: "First treatment".to_string(),
+            severity: "Mild".to_string(),
+            is_urgent: false,
+            user_owner: user_id.clone(),
+        };
+
+        let note_request2 = PatientNoteRequest {
+            patient_id,
+            symptoms: "Second symptoms".to_string(),
+            diagnosis: "Second diagnosis".to_string(),
+            treatment: "Second treatment".to_string(),
+            severity: "Severe".to_string(),
+            is_urgent: true,
+            user_owner: user_id,
+        };
+
+        create_patient_note_service(&db, note_request1).await.unwrap();
+        create_patient_note_service(&db, note_request2).await.unwrap();
+
+        let result = get_patient_notes_service(&db).await;
+        assert!(result.is_ok());
+
+        let notes = result.unwrap();
+        assert_eq!(notes.len(), 2);
+        
+  
+        let has_mild_note = notes.iter().any(|note| note.severity == "Mild");
+        let has_severe_note = notes.iter().any(|note| note.severity == "Severe");
+        assert!(has_mild_note);
+        assert!(has_severe_note);
+    }
+
 }

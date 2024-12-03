@@ -3,14 +3,17 @@ use keyring::Entry;
 use reqwest::Client as HttpClient;
 use serde_json::Value;
 
-pub async fn login_service(login_data: String) -> Result<ApiResponse<LoginResponse>, AuthError> {
+pub async fn login_service(login_data: String, base_url: Option<String>) -> Result<ApiResponse<LoginResponse>, AuthError> {
     let login_request: LoginRequest = serde_json::from_str(&login_data)
         .map_err(|_| AuthError::Parse("Invalid login data".to_string()))?;
     
     let client = HttpClient::new();
+    
+
+    let url = base_url.unwrap_or_else(|| "https://scanlyticsbe.fly.dev".to_string()) + "/auth/login";
 
     let response = client
-        .post("https://scanlyticsbe.fly.dev/auth/login")
+        .post(&url)
         .json(&login_request)
         .send()
         .await
@@ -73,4 +76,120 @@ fn store_token(user_email: &str, token: &str) -> Result<(), AuthError> {
     })?;
 
     Ok(())
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+    use wiremock::matchers::{method, path, header, body_json};
+
+    #[tokio::test]
+    async fn test_successful_login() {
+        let mock_server = MockServer::start().await;
+        let mock_url = mock_server.uri(); 
+    
+        let login_request = json!({
+            "user_email": "test@example.com",
+            "user_password": "password123"  
+        });
+    
+        let mock_response = json!([
+            "success",
+            {
+                "access_token": "test_token",
+                "token_type": "Bearer"
+            }
+        ]);
+    
+        Mock::given(method("POST"))
+            .and(path("/auth/login"))
+            .and(header("content-type", "application/json"))
+            .and(body_json(&login_request))
+            .respond_with(ResponseTemplate::new(200)
+                .set_body_json(&mock_response)
+                .insert_header("content-type", "application/json"))
+            .expect(1)
+            .mount(&mock_server)
+            .await;
+    
+        let response = login_service(login_request.to_string(), Some(mock_url)).await;
+    
+        assert!(response.is_ok());
+        if let Ok(api_response) = response {
+            assert!(api_response.success);
+            assert!(api_response.message.is_none());
+            let data = api_response.data.as_ref().expect("Data should be present");
+            assert_eq!(data.access_token, "test_token");
+            assert_eq!(data.token_type, "Bearer");
+        }
+    }
+    
+    #[tokio::test]
+    async fn test_failed_login() {
+        let mock_server = MockServer::start().await;
+        let mock_url = mock_server.uri();
+    
+        let login_request = json!({
+            "user_email": "test@example.com",
+            "user_password": "wrong_password" 
+        });
+    
+        let mock_response = json!({
+            "detail": "Invalid credentials"
+        });
+    
+        Mock::given(method("POST"))
+            .and(path("/auth/login"))
+            .and(header("content-type", "application/json"))
+            .and(body_json(&login_request))
+            .respond_with(ResponseTemplate::new(401)
+                .set_body_json(&mock_response)
+                .insert_header("content-type", "application/json"))
+            .expect(1)
+            .mount(&mock_server)
+            .await;
+    
+        let response = login_service(login_request.to_string(), Some(mock_url)).await;
+    
+        assert!(matches!(response, Err(AuthError::Authentication(_))));
+        if let Err(AuthError::Authentication(error_msg)) = response {
+            assert_eq!(error_msg, "Invalid credentials");
+        }
+    }
+    
+    #[tokio::test]
+    async fn test_network_error() {
+        let invalid_url = "http://localhost:1";
+        let login_data = json!({
+            "user_email": "test@example.com",
+            "user_password": "password123" 
+        });
+    
+        let response = login_service(login_data.to_string(), Some(invalid_url.to_string())).await;
+        assert!(matches!(response, Err(AuthError::Network(_))));
+    }
+
+    #[test]
+    fn test_invalid_login_data() {
+        let invalid_login_data = r#"{
+            "invalid": "data"
+        }"#;
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let response = rt.block_on(login_service(invalid_login_data.to_string(), None));
+        assert!(matches!(response, Err(AuthError::Parse(_))));
+    }
+
+    #[test]
+    fn test_store_token() {
+        let email = "test@example.com";
+        let token = "test_token";
+
+        let result = store_token(email, token);
+        assert!(result.is_ok());
+    }
 }

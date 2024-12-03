@@ -4,9 +4,12 @@ mod models;
 pub use init::{init_db, define_db_on_startup};
 pub use models::DbConnection;
 
+
 pub use surrealdb::{
     Surreal,
     engine::any::Any,
+    engine::local::Mem,
     sql::{Thing, Datetime}, 
-    Error,
+    Error
+    
 };

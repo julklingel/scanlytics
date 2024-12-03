@@ -79,7 +79,7 @@
 
 
   <Dialog.Root bind:open={verifyEmailsend}>
-    <Dialog.Content class="sm:max-w-[425px]">
+    <Dialog.Content class="sm:max-w-[425px]" id="dialog"  >
       <Dialog.Header>
         <Dialog.Title>Thank you for signing up!</Dialog.Title>
         <Dialog.Description>
@@ -165,7 +165,7 @@
         />
       </div>
       {#if isLoading}
-        <Progress value={progressValue} max={100} class="w-full" />
+        <Progress id="progressbar" value={progressValue} max={100} class="w-full" />
       {/if}
       <Button type="submit" class="w-full" disabled={isLoading}>
         {isLoading ? "Signing Up..." : "Sign Up"}

@@ -10,7 +10,9 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "tauri": "tauri",
-    "test": "playwright test"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest --watch"
   },
   "license": "MIT",
   "dependencies": {
@@ -28,24 +30,30 @@
     "paneforge": "^0.0.5",
     "svelte-sonner": "^0.3.27",
     "tailwind-merge": "^2.4.0",
-    "tailwind-variants": "^0.2.1"
+    "tailwind-variants": "^0.2.1",
+    "vite-tsconfig-paths": "^5.1.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.45.3",
     "@sveltejs/adapter-static": "^3.0.2",
     "@sveltejs/kit": "^2.5.18",
-    "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "@sveltejs/vite-plugin-svelte": "^3.1.2",
     "@tailwindcss/typography": "^0.5.13",
     "@tauri-apps/cli": "2.0.0-rc.18",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/svelte": "^5.2.6",
     "@types/node": "^22.0.0",
+    "@vitest/ui": "2.1.6",
     "autoprefixer": "^10.4.19",
+    "jsdom": "^25.0.1",
     "postcss": "^8.4.40",
-    "svelte": "^4.2.18",
-    "svelte-check": "^3.8.4",
+    "svelte": "^4.2.19",
+    "svelte-check": "^4.1.0",
     "svelte-headless-table": "^0.18.2",
     "tailwindcss": "^3.4.7",
     "tslib": "^2.6.3",
     "typescript": "^5.5.4",
-    "vite": "^5.3.5"
+    "vite": "^5.4.11",
+    "vitest": "^2.1.6"
   }
 }

@@ -11,7 +11,6 @@
   import ForgotPassword from "../components/forgot-password.svelte";
   import AuthService from "../../../stores/Auth";
 
-
   let logoSrc: string;
   let isLoading = false;
   let progressValue = 0;
@@ -53,14 +52,12 @@
         goto("/menu");
       }, 500);
     } catch (error) {
-   
       toast.error(error as string);
       isLoading = false;
     } finally {
       clearInterval(progressInterval);
     }
   }
-
 
   function navigate2landing() {
     goto("/");
@@ -118,7 +115,7 @@
         <ForgotPassword />
       </div>
       {#if isLoading}
-        <Progress value={progressValue} max={100} class="w-full" />
+        <Progress id="progressbar" value={progressValue} max={100} class="w-full" />
       {/if}
       <Button type="submit" class="w-full" disabled={isLoading}>
         {isLoading ? "Logging in..." : "Login"}

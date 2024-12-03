@@ -42,7 +42,9 @@ pub struct PatientNoteRecord {
     pub severity: String,
     pub is_urgent: bool,
     pub user_owner: Thing,
+
 }
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PatientNoteResponse {
@@ -54,8 +56,8 @@ pub struct PatientNoteResponse {
     pub severity: String,
     pub is_urgent: bool,
     pub user_owner: Thing,
-    pub created_at: Datetime,
-    pub updated_at: Datetime,
+    pub created_at: Option<Datetime>,
+    pub updated_at: Option<Datetime>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -68,8 +70,8 @@ pub struct PatientNoteWithPatientResponse {
     pub is_urgent: bool,
     pub patient: PatientInfo,
     pub user_owner: UserInfo,
-    pub created_at: Datetime,
-    pub updated_at: Datetime,
+    pub created_at: Option<Datetime>,
+    pub updated_at: Option<Datetime>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
