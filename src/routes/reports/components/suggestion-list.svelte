@@ -1,9 +1,12 @@
 <script lang="ts">
-  import { flip } from "svelte/animate";
   import type { Suggestion } from "$lib/types/report.types";
 
   export let suggestions: Suggestion[] = [];
   export let onSuggestionClick: (id: number) => void;
+
+  import { flip } from "svelte/animate";
+  import { fade, slide } from "svelte/transition";
+  import { quintOut } from 'svelte/easing';
 </script>
 
 <div class="h-full flex flex-col" style="height: 60vh;">
@@ -11,7 +14,7 @@
     <h2 class="text-lg font-semibold p-4 pb-2 bg-white">
       Vorschläge
     </h2>
-    <p class="p-4">{suggestions.length}</p>
+    <p class="p-4" in:fade={{ duration: 600 }}>{suggestions.length}</p>
   </div>
   <div
     class="overflow-y-auto flex-1"
@@ -20,11 +23,13 @@
     <div class="px-4">
       <section class="space-y-2">
         {#each suggestions as suggestion (suggestion.id)}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
+               <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div
             on:click={() => onSuggestionClick(suggestion.id)}
-            animate:flip={{ duration: 200 }}
+            animate:flip={{ duration: 800 }}
+            in:slide={{ duration: 300, easing: quintOut }}
+            out:slide={{ duration: 500, easing: quintOut }}
             class="cursor-pointer"
           >
             <div

@@ -2,7 +2,6 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { onMount } from "svelte";
   import * as Resizable from "$lib/components/ui/resizable/index.js";
-  import { flip } from "svelte/animate";
   import PatientCombobox from "../components/patient-combobox.svelte";
   import DoctorCombobox from "../components/doctor-combobox.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
@@ -20,6 +19,8 @@
   import ImageCarousel from "../components/image-carousel.svelte";
   import ReportTextArea from "../components/report-text-area.svelte";
   import SuggestionList from "../components/suggestion-list.svelte";
+
+
 
   import type {
     Model,
