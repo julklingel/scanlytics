@@ -19,7 +19,7 @@
   import ImageCarousel from "../components/image-carousel.svelte";
   import ReportTextArea from "../components/report-text-area.svelte";
   import SuggestionList from "../components/suggestion-list.svelte";
-
+  import { processImages } from "../api/process-images.ts";
 
 
   import type {
@@ -101,47 +101,14 @@
     }));
   }
 
-  async function sendFilesToBackend(files: File[]) {
-    try {
-      let fileData: FileData[] = await Promise.all(
-        files.map(async (file) => ({
-          filename: file.name,
-          extension: file.name.split(".").pop() || "",
-          data: Array.from(new Uint8Array(await file.arrayBuffer())),
-        }))
-      );
-
-      const result: ModelResponse = await invoke("process_images", {
-        imageData: JSON.stringify(fileData),
-        userName: JSON.stringify(active_user),
-        modelName: JSON.stringify(selectedModel),
-      });
-
-      toast.success("Images processed successfully");
-      console.log("Images processed:", result);
-
-      if (result.statements && result.statements.length > 0) {
-        processStatementsToSuggestions(result.statements);
-      }
-
-      result.results.forEach((imageResult) => {
-        console.log(
-          `File: ${imageResult.filename}, Type: ${imageResult.image_type}, Confidence: ${imageResult.confidence}`
-        );
-
-        if (!body_part && imageResult.confidence > 0.5) {
-          body_part = imageResult.image_type;
-        }
-      });
-    } catch (error) {
-      console.error("Error processing images:", error);
-      toast.error("Error processing images");
-    }
-  }
 
   $: {
     if (files.length > 0 && selectedModel) {
-      sendFilesToBackend(files);
+      processImages(files, active_user, selectedModel).then(
+        (response: ModelResponse) => {
+          processStatementsToSuggestions(response.statements);
+        }
+      );
     }
   }
 
