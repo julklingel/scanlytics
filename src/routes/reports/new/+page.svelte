@@ -18,6 +18,8 @@
   import AuthService from "../../../stores/Auth";
   import ReportMetaData from "../components/report-meta-data.svelte";
   import ImageCarousel from "../components/image-carousel.svelte";
+  import ReportTextArea from "../components/report-text-area.svelte";
+  import SuggestionList from "../components/suggestion-list.svelte";
 
   import type {
     Model,
@@ -70,12 +72,14 @@
   let suggestions: Suggestion[] = [];
   let addedSugg: Suggestion[] = [];
 
-  function processStatementsToSuggestions(statements: ModelResponse['statements']) {
+  function processStatementsToSuggestions(
+    statements: ModelResponse["statements"]
+  ) {
     let nextId = suggestions.length + 1;
-    
-    const newSuggestions = statements.map(statement => ({
+
+    const newSuggestions = statements.map((statement) => ({
       id: nextId++,
-      text: `Indikation: ${statement.indication}\n${statement.statement}\nBefund: ${statement.assessment}`
+      text: `Indikation: ${statement.indication}\n${statement.statement}\nBefund: ${statement.assessment}`,
     }));
 
     suggestions = [...newSuggestions];
@@ -116,7 +120,7 @@
         console.log(
           `File: ${imageResult.filename}, Type: ${imageResult.image_type}, Confidence: ${imageResult.confidence}`
         );
-   
+
         if (!body_part && imageResult.confidence > 0.5) {
           body_part = imageResult.image_type;
         }
@@ -128,101 +132,103 @@
   }
 
   $: {
-  if (files.length > 0 && selectedModel) {
-    sendFilesToBackend(files);
-  }
-}
-
-onMount(async () => {
-  try {
-    await getUsers();
-    await getPatients();
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-async function fileToUint8Array(file: File): Promise<Uint8Array> {
-  return new Uint8Array(await file.arrayBuffer());
-}
-
-async function handleSubmit() {
-  const fileData: FileData[] = await Promise.all(
-    files.map(async (file) => ({
-      filename: file.name,
-      extension: file.name.split(".").pop() || "",
-      data: Array.from(await fileToUint8Array(file)),
-    }))
-  );
-
-  const reportData: ReportData = {
-    patient_id,
-    user_owner,
-    body_part,
-    report_text,
-    files: fileData,
-  };
-
-  try {
-    const response = await invoke("create_report", {
-      reportRequest: JSON.stringify(reportData),
-    });
-    toast.success("Report created successfully");
-    goto("/reports");
-  } catch (error) {
-    console.error(error);
-    let stringerror = JSON.stringify(error);
-    toast.error(stringerror);
-  }
-}
-
-function handleClick(): void {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  input.multiple = true;
-  input.onchange = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    if (target.files) {
-      files = [...files, ...Array.from(target.files)];
-    }
-  };
-  input.click();
-}
-
-function goToSlide(index: number): void {
-  if (carouselApi) {
-    carouselApi.scrollTo(index);
-  }
-}
-
-function removeImage(index: number): void {
-  files = files.filter((_, i) => i !== index);
-  if (files.length > 0 && carouselApi) {
-    carouselApi.scrollTo(Math.min(index, files.length - 1));
-  }
-}
-
-function addSugg(id: number): void {
-  const suggestionIndex = suggestions.findIndex((s: Suggestion) => s.id === id);
-  if (suggestionIndex !== -1) {
-    const suggestion: Suggestion = suggestions[suggestionIndex];
-    report_text += suggestion.text;
-    suggestions = suggestions.filter((s: Suggestion) => s.id !== id);
-    addedSugg = [...addedSugg, suggestion];
-  }
-}
-
-function revertLastSugg(): void {
-  if (addedSugg.length > 0) {
-    const lastSuggestion: Suggestion | undefined = addedSugg.pop();
-    if (lastSuggestion) {
-      report_text = report_text.slice(0, -lastSuggestion.text.length);
-      suggestions = [lastSuggestion, ...suggestions];
-      addedSugg = [...addedSugg];
+    if (files.length > 0 && selectedModel) {
+      sendFilesToBackend(files);
     }
   }
-}
+
+  onMount(async () => {
+    try {
+      await getUsers();
+      await getPatients();
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  async function fileToUint8Array(file: File): Promise<Uint8Array> {
+    return new Uint8Array(await file.arrayBuffer());
+  }
+
+  async function handleSubmit() {
+    const fileData: FileData[] = await Promise.all(
+      files.map(async (file) => ({
+        filename: file.name,
+        extension: file.name.split(".").pop() || "",
+        data: Array.from(await fileToUint8Array(file)),
+      }))
+    );
+
+    const reportData: ReportData = {
+      patient_id,
+      user_owner,
+      body_part,
+      report_text,
+      files: fileData,
+    };
+
+    try {
+      const response = await invoke("create_report", {
+        reportRequest: JSON.stringify(reportData),
+      });
+      toast.success("Report created successfully");
+      goto("/reports");
+    } catch (error) {
+      console.error(error);
+      let stringerror = JSON.stringify(error);
+      toast.error(stringerror);
+    }
+  }
+
+  function handleClick(): void {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.multiple = true;
+    input.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files) {
+        files = [...files, ...Array.from(target.files)];
+      }
+    };
+    input.click();
+  }
+
+  function goToSlide(index: number): void {
+    if (carouselApi) {
+      carouselApi.scrollTo(index);
+    }
+  }
+
+  function removeImage(index: number): void {
+    files = files.filter((_, i) => i !== index);
+    if (files.length > 0 && carouselApi) {
+      carouselApi.scrollTo(Math.min(index, files.length - 1));
+    }
+  }
+
+  function addSugg(id: number): void {
+    const suggestionIndex = suggestions.findIndex(
+      (s: Suggestion) => s.id === id
+    );
+    if (suggestionIndex !== -1) {
+      const suggestion: Suggestion = suggestions[suggestionIndex];
+      report_text += suggestion.text;
+      suggestions = suggestions.filter((s: Suggestion) => s.id !== id);
+      addedSugg = [...addedSugg, suggestion];
+    }
+  }
+
+  function revertLastSugg(): void {
+    if (addedSugg.length > 0) {
+      const lastSuggestion: Suggestion | undefined = addedSugg.pop();
+      if (lastSuggestion) {
+        report_text = report_text.slice(0, -lastSuggestion.text.length);
+        suggestions = [lastSuggestion, ...suggestions];
+        addedSugg = [...addedSugg];
+      }
+    }
+  }
 </script>
 
 <h1 class="my-4 mb-8 text-4xl font-extrabold tracking-tight lg:text-5xl">
@@ -230,12 +236,8 @@ function revertLastSugg(): void {
 </h1>
 
 <section class="flex flex-col pb-6">
-  <ReportMetaData 
-    bind:patient_id
-    bind:user_owner
-  />
+  <ReportMetaData bind:patient_id bind:user_owner />
 </section>
-
 
 <section>
   <div class="flex gap-2 my-2">
@@ -258,85 +260,19 @@ function revertLastSugg(): void {
     <Resizable.Pane defaultSize={150}>
       <Resizable.PaneGroup direction="horizontal">
         <Resizable.Pane defaultSize={50}>
-        <ImageCarousel bind:files bind:carouselApi />
+          <ImageCarousel bind:files bind:carouselApi />
         </Resizable.Pane>
 
         <Resizable.Handle />
 
         <Resizable.Pane defaultSize={50}>
-          <div class="flex flex-col h-full p-4">
-            <div class="flex justify-between items-center py-2">
-              <h2 class="text-lg font-semibold">Befund</h2>
-              <Button variant="secondary" on:click={revertLastSugg}
-                >Revert</Button
-              >
-            </div>
-            <textarea
-              bind:value={report_text}
-              class="flex-grow p-2 border rounded-md resize-none"
-              placeholder="Schreiben Sie Ihren Befund hier..."
-            />
-          </div>
+          <ReportTextArea bind:report_text onRevert={revertLastSugg} />
         </Resizable.Pane>
 
         <Resizable.Handle />
 
         <Resizable.Pane defaultSize={50}>
-          <div class="h-full flex flex-col" style="height: 60vh;">
-            <div class="flex justify-between">
-              <h2 class="text-lg font-semibold p-4 pb-2 bg-white">
-                Vorschläge
-              </h2>
-              <p class="p-4">{suggestions.length}</p>
-            </div>
-            <div
-              class="overflow-y-auto flex-1"
-              style="height: calc(60vh - 4rem);"
-            >
- 
-              <div class="px-4">
-                <section class="space-y-2">
-                  {#each suggestions as suggestion (suggestion.id)}
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
-                    <div
-                      on:click={() => addSugg(suggestion.id)}
-                      animate:flip={{ duration: 200 }}
-                      class="cursor-pointer"
-                    >
-                      <div
-                        class="bg-gray-100 p-3 rounded-md hover:bg-gray-200 transition-colors"
-                        class:border-l-4={suggestion.text.includes(
-                          "Indikation:"
-                        )}
-                        class:border-blue-500={suggestion.text.includes(
-                          "Indikation:"
-                        )}
-                      >
-                        {#if suggestion.text.includes("Indikation:")}
-                          <div class="text-sm space-y-1">
-                            {#each suggestion.text.split("\n") as line}
-                              <p
-                                class={line.startsWith("Befund:")
-                                  ? "font-semibold mt-1"
-                                  : line.startsWith("Indikation:")
-                                    ? "text-blue-600"
-                                    : "text-gray-700"}
-                              >
-                                {line}
-                              </p>
-                            {/each}
-                          </div>
-                        {:else}
-                          <p class="text-gray-700">{suggestion.text}</p>
-                        {/if}
-                      </div>
-                    </div>
-                  {/each}
-                </section>
-              </div>
-            </div>
-          </div>
+          <SuggestionList {suggestions} onSuggestionClick={addSugg} />
         </Resizable.Pane>
       </Resizable.PaneGroup>
     </Resizable.Pane>
