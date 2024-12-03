@@ -34,8 +34,11 @@
   export let active_user: string;
   $: active_user = $AuthService.user_email;
   $: if (files.length === 0) {
-    suggestions = [];
-    addedSugg = [];
+  
+    setTimeout(() => {
+      suggestions = [];
+      addedSugg = [];
+    }, 300);
   }
 
   let user_owner: string;
