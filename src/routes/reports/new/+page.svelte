@@ -17,21 +17,24 @@
   import { goto } from "$app/navigation";
   import AuthService from "../../../stores/Auth";
 
+  import type {
+    Model,
+    ModelResponse,
+    Suggestion,
+    FileData,
+    ReportData,
+    CarouselApi,
+  } from "$lib/types/report.types";
+
   export let active_user: string;
   $: active_user = $AuthService.user_email;
 
-  let user_owner: string
+  let user_owner: string;
 
   export let patient_id: string;
   let body_part: string = "";
 
-  let models: {
-    id: number;
-    label: string;
-    type: string;
-    variant: "default" | "secondary";
-    selected: boolean;
-  }[] = [
+  let models: Model[] = [
     {
       id: 1,
       label: "Speedy",
@@ -58,44 +61,14 @@
   let selectedModel: string;
   $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
 
-  let carouselApi: any;
+  let carouselApi: CarouselApi;
   let files: File[] = [];
   let report_text: string = "";
 
-  interface ONNXResponse {
-    results: {
-      filename: string;
-      image_type: string;
-      confidence: number;
-    }[];
-    statements: {
-      indication: string;
-      statement: string;
-      assessment: string;
-    }[];
-  }
+  let suggestions: Suggestion[] = [];
+  let addedSugg: Suggestion[] = [];
 
-  let suggestions: { id: number; text: string }[] = [
-    {
-      id: 1,
-      text: "The X-ray image of the knee shows...",
-    },
-    { id: 2, text: "Notable findings include..." },
-    { id: 3, text: "The overall alignment of the knee joint is..." },
-    { id: 4, text: "The bone density appears to be..." },
-    { id: 5, text: "In the anterior aspect of the knee, we observe..." },
-    { id: 6, text: "The posterior elements of the knee demonstrate..." },
-    { id: 7, text: "The joint space between the femur and tibia is..." },
-    { id: 8, text: "The patella position and structure appear..." },
-    { id: 9, text: "Soft tissue findings, if any, include..." },
-    { id: 10, text: "Comparison with previous studies shows..." },
-  ];
-
-
-
-  let addedSugg: { id: number; text: string }[] = [];
-
-  function processStatementsToSuggestions(statements: ONNXResponse['statements']) {
+  function processStatementsToSuggestions(statements: ModelResponse['statements']) {
     let nextId = suggestions.length + 1;
     
     const newSuggestions = statements.map(statement => ({
@@ -106,13 +79,7 @@
     suggestions = [...newSuggestions];
   }
 
-  function selectModel(selectedModel: {
-    id: number;
-    label: string;
-    type: string;
-    variant: string;
-    selected: boolean;
-  }) {
+  function selectModel(selectedModel: Model) {
     models = models.map((model) => ({
       ...model,
       variant: model.id === selectedModel.id ? "default" : "secondary",
@@ -122,7 +89,7 @@
 
   async function sendFilesToBackend(files: File[]) {
     try {
-      let fileData = await Promise.all(
+      let fileData: FileData[] = await Promise.all(
         files.map(async (file) => ({
           filename: file.name,
           extension: file.name.split(".").pop() || "",
@@ -130,13 +97,12 @@
         }))
       );
 
-      const result: ONNXResponse = await invoke("process_images", {
+      const result: ModelResponse = await invoke("process_images", {
         imageData: JSON.stringify(fileData),
         userName: JSON.stringify(active_user),
         modelName: JSON.stringify(selectedModel),
       });
 
-      let responseString = JSON.stringify(result);
       toast.success("Images processed successfully");
       console.log("Images processed:", result);
 
@@ -160,104 +126,102 @@
   }
 
   $: {
-    if (files.length > 0 && selectedModel) {
-      sendFilesToBackend(files);
+  if (files.length > 0 && selectedModel) {
+    sendFilesToBackend(files);
+  }
+}
+
+onMount(async () => {
+  try {
+    await getUsers();
+    await getPatients();
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+async function fileToUint8Array(file: File): Promise<Uint8Array> {
+  return new Uint8Array(await file.arrayBuffer());
+}
+
+async function handleSubmit() {
+  const fileData: FileData[] = await Promise.all(
+    files.map(async (file) => ({
+      filename: file.name,
+      extension: file.name.split(".").pop() || "",
+      data: Array.from(await fileToUint8Array(file)),
+    }))
+  );
+
+  const reportData: ReportData = {
+    patient_id,
+    user_owner,
+    body_part,
+    report_text,
+    files: fileData,
+  };
+
+  try {
+    const response = await invoke("create_report", {
+      reportRequest: JSON.stringify(reportData),
+    });
+    toast.success("Report created successfully");
+    goto("/reports");
+  } catch (error) {
+    console.error(error);
+    let stringerror = JSON.stringify(error);
+    toast.error(stringerror);
+  }
+}
+
+function handleClick(): void {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.multiple = true;
+  input.onchange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target.files) {
+      files = [...files, ...Array.from(target.files)];
+    }
+  };
+  input.click();
+}
+
+function goToSlide(index: number): void {
+  if (carouselApi) {
+    carouselApi.scrollTo(index);
+  }
+}
+
+function removeImage(index: number): void {
+  files = files.filter((_, i) => i !== index);
+  if (files.length > 0 && carouselApi) {
+    carouselApi.scrollTo(Math.min(index, files.length - 1));
+  }
+}
+
+function addSugg(id: number): void {
+  const suggestionIndex = suggestions.findIndex((s: Suggestion) => s.id === id);
+  if (suggestionIndex !== -1) {
+    const suggestion: Suggestion = suggestions[suggestionIndex];
+    report_text += suggestion.text;
+    suggestions = suggestions.filter((s: Suggestion) => s.id !== id);
+    addedSugg = [...addedSugg, suggestion];
+  }
+}
+
+function revertLastSugg(): void {
+  if (addedSugg.length > 0) {
+    const lastSuggestion: Suggestion | undefined = addedSugg.pop();
+    if (lastSuggestion) {
+      report_text = report_text.slice(0, -lastSuggestion.text.length);
+      suggestions = [lastSuggestion, ...suggestions];
+      addedSugg = [...addedSugg];
     }
   }
-
-  onMount(async () => {
-    try {
-      await getUsers();
-      await getPatients();
-    } catch (error) {
-      console.error(error);
-    }
-  });
-
-  async function fileToUint8Array(file: File): Promise<Uint8Array> {
-    return new Uint8Array(await file.arrayBuffer());
-  }
-
-  async function handleSubmit() {
-    const fileData = await Promise.all(
-      files.map(async (file) => ({
-        filename: file.name,
-        extension: file.name.split(".").pop() || "",
-        data: Array.from(await fileToUint8Array(file)),
-      }))
-    );
-
-    const reportData = {
-      patient_id,
-      user_owner,
-      body_part,
-      report_text,
-      files: fileData,
-    };
-
-    try {
-      const response = await invoke("create_report", {
-        reportRequest: JSON.stringify(reportData),
-      });
-      toast.success("Report created successfully");
-      goto("/reports");
-    } catch (error) {
-      console.error(error);
-      alert(error);
-      let stringerror = JSON.stringify(error);
-      toast.error(stringerror);
-    }
-  }
-
-  function handleClick() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.multiple = true;
-    input.onchange = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      if (target.files) {
-        files = [...files, ...Array.from(target.files)];
-      }
-    };
-    input.click();
-  }
-
-  function goToSlide(index: number) {
-    if (carouselApi) {
-      carouselApi.scrollTo(index);
-    }
-  }
-
-  function removeImage(index: number) {
-    files = files.filter((_, i) => i !== index);
-    if (files.length > 0 && carouselApi) {
-      carouselApi.scrollTo(Math.min(index, files.length - 1));
-    }
-  }
-
-  function addSugg(id: number) {
-    const suggestionIndex = suggestions.findIndex((s) => s.id === id);
-    if (suggestionIndex !== -1) {
-      const suggestion = suggestions[suggestionIndex];
-      report_text += suggestion.text;
-      suggestions = suggestions.filter((s) => s.id !== id);
-      addedSugg = [...addedSugg, suggestion];
-    }
-  }
-
-  function revertLastSugg() {
-    if (addedSugg.length > 0) {
-      const lastSuggestion = addedSugg.pop();
-      if (lastSuggestion) {
-        report_text = report_text.slice(0, -lastSuggestion.text.length);
-        suggestions = [lastSuggestion, ...suggestions, ];
-        addedSugg = [...addedSugg];
-      }
-    }
-  }
+}
 </script>
-
 
 <h1 class="my-4 mb-8 text-4xl font-extrabold tracking-tight lg:text-5xl">
   Erstelle einen Befund:
@@ -278,16 +242,15 @@
       >
       <DoctorCombobox bind:selectedDoctorId={user_owner} />
     </div>
-
   </div>
 </section>
 
 <section>
   <div class="flex gap-2 my-2">
     {#each models as model (model.id)}
-      <Button 
-        on:click={() => selectModel(model)} 
-        variant={model.selected ? 'default' : 'secondary'}
+      <Button
+        on:click={() => selectModel(model)}
+        variant={model.selected ? "default" : "secondary"}
       >
         {model.label}
       </Button>
@@ -412,50 +375,63 @@
         <Resizable.Handle />
 
         <Resizable.Pane defaultSize={50}>
-          <div class="h-full flex flex-col" style="height: 60vh;"> <!-- Fixed full viewport height -->
+          <div class="h-full flex flex-col" style="height: 60vh;">
+            <!-- Fixed full viewport height -->
             <div class="flex justify-between">
-            <h2 class="text-lg font-semibold p-4 pb-2 bg-white">Vorschläge</h2>
-            <p class="p-4">{suggestions.length}</p>
-          </div>
-            <div class="overflow-y-auto flex-1" style="height: calc(60vh - 4rem);"> <!-- Subtract header height -->
+              <h2 class="text-lg font-semibold p-4 pb-2 bg-white">
+                Vorschläge
+              </h2>
+              <p class="p-4">{suggestions.length}</p>
+            </div>
+            <div
+              class="overflow-y-auto flex-1"
+              style="height: calc(60vh - 4rem);"
+            >
+              <!-- Subtract header height -->
               <div class="px-4">
                 <section class="space-y-2">
-                {#each suggestions as suggestion (suggestion.id)}
-                  <!-- svelte-ignore a11y-click-events-have-key-events -->
-                  <!-- svelte-ignore a11y-no-static-element-interactions -->
-                  <div
-                    on:click={() => addSugg(suggestion.id)}
-                    animate:flip={{ duration: 200 }}
-                    class="cursor-pointer"
-                  >
-                    <div 
-                      class="bg-gray-100 p-3 rounded-md hover:bg-gray-200 transition-colors"
-                      class:border-l-4={suggestion.text.includes('Indikation:')}
-                      class:border-blue-500={suggestion.text.includes('Indikation:')}
+                  {#each suggestions as suggestion (suggestion.id)}
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <div
+                      on:click={() => addSugg(suggestion.id)}
+                      animate:flip={{ duration: 200 }}
+                      class="cursor-pointer"
                     >
-                      {#if suggestion.text.includes('Indikation:')}
-                        <div class="text-sm space-y-1">
-                          {#each suggestion.text.split('\n') as line}
-                            <p class={
-                              line.startsWith('Befund:') ? 'font-semibold mt-1' : 
-                              line.startsWith('Indikation:') ? 'text-blue-600' : 
-                              'text-gray-700'
-                            }>
-                              {line}
-                            </p>
-                          {/each}
-                        </div>
-                      {:else}
-                        <p class="text-gray-700">{suggestion.text}</p>
-                      {/if}
+                      <div
+                        class="bg-gray-100 p-3 rounded-md hover:bg-gray-200 transition-colors"
+                        class:border-l-4={suggestion.text.includes(
+                          "Indikation:"
+                        )}
+                        class:border-blue-500={suggestion.text.includes(
+                          "Indikation:"
+                        )}
+                      >
+                        {#if suggestion.text.includes("Indikation:")}
+                          <div class="text-sm space-y-1">
+                            {#each suggestion.text.split("\n") as line}
+                              <p
+                                class={line.startsWith("Befund:")
+                                  ? "font-semibold mt-1"
+                                  : line.startsWith("Indikation:")
+                                    ? "text-blue-600"
+                                    : "text-gray-700"}
+                              >
+                                {line}
+                              </p>
+                            {/each}
+                          </div>
+                        {:else}
+                          <p class="text-gray-700">{suggestion.text}</p>
+                        {/if}
+                      </div>
                     </div>
-                  </div>
-                {/each}
-              </section>
+                  {/each}
+                </section>
+              </div>
             </div>
           </div>
-        </div>
-      </Resizable.Pane>
+        </Resizable.Pane>
       </Resizable.PaneGroup>
     </Resizable.Pane>
   </Resizable.PaneGroup>
@@ -466,7 +442,6 @@
   <!-- <Button class=" ">Preview</Button> -->
   <Button on:click={handleSubmit} class=" ">Save</Button>
 </section>
-
 
 <style>
   :global(.overflow-y-auto) {
