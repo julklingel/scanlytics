@@ -16,6 +16,7 @@
   import { getUsers } from "../api/user-data";
   import { goto } from "$app/navigation";
   import AuthService from "../../../stores/Auth";
+  import ReportMetaData from "../components/report-meta-data.svelte";
 
   import type {
     Model,
@@ -228,22 +229,12 @@ function revertLastSugg(): void {
 </h1>
 
 <section class="flex flex-col pb-6">
-  <div class="flex gap-60">
-    <div class="">
-      <Label for="patientName" class="block text-sm font-medium text-gray-700"
-        >Patient</Label
-      >
-      <PatientCombobox bind:patient_id />
-    </div>
-    <div class="">
-      <Label
-        for="attendingDoctor"
-        class="block text-sm font-medium text-gray-700">Attending Doctor</Label
-      >
-      <DoctorCombobox bind:selectedDoctorId={user_owner} />
-    </div>
-  </div>
+  <ReportMetaData 
+    bind:patient_id
+    bind:user_owner
+  />
 </section>
+
 
 <section>
   <div class="flex gap-2 my-2">

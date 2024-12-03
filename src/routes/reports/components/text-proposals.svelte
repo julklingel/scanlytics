@@ -7,12 +7,7 @@
     let file: File | null = null;
     let reportText: string = '';
     let suggestions: string[] = [
-      'Das Bild zeigt...',
-      'Bemerkenswerte Merkmale sind...',
-      'Die Gesamtkomposition ist...',
-      'Die Farbpalette besteht aus...',
-      'Im Vordergrund sehen wir...',
-      'Der Hintergrund enthält...',
+
     ];
   
     function handleDrop(e: DragEvent) {
