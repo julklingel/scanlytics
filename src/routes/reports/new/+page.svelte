@@ -32,6 +32,10 @@
 
   export let active_user: string;
   $: active_user = $AuthService.user_email;
+  $: if (files.length === 0) {
+    suggestions = [];
+    addedSugg = [];
+  }
 
   let user_owner: string;
 
@@ -286,25 +290,5 @@
 </section>
 
 <style>
-  :global(.overflow-y-auto) {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
-  }
 
-  :global(.overflow-y-auto::-webkit-scrollbar) {
-    width: 6px;
-  }
-
-  :global(.overflow-y-auto::-webkit-scrollbar-track) {
-    background: transparent;
-  }
-
-  :global(.overflow-y-auto::-webkit-scrollbar-thumb) {
-    background-color: rgba(156, 163, 175, 0.5);
-    border-radius: 3px;
-  }
-
-  :global(.overflow-y-auto::-webkit-scrollbar-thumb:hover) {
-    background-color: rgba(156, 163, 175, 0.7);
-  }
 </style>
