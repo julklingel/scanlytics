@@ -21,7 +21,6 @@
   import SuggestionList from "../components/suggestion-list.svelte";
   import { processImages } from "../api/process-images.ts";
 
-
   import type {
     Model,
     ModelResponse,
@@ -34,7 +33,6 @@
   export let active_user: string;
   $: active_user = $AuthService.user_email;
   $: if (files.length === 0) {
-  
     setTimeout(() => {
       suggestions = [];
       addedSugg = [];
@@ -100,7 +98,6 @@
       selected: model.id === selectedModel.id ? true : false,
     }));
   }
-
 
   $: {
     if (files.length > 0 && selectedModel) {
@@ -237,15 +234,11 @@
         <Resizable.Pane defaultSize={50}>
           <ImageCarousel bind:files bind:carouselApi />
         </Resizable.Pane>
-
         <Resizable.Handle />
-
         <Resizable.Pane defaultSize={50}>
           <ReportTextArea bind:report_text onRevert={revertLastSugg} />
         </Resizable.Pane>
-
         <Resizable.Handle />
-
         <Resizable.Pane defaultSize={50}>
           <SuggestionList {suggestions} onSuggestionClick={addSugg} />
         </Resizable.Pane>
@@ -261,5 +254,4 @@
 </section>
 
 <style>
-
 </style>
