@@ -74,3 +74,11 @@ impl From<SignupRequest> for SignupServerRequest {
 pub struct SignupResponse {
     pub message: String,
 }
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ServerResponse {
+    pub message: Option<String>,
+    pub access_token: Option<String>,
+    pub token_type: Option<String>,
+}

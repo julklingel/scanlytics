@@ -1,4 +1,4 @@
-use super::models::{SignupError, SignupRequest, SignupResponse, SignupServerRequest};
+use super::models::{SignupError, SignupRequest, SignupResponse, ServerResponse, SignupServerRequest};
 use reqwest::Client as HttpClient;
 use zxcvbn::{zxcvbn, Score};
 
@@ -56,11 +56,22 @@ async fn send_signup_to_server(
         .await
         .map_err(|e| SignupError::NetworkError(e.to_string()))?;
 
+
+
     if response.status().is_success() {
-        response
+        
+        let response_array: Vec<ServerResponse> = response
             .json()
             .await
-            .map_err(|e| SignupError::ParseError(e.to_string()))
+            .map_err(|e| SignupError::ParseError(e.to_string()))?;
+        
+        
+        let message = response_array
+            .iter()
+            .find_map(|r| r.message.clone())
+            .unwrap_or_else(|| "User registered successfully".to_string());
+
+        Ok(SignupResponse { message })
     } else {
         Err(SignupError::ServerError(format!(
             "Signup failed: {}",
