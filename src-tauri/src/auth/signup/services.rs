@@ -1,4 +1,4 @@
-use super::models::{SignupError, SignupRequest, SignupResponse, SignupServerRequest};
+use super::models::{SignupError, SignupRequest, SignupResponse, ServerResponse, SignupServerRequest};
 use reqwest::Client as HttpClient;
 use zxcvbn::{zxcvbn, Score};
 
@@ -56,11 +56,22 @@ async fn send_signup_to_server(
         .await
         .map_err(|e| SignupError::NetworkError(e.to_string()))?;
 
+
+
     if response.status().is_success() {
-        response
+        
+        let response_array: Vec<ServerResponse> = response
             .json()
             .await
-            .map_err(|e| SignupError::ParseError(e.to_string()))
+            .map_err(|e| SignupError::ParseError(e.to_string()))?;
+        
+        
+        let message = response_array
+            .iter()
+            .find_map(|r| r.message.clone())
+            .unwrap_or_else(|| "User registered successfully".to_string());
+
+        Ok(SignupResponse { message })
     } else {
         Err(SignupError::ServerError(format!(
             "Signup failed: {}",
@@ -111,29 +122,31 @@ mod tests {
     async fn test_successful_signup() {
         let mock_server = MockServer::start().await;
         let mock_url = mock_server.uri();
-
+    
         let signup_data = json!({
             "full_name": "Test User",
             "user_email": "test@example.com",
             "password": "StrongP@ssword123!",
             "confirm_password": "StrongP@ssword123!"
         });
-
-     
-
+    
         let expected_server_request = json!({
             "user_name": "Test User",
             "user_email": "test@example.com",
             "user_password": "StrongP@ssword123!",
             "user_role": "user"
         });
-
-
-
-        let mock_response = json!({
-            "message": "User registered successfully"
-        });
-
+    
+        let mock_response = json!([
+            {
+                "message": "User registered successfully"
+            },
+            {
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "token_type": "bearer"
+            }
+        ]);
+    
         Mock::given(method("POST"))
             .and(path("/auth/user_signup"))
             .and(header("content-type", "application/json"))
@@ -146,21 +159,21 @@ mod tests {
             .expect(1)
             .mount(&mock_server)
             .await;
-
+    
         let db = setup_test_db().await;
         let response = signup_service(&db, signup_data.to_string(), Some(mock_url)).await;
-        
-
+    
         match &response {
             Ok(r) => println!("Signup succeeded: {:?}", r),
             Err(e) => println!("Signup failed with error: {:?}", e),
         }
-
+    
         assert!(response.is_ok());
         if let Ok(signup_response) = response {
             assert_eq!(signup_response.message, "User registered successfully");
         }
     }
+    
 
     #[tokio::test]
     async fn test_invalid_json_data() {
