@@ -10,7 +10,6 @@
   import InfoMsg from "../../components/ui/infomodal.svelte";
   import { ReportStore } from "../../../stores/Report"; 
   import { getReports } from "../api/report-data";
-  
 
   let filteredReports: any;
   const infoTitle: string | null | never = "No reports found";
@@ -48,7 +47,6 @@
       )
     : $ReportStore;
 
-    $: console.log(filteredReports);
 
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString();

@@ -24,7 +24,6 @@ type ReportResponse = {
 
 
 
-// Set up subscription
 AuthService.subscribe(auth => {
   currentUsername = auth.user_email;
 });
