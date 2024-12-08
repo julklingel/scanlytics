@@ -6,12 +6,8 @@
     import { PatientNotesStore } from "../../../stores/PatientNote";
     import { toast } from "svelte-sonner";
 
-
-   
     export let id: string;
     export let patientId: string;
-
-
 
     function deleteNote() {
       try {

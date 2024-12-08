@@ -1,6 +1,5 @@
 <script lang="ts">
     import * as Carousel from "$lib/components/ui/carousel/index.js";
-    import { Button } from "$lib/components/ui/button/index.js";
     import PlusIcon from "lucide-svelte/icons/plus";
     import XIcon from "lucide-svelte/icons/x";
     import type { CarouselApi } from "$lib/types/report.types";

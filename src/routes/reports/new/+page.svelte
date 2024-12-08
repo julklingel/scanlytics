@@ -1,14 +1,7 @@
 <script lang="ts">
-  import { Label } from "$lib/components/ui/label/index.js";
   import { onMount } from "svelte";
   import * as Resizable from "$lib/components/ui/resizable/index.js";
-  import PatientCombobox from "../components/patient-combobox.svelte";
-  import DoctorCombobox from "../components/doctor-combobox.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import * as Carousel from "$lib/components/ui/carousel/index.js";
-  import PlusIcon from "lucide-svelte/icons/plus";
-  import XIcon from "lucide-svelte/icons/x";
   import { toast } from "svelte-sonner";
   import { invoke } from "@tauri-apps/api/core";
   import { getPatients } from "../api/patient-data";
@@ -19,7 +12,7 @@
   import ImageCarousel from "../components/image-carousel.svelte";
   import ReportTextArea from "../components/report-text-area.svelte";
   import SuggestionList from "../components/suggestion-list.svelte";
-  import { processImages } from "../api/process-images.ts";
+  import { processImages } from "../api/process-images";
 
   import type {
     Model,
@@ -102,8 +95,10 @@
   $: {
     if (files.length > 0 && selectedModel) {
       processImages(files, active_user, selectedModel).then(
-        (response: ModelResponse) => {
-          processStatementsToSuggestions(response.statements);
+        (response: ModelResponse | null) => {
+          if (response) {
+            processStatementsToSuggestions(response.statements);
+          }
         }
       );
     }
@@ -152,32 +147,6 @@
     }
   }
 
-  function handleClick(): void {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.multiple = true;
-    input.onchange = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      if (target.files) {
-        files = [...files, ...Array.from(target.files)];
-      }
-    };
-    input.click();
-  }
-
-  function goToSlide(index: number): void {
-    if (carouselApi) {
-      carouselApi.scrollTo(index);
-    }
-  }
-
-  function removeImage(index: number): void {
-    files = files.filter((_, i) => i !== index);
-    if (files.length > 0 && carouselApi) {
-      carouselApi.scrollTo(Math.min(index, files.length - 1));
-    }
-  }
 
   function addSugg(id: number): void {
     const suggestionIndex = suggestions.findIndex(

@@ -1,19 +1,8 @@
 <script lang="ts">
-    import TextProposals from '../components/text-proposals.svelte';
     import { onMount } from "svelte";
-    import * as Resizable from "$lib/components/ui/resizable/index.js";
   
     let dropzone: HTMLButtonElement;
     let file: File | null = null;
-    let reportText: string = '';
-    let suggestions: string[] = [
-      'Das Bild zeigt...',
-      'Bemerkenswerte Merkmale sind...',
-      'Die Gesamtkomposition ist...',
-      'Die Farbpalette besteht aus...',
-      'Im Vordergrund sehen wir...',
-      'Der Hintergrund enthält...',
-    ];
   
     function handleDrop(e: DragEvent) {
       e.preventDefault();
@@ -39,19 +28,7 @@
       };
       input.click();
     }
-  
-    function handleDragStart(e: DragEvent, suggestion: string) {
-      e.dataTransfer?.setData('text/plain', suggestion);
-    }
-  
-    function handleTextAreaDrop(e: DragEvent) {
-      e.preventDefault();
-      const suggestion = e.dataTransfer?.getData('text/plain');
-      if (suggestion) {
-        reportText += ' ' + suggestion;
-      }
-    }
-  
+
     onMount(() => {
       dropzone.addEventListener("drop", handleDrop);
       dropzone.addEventListener("dragover", handleDragOver);
