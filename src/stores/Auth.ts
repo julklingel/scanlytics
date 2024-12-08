@@ -6,20 +6,31 @@ interface Auth {
     isValidated: boolean;
 }
 
-const initialAuth: Auth = {
-    user_email: '',
-    isValidated: false
-};
+const storedAuth = localStorage.getItem('auth');
+const initialAuth: Auth = storedAuth 
+    ? JSON.parse(storedAuth) 
+    : {
+        user_email: '',
+        isValidated: false
+    };
 
 const { subscribe, update } = writable<Auth>(initialAuth);
 
 const AuthService = {
     subscribe,
     login: (user_email: string) => {
-        update(store => ({ ...store, user_email, isValidated: true }));
+        update(store => {
+            const newState = { ...store, user_email, isValidated: true };
+            localStorage.setItem('auth', JSON.stringify(newState));
+            return newState;
+        });
     },
     logout: () => {
-        update(store => ({ ...store, user_email: '', isValidated: false }));
+        update(store => {
+            const newState = { ...store, user_email: '', isValidated: false };
+            localStorage.removeItem('auth');
+            return newState;
+        });
     },
     validate: async (): Promise<void> => {
         return new Promise((resolve, reject) => {
@@ -31,11 +42,19 @@ const AuthService = {
 
                 invoke("validate_token", { userEmail: store.user_email })
                     .then(() => {
-                        update(s => ({ ...s, isValidated: true }));
+                        update(s => {
+                            const newState = { ...s, isValidated: true };
+                            localStorage.setItem('auth', JSON.stringify(newState));
+                            return newState;
+                        });
                         resolve();
                     })
                     .catch((error) => {
-                        update(s => ({ ...s, isValidated: false }));
+                        update(s => {
+                            const newState = { ...s, isValidated: false };
+                            localStorage.setItem('auth', JSON.stringify(newState));
+                            return newState;
+                        });
                         reject(error);
                     });
 
