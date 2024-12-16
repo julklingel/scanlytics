@@ -47,22 +47,23 @@
     },
     {
       id: 2,
-      label: "Balanced",
+      label: "Accurate",
       type: "body_part_classifier_resnet18",
       variant: "secondary",
       selected: false,
     },
-    {
-      id: 3,
-      label: "Accurate",
-      type: "ResNet60",
-      variant: "secondary",
-      selected: false,
-    },
+    // Still needs to be discussed wether a third model is needed
+    // {
+    //   id: 3,
+    //   label: "Accurate",
+    //   type: "body_part_classifier_resnet18",
+    //   variant: "secondary",
+    //   selected: false,
+    // },
   ];
 
   let selectedModel: string;
-  $: selectedModel = models.find((model) => model.selected)?.type || "MNST_med";
+  $: selectedModel = models.find((model) => model.selected)?.type || "body_part_classifier";
 
   let carouselApi: CarouselApi;
   let files: File[] = [];
