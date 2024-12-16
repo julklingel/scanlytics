@@ -161,23 +161,122 @@ pub async fn define_db_on_startup(db_connection: DbConnection) -> Result<(), Str
 
     let initial_statements = vec![
 
+    "CREATE Statement SET \
+        body_part = 'thorax', \
+        indication = '', \
+        statement = 'Zwerchfell glatt konturiert, laterale Randwinkel frei.
+Lunge seitengleich belüftet mit unauffälliger Gefäßzeichnung.
+
+Kein Nachweis pneumonischer Infiltrate, keine Ergussbildung.
+
+Herz von normaler Größe und Konfiguration. Mediastinum mittelständig, nicht verbreitert.
+
+Trachea mittelständig, nicht eingeengt. Knöcherner Thorax unauffällig.
+', \
+        assessment = ''",
+
         "CREATE Statement SET \
-            body_part = 'knee', \
-            indication = '', \
-            statement = 'Herr Dr. Norbert Munz\nFÄ/FA für Orthopädie und Unfallchirurgie\nOranienstraße 158\n10969 Berlin\n\nBetrifft: Möller, Uwe , * 16.12.1986\n\nHRDr. Norbert Munz,\n\ndie Untersuchung ergab folgenden Befund:\n\n', \
-            assessment = ''",
-        
+        body_part = 'shoulder', \
+        indication = '', \
+        statement = 'Die am Glenohumeralgelenk und am AC-Gelenk beteiligten Skelettabschnitte sind normal konfiguriert. Mineralgehalt und Knochenstruktur regelrecht.
+Regelrechte Artikulation im Glenohumeralgelenk und im AC-Gelenk. Der Gelenkspalt ist allseits normal weit.
+
+Die mitabgebildeten knöchernen Strukturen des Schultergürtels und des Thorax sind unauffällig.
+Keine periartikulären Verkalkungen.
+', \
+        assessment = ''",
+
         "CREATE Statement SET \
-            body_part = 'knee', \
-            indication = '', \
-            statement = 'Rechtes Kniegelenk:\nDeutliche Gelenkspaltverschmälerung des femorotibialen Gelenkspaltes im medialen Kompartiment mit mäßiggradigen osteophytären Randausziehungen der Gelenkflächen. Keine Geröllzysten. Deutliche Gelenkspaltverschmälerung im femoropatellaren Gelenk mit Kantenanbauten am Oberpol und Unterpol der Patella sowie am femoralen Gleitlager. Keine Frakturlinien. Röntgenologisch kein Gelenkerguss.\n', \
-            assessment = ''",
-        
+        body_part = 'lumbar spine', \
+        indication = '', \
+        statement = 'Harmonische Lordose. Alle LWK nach Anzahl, Form und Größe normal konfiguriert. Keine Gefügestörung.
+Regelrechter Mineralgehalt. Kortikale Randstrukturen einschließlich der Grund- und Deckplatten stellen sich glatt begrenzt dar.
+
+Regelrechte Abbildung der Abgänge der Bogenwurzeln. Unauffällige Konfiguration der Dorn-, Quer- und Gelenkfortsätze.
+
+Keine Höhenminderung der ZWR. Der Spinalkanal weist knöchern keine Stenosierung auf. In den paravertebralen Weichteilen kein Nachweis pathologischer Verkalkungen.
+', \
+        assessment = ''",
+
         "CREATE Statement SET \
-            body_part = 'knee', \
-            indication = '', \
-            statement = 'Beurteilung:\nRechtes Kniegelenk:\nMittelgradige Arthrose im femorotibialen Gelenk, medial betont.', \
-            assessment = ''",
+        body_part = 'knee', \
+        indication = '', \
+        statement = 'Normale Form des Kniegelenkes ohne Achsfehlstellung. Regelrechte Artikulation mit unauffälliger Darstellung der artikulierenden Gelenkflächen. Normale Gelenkspaltweite.
+Mineralgehalt und Knochenstruktur regelrecht. Glatte Kortikalisbegrenzung von Femur und Tibia. Regelrechte Form der Patella mit unauffälliger Artikulation und glatter Gelenkfläche. Kein Anhalt für intra- und periartikuläre Verkalkungen. Unauffällige Weichteile.
+', \
+        assessment = ''",
+
+        "CREATE Statement SET \
+        body_part = 'hip', \
+        indication = '', \
+        statement = 'Regelrechte Artikulation mit unauffälliger Darstellung der artikulierenden Gelenkflächen. Normale Gelenkspaltweite.
+Mineralgehalt und Knochenstruktur regelrecht. Pfannendach unauffällig abgebildet. Glatte Hüftkopfkonturen. Regelrechte Trabekulierung im Schenkelhals.
+
+Unauffälliges Trochantermassiv. Kein Anhalt für intra- und periartikuläre Verkalkungen.
+
+Die ossären Strukturen des mitabgebildeten knöchernen Beckens stellen sich regelrecht dar. Unauffällige Weichteile.
+', \
+        assessment = ''",
+
+        "CREATE Statement SET \
+        body_part = 'wrist', \
+        indication = '', \
+        statement = 'Am Handgelenk _____ sind keine Frakturen oder andere knöcherne Anomalien zu erkennen. Die radiokarpalen und interkarpalen Gelenke sehen normal aus und es gibt keine Verschiebung des Pronator-Fettpolsters.
+Es sind keine Weichteilschwellungen zu sehen.
+', \
+        assessment = ''",
+
+        "CREATE Statement SET \
+        body_part = 'hand', \
+        indication = '', \
+        statement = 'Keine Voraufnahmen zum Vergleich. Normaler Kalksalzgehalt und reguläre Knochenstruktur des Handskeletts. Achsengerechte Stellung und normal breite Gelenkspalte an allen abgebildeten Gelenken.
+Kein Hinweis für entzündlich bedingte ossäre Läsionen. Keine wesentliche Weichteilschwellung.
+', \
+        assessment = ''",
+
+        "CREATE Statement SET \
+        body_part = 'foot', \
+        indication = '', \
+        statement = 'Regelrechter Kalksalzgehalt. Glatte Gelenkflächen ohne Stufenbildung, keine Gelenkfehlstellung.
+Gelenkspalt normal breit. Kein Nachweis vorzeitiger degenerativer Veränderungen.
+
+Fußgewölbe regelrecht. Unauffällige Weichteile.
+', \
+        assessment = ''",
+
+        "CREATE Statement SET \
+        body_part = 'heel', \
+        indication = '', \
+        statement = 'Die abgebildeten Knochen weisen eine normale Ausrichtung und Architektur auf.
+Keine offensichtliche lytische oder sklerotische knöcherne Läsion.
+Es ist keine offensichtliche Fraktur zu erkennen.
+Die Gelenkspalte und Gelenkränder sind intakt.
+Die Weichteile zeigen ein normales Erscheinungsbild.
+', \
+        assessment = ''",
+
+        "CREATE Statement SET \
+        body_part = 'elbow', \
+        indication = '', \
+        statement = 'Am Ellenbogen ____ sind keine Frakturen oder andere knöcherne Anomalien zu erkennen.
+Der Gelenkspalt zeigt ein normales Erscheinungsbild ohne Verschiebung der vorderen oder hinteren Fettpolster, die auf einen Erguss hindeuten.
+Die anterioren humeralen und radiokapitellaren Linien sind normal.
+Schlussfolgerung:
+Normaler Gleitfilm ____ Ellenbogen.
+', \
+        assessment = ''",
+
+        "CREATE Statement SET \
+        body_part = 'spine', \
+        indication = '', \
+        statement = 'Harmonische Lordose. Alle LWK nach Anzahl, Form und Größe normal konfiguriert. Keine Gefügestörung.
+Regelrechter Mineralgehalt. Kortikale Randstrukturen einschließlich der Grund- und Deckplatten stellen sich glatt begrenzt dar.
+
+Regelrechte Abbildung der Abgänge der Bogenwurzeln. Unauffällige Konfiguration der Dorn-, Quer- und Gelenkfortsätze.
+
+Keine Höhenminderung der ZWR. Der Spinalkanal weist knöchern keine Stenosierung auf. In den paravertebralen Weichteilen kein Nachweis pathologischer Verkalkungen.
+', \
+        assessment = ''",
 
     "CREATE User SET \
         email = 'dr.test@med.com', \
