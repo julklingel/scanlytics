@@ -32,6 +32,7 @@ pub struct ImageResult {
 #[cfg_attr(test, derive(Clone))]
 pub struct ModelConfig {
     pub input_shape: (usize, usize),
+    pub channels: usize,
     pub class_mapping: Vec<&'static str>,
 }
 
@@ -185,6 +186,8 @@ impl ImageClassifier {
             .model_for_path(model_path)
             .map_err(|e| ModelError::Processing(e.to_string()))?;
 
+        println!("Model: {:?}", model);
+
         let input_fact = model
             .input_fact(0)
             .map_err(|e| ModelError::Processing(e.to_string()))?;
@@ -193,13 +196,15 @@ impl ImageClassifier {
 
         let img_height = dimensions[2].to_string().parse::<usize>().unwrap_or(28);
         let img_width = dimensions[3].to_string().parse::<usize>().unwrap_or(28);
-
         let input_shape_size = (img_height, img_width);
+        let channels = dimensions[1].to_string().parse::<usize>().unwrap_or(1);
+      
 
         let model = model.into_optimized().unwrap().into_runnable().unwrap();
 
         let config = ModelConfig {
             input_shape: input_shape_size,
+            channels: channels,
             class_mapping: vec![
                 "abdomen", "angio", "breast", "thorax", "thorax", "hand", "head", "knee",
                 "shoulder",
@@ -226,6 +231,7 @@ impl ImageClassifier {
     #[cfg(not(feature = "test-utils"))]
     pub fn process_image(&self, image_data: &[u8]) -> Result<(String, f32), ModelError> {
         let (width, height) = self.config.input_shape;
+        let channels = self.config.channels;
 
         let img = image::load_from_memory(image_data)
             .map_err(|e| ModelError::Image(e.to_string()))?
@@ -233,20 +239,21 @@ impl ImageClassifier {
             .to_luma8();
 
         let img_array: Array<f32, _> =
-            Array::from_shape_fn((1, 1, width, height), |(_, _, y, x)| {
+            Array::from_shape_fn((1, channels, width, height), |(_, _, y, x)| {
                 (img[(x as _, y as _)][0] as f32 - 127.5) / 127.5
             });
 
         let (vec, _) = img_array.into_raw_vec_and_offset();
-        let input = tract_ndarray::Array4::from_shape_vec((1, 1, 28, 28), vec)
+
+        let input = tract_ndarray::Array4::from_shape_vec((1, channels, width, height), vec)
             .map_err(|e| ModelError::Processing(e.to_string()))?;
 
-        let result = self
-            .model
-            .run(tvec!(input.into_tensor().into()))
+        println!("Processing images, input: {:?}", input);
+
+        let result = self.model.run(tvec!(input.into_tensor().into()))
             .map_err(|e| ModelError::Processing(e.to_string()))?;
 
-        let output = result[0]
+        let output: ndarray::ArrayBase<ndarray::ViewRepr<&f32>, ndarray::Dim<ndarray::IxDynImpl>> = result[0]
             .to_array_view::<f32>()
             .map_err(|e| ModelError::Processing(e.to_string()))?;
 

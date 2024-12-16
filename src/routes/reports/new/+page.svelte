@@ -48,7 +48,7 @@
     {
       id: 2,
       label: "Balanced",
-      type: "ResNet16",
+      type: "body_part_classifier_resnet18",
       variant: "secondary",
       selected: false,
     },
