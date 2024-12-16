@@ -186,8 +186,6 @@ impl ImageClassifier {
             .model_for_path(model_path)
             .map_err(|e| ModelError::Processing(e.to_string()))?;
 
-        println!("Model: {:?}", model);
-
         let input_fact = model
             .input_fact(0)
             .map_err(|e| ModelError::Processing(e.to_string()))?;
@@ -247,8 +245,6 @@ impl ImageClassifier {
 
         let input = tract_ndarray::Array4::from_shape_vec((1, channels, width, height), vec)
             .map_err(|e| ModelError::Processing(e.to_string()))?;
-
-        println!("Processing images, input: {:?}", input);
 
         let result = self.model.run(tvec!(input.into_tensor().into()))
             .map_err(|e| ModelError::Processing(e.to_string()))?;
