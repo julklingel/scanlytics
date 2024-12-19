@@ -100,3 +100,9 @@ JavaScript and TypeScript dependencies are managed in [package.json](http://_vsc
 To run the tests for the Rust backend, use the following command:
 ```sh
 cargo test --features test-utils
+```
+To run the tests for the SvelteKit frontend, use the following command:
+```sh
+pnpm test
+```
+
