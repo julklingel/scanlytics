@@ -4,9 +4,6 @@ use tokio::sync::Mutex;
 use tauri::Manager;
 
 use crate::models::DbConnection;  
-
-
-
 use surrealdb::engine::any;
 
 pub async fn init_db(app_handle: Option<&tauri::AppHandle> ,is_test: bool) -> Result<DbConnection, String> {
@@ -555,7 +552,7 @@ pub async fn define_db_on_startup(db_connection: DbConnection) -> Result<(), Str
         "CREATE Statement SET \
             body_part = 'knee', \
             indication = 'Rheumatoide Arthritis Frühstadium', \
-            statement = 'Diskrete Gelenkspaltver­schmälerung, Beginnende juxtaartikuläre Osteoporose, Keine Erosionen, Synovitis', \
+            statement = 'Diskrete Gelenkspaltverschmälerung, Beginnende juxtaartikuläre Osteoporose, Keine Erosionen, Synovitis', \
             assessment = 'Frühe radiologische Zeichen einer RA'",
 
         "CREATE Statement SET \
@@ -639,7 +636,7 @@ pub async fn define_db_on_startup(db_connection: DbConnection) -> Result<(), Str
         "CREATE Statement SET \
             body_part = 'knee', \
             indication = 'Rheumatoide Arthritis Frühstadium', \
-            statement = 'Diskrete Gelenkspaltver­schmälerung, Beginnende juxtaartikuläre Osteoporose, Keine Erosionen, Synovitis', \
+            statement = 'Diskrete Gelenkspaltverschmälerung, Beginnende juxtaartikuläre Osteoporose, Keine Erosionen, Synovitis', \
             assessment = 'Frühe radiologische Zeichen einer RA'",
 
         "CREATE Statement SET \
@@ -924,3 +921,11 @@ pub async fn define_db_on_startup(db_connection: DbConnection) -> Result<(), Str
     Ok(())
 }
 
+
+pub async fn setup_database(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    let db_connection = init_db(Some(&app.app_handle()), true).await?;
+    define_db_on_startup(db_connection.clone()).await?;
+    app.manage(db_connection);
+    println!("Database setup completed successfully");
+    Ok(())
+}
