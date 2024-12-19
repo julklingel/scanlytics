@@ -93,10 +93,6 @@ async fn fetch_statements(
 }
 
 
-
-
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
