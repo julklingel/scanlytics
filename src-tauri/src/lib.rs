@@ -24,22 +24,14 @@ use scanlytics_db::{init_db, define_db_on_startup};
 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+#[tokio::main]
+pub async fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             tauri::async_runtime::block_on(async {
-                match init_db(Some(&app.app_handle()), true).await {
-                    Ok(db_connection) => {
-                        match define_db_on_startup(db_connection.clone()).await {
-                            Ok(_) => {
-                                app.manage(db_connection);
-                                println!("Database setup completed successfully");
-                            },
-                            Err(e) => eprintln!("Failed to define database schema: {:?}", e),
-                        }
-                    },
-                    Err(e) => eprintln!("Failed to initialize database: {:?}", e),
+                if let Err(e) = setup_database(app).await {
+                    eprintln!("Failed to setup database: {:?}", e);
                 }
             });
             Ok(())
@@ -65,4 +57,12 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+async fn setup_database(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    let db_connection = init_db(Some(&app.app_handle()), true).await?;
+    define_db_on_startup(db_connection.clone()).await?;
+    app.manage(db_connection);
+    println!("Database setup completed successfully");
+    Ok(())
 }
