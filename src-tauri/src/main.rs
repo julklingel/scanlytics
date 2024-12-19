@@ -3,8 +3,8 @@
 
 
 
-#[tokio::main]
-async fn  main() {
+
+fn  main() {
     scanlytics_lib::run(); 
 }
 

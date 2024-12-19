@@ -17,7 +17,7 @@ use patients::controller::{create_patient, delete_patient, get_patients, update_
 use notes::controller::{create_patient_note, delete_patient_note, get_patient_notes, update_patient_note};
 use reports::controller::{create_report, get_reports, get_report_images};
 use image_analysis::image_processing::controller::process_images;
-use scanlytics_db::{init_db, define_db_on_startup};
+use scanlytics_db::setup_database;
 
 
 
@@ -29,7 +29,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             tauri::async_runtime::block_on(async {
-                if let Err(e) = setup_database(app).await {
+                if let Err(e) = scanlytics_db::setup_database(app).await {
                     eprintln!("Failed to setup database: {:?}", e);
                 }
             });
@@ -58,10 +58,3 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-async fn setup_database(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    let db_connection = init_db(Some(&app.app_handle()), true).await?;
-    define_db_on_startup(db_connection.clone()).await?;
-    app.manage(db_connection);
-    println!("Database setup completed successfully");
-    Ok(())
-}
