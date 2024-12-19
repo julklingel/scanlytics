@@ -552,7 +552,7 @@ pub async fn define_db_on_startup(db_connection: DbConnection) -> Result<(), Str
         "CREATE Statement SET \
             body_part = 'knee', \
             indication = 'Rheumatoide Arthritis Frühstadium', \
-            statement = 'Diskrete Gelenkspaltver­schmälerung, Beginnende juxtaartikuläre Osteoporose, Keine Erosionen, Synovitis', \
+            statement = 'Diskrete Gelenkspaltverschmälerung, Beginnende juxtaartikuläre Osteoporose, Keine Erosionen, Synovitis', \
             assessment = 'Frühe radiologische Zeichen einer RA'",
 
         "CREATE Statement SET \
@@ -636,7 +636,7 @@ pub async fn define_db_on_startup(db_connection: DbConnection) -> Result<(), Str
         "CREATE Statement SET \
             body_part = 'knee', \
             indication = 'Rheumatoide Arthritis Frühstadium', \
-            statement = 'Diskrete Gelenkspaltver­schmälerung, Beginnende juxtaartikuläre Osteoporose, Keine Erosionen, Synovitis', \
+            statement = 'Diskrete Gelenkspaltverschmälerung, Beginnende juxtaartikuläre Osteoporose, Keine Erosionen, Synovitis', \
             assessment = 'Frühe radiologische Zeichen einer RA'",
 
         "CREATE Statement SET \
