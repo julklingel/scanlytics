@@ -212,12 +212,14 @@ impl ImageClassifier {
         Ok(Self { model, config })
     }
 
-     #[cfg(feature = "test-utils")]
+    
+    #[cfg(feature = "test-utils")]
     pub fn new(_model_path: &std::path::Path) -> Result<Self, ModelError> {
         Ok(Self {
             model: (),
             config: ModelConfig {
                 input_shape: (28, 28),
+                channels: 1,
                 class_mapping: vec![
                     "abdomen", "angio", "breast", "thorax", "thorax", "hand", "head", "knee",
                     "shoulder",
