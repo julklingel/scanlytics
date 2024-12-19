@@ -4,7 +4,6 @@ use tauri::Manager;
 use tokio::sync::Mutex;
 
 use crate::models::DbConnection;  
-use crate::models::DbConnection;
 
 use surrealdb::engine::any;
 
