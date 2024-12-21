@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use scanlytics_db::{Thing, Datetime};
 
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ReportRequest {
     pub patient_id: String,

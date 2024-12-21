@@ -8,6 +8,34 @@ use tokio::sync::MutexGuard;
 
 use tauri::State;
 
+
+/// Creates a new medical report with associated images.
+///
+/// This command handles the creation of a medical report, including:
+/// - Saving report details to the database
+/// - Processing and storing associated images
+/// - Creating relationships between reports and images
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+/// * `report_request` - JSON string containing report data and image files
+/// * `app_handle` - Tauri application handle for accessing app paths
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(CreateReportResponse)` - Successfully created report with details
+/// * `Err(String)` - Error message if creation fails
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// * The report request JSON is invalid
+/// * Database operations fail
+/// * Image processing or saving fails
+/// * File system operations fail
+
 #[tauri::command]
 pub async fn create_report(
     db_connection: State<'_, DbConnection>,
@@ -25,6 +53,26 @@ pub async fn create_report(
     Ok(response)
 }
 
+
+/// Retrieves all medical reports accessible to a specific user.
+///
+/// This endpoint is protected by authentication middleware and returns
+/// all reports that the authenticated user has permission to view.
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+/// * `username` - Username of the authenticated user
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Vec<ReportResponse>)` - List of medical reports
+/// * `Err(String)` - Error message if retrieval fails
+///
+/// # Authentication
+///
+/// This endpoint requires valid user authentication through the auth_middleware.
 #[tauri::command]
 pub async fn get_reports(
     db_connection: State<'_, DbConnection>,
@@ -38,6 +86,19 @@ pub async fn get_reports(
     }).await
 }
 
+
+/// Retrieves all images associated with a specific medical report.
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+/// * `report_id` - Unique identifier of the report
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Vec<ImageInfo>)` - List of image information
+/// * `Err(String)` - Error message if retrieval fails
 
 #[tauri::command]
 pub async fn get_report_images(

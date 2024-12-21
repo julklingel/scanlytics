@@ -5,6 +5,34 @@ use std::fs;
 use scanlytics_db::{Surreal, Any, Error as SurrealError};
 use tauri::Manager;
 
+/// Creates a new medical report with associated images in the system.
+///
+/// This service handles:
+/// 1. Validation of patient and user existence
+/// 2. Image processing and storage
+/// 3. Report creation in the database
+/// 4. Relationship creation between reports and images
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `report_request` - Report creation request containing all necessary data
+/// * `app_handle` - Tauri application handle for file system operations
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(CreateReportResponse)` - Successfully created report
+/// * `Err(String)` - Error message detailing what went wrong
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// * Patient or user not found in database
+/// * Image processing fails
+/// * File system operations fail
+/// * Database operations fail
+
 pub async fn create_report_service(
     db: &Surreal<Any>,
     report_request: models::ReportRequest,
@@ -107,6 +135,24 @@ pub async fn create_report_service(
     Ok(report)
 }
 
+
+/// Retrieves all medical reports from the database with related information.
+///
+/// Fetches reports including:
+/// - Basic report information
+/// - Patient details
+/// - User (owner) details
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Vec<ReportResponse>)` - List of reports with related data
+/// * `Err(SurrealError)` - Database error if query fails
+
 pub async fn get_reports_service(
     db: &Surreal<Any>,
 ) -> Result<Vec<models::ReportResponse>, SurrealError> {
@@ -126,6 +172,20 @@ pub async fn get_reports_service(
     let result: Vec<models::ReportResponse> = db.query(query).await?.take(0)?;
     Ok(result)
 }
+
+
+/// Retrieves all images associated with a specific report.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `report_id` - Unique identifier of the report
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Vec<ImageInfo>)` - List of image information
+/// * `Err(SurrealError)` - Database error if query fails
 
 pub async fn get_report_images_service(
     db: &Surreal<Any>,
