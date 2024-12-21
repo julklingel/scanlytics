@@ -6,6 +6,27 @@ use super::models::{
 use scanlytics_db::Error as SurrealError;
 use scanlytics_db::{Any, Surreal, Thing};
 
+/// Creates a new patient note with associated relationships.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `data` - Note creation request data
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(PatientNoteResponse)` - Successfully created note
+/// * `Err(String)` - Error message if creation fails
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// * Referenced patient doesn't exist
+/// * Referenced user doesn't exist
+/// * Note creation fails
+/// * Relationship updates fail
+
 pub async fn create_patient_note_service(
     db: &Surreal<Any>,
     data: PatientNoteRequest,
@@ -61,6 +82,18 @@ pub async fn create_patient_note_service(
     Ok(note)
 }
 
+/// Retrieves all patient notes with associated patient information.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Vec<PatientNoteWithPatientResponse>)` - List of notes with patient details
+/// * `Err(SurrealError)` - Database error if query fails
+
 pub async fn get_patient_notes_service(
     db: &Surreal<Any>,
 ) -> Result<Vec<PatientNoteWithPatientResponse>, SurrealError> {
@@ -82,6 +115,28 @@ pub async fn get_patient_notes_service(
     let result: Vec<PatientNoteWithPatientResponse> = db.query(query).await?.take(0)?;
     Ok(result)
 }
+
+/// Updates an existing patient note.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `id` - Unique identifier of the note
+/// * `data` - Updated note data
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Option<PatientNoteResponse>)` - Updated note if found
+/// * `Err(String)` - Error message if update fails
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// * Referenced patient doesn't exist
+/// * Referenced user doesn't exist
+/// * Note update fails
+
 
 pub async fn update_patient_note_service(
     db: &Surreal<Any>,
@@ -120,6 +175,19 @@ pub async fn update_patient_note_service(
 
     Ok(updated)
 }
+
+/// Deletes a patient note from the system.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `id` - Unique identifier of the note to delete
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Option<PatientNoteResponse>)` - Deleted note if found
+/// * `Err(String)` - Error message if deletion fails
 
 pub async fn delete_patient_note_service(
     db: &Surreal<Any>,
