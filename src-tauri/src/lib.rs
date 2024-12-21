@@ -21,14 +21,14 @@
 
 
 #[macro_use]
-mod commands;
+pub mod commands;
 
-mod users;
-mod auth;
-mod patients;
-mod notes;
-mod reports;
-mod image_analysis;
+pub mod users;
+pub mod auth;
+pub mod patients;
+pub mod notes;
+pub mod reports;
+pub mod image_analysis;
 
 
 
