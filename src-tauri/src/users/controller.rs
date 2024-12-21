@@ -3,7 +3,18 @@ use super::services;
 use tauri::State;
 use scanlytics_db::DbConnection;
 
-
+/// Retrieves all users from the database.
+///
+/// This command fetches all user records and returns them as a list of user responses.
+/// It requires a database connection state from Tauri.
+///
+/// # Arguments
+///
+/// * `db_connection` - Tauri state containing the database connection
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Vec<UserResponse>)` - List of user records
+/// * `Err(String)` - Error message if the operation fails
 
 
 #[tauri::command]

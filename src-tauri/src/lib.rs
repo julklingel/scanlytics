@@ -1,3 +1,24 @@
+//! # Scanlytics Application
+//! 
+//! This is the main backend implementation for the Scanlytics application,
+//! providing functionality for user management, authentication, notes, and reporting.
+//! 
+//! ## Features
+//! 
+//! - **Authentication**: User authentication and session management
+//! - **Users**: User management
+//! - **Patients**: Patient management
+//! - **Notes**: Patient notes and management
+//! - **Reports**: Medical report management
+//! - **Image Analysis**: Image analysis and processing
+//! 
+//! ## Architecture
+//! 
+//! Each feature is organized into three main components:
+//! - Controllers: Tauri command handlers
+//! - Services: Business logic implementation
+//! - Models: Data structures and type definitions
+
 
 #[macro_use]
 mod commands;
