@@ -4,6 +4,27 @@ use super::services;
 use scanlytics_db::DbConnection;
 use tauri::State;
 
+
+/// Creates a new patient record in the system.
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+/// * `patient_request` - JSON string containing patient data
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(PatientResponse)` - Successfully created patient record
+/// * `Err(String)` - Error message if creation fails
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// * The patient request JSON is invalid
+/// * Database operations fail
+/// * Required relationships cannot be established
+
 #[tauri::command]
 pub async fn create_patient(
     db_connection: State<'_, DbConnection>,
@@ -17,6 +38,18 @@ pub async fn create_patient(
         services::create_patient_service(&db, patient_request).await?;
     Ok(response)
 }
+
+/// Retrieves all patient records from the system.
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Vec<PatientResponse>)` - List of all patient records
+/// * `Err(String)` - Error message if retrieval fails
 
 #[tauri::command]
 pub async fn get_patients(
@@ -42,6 +75,28 @@ pub async fn get_patients(
         .collect();
     Ok(response)
 }
+
+
+/// Updates an existing patient record.
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+/// * `id` - Unique identifier of the patient to update
+/// * `patient_request` - JSON string containing updated patient data
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(PatientResponse)` - Updated patient record
+/// * `Err(String)` - Error message if update fails
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// * The patient request JSON is invalid
+/// * The specified patient ID doesn't exist
+/// * Database operations fail
 
 #[tauri::command]
 pub async fn update_patient(
@@ -76,6 +131,26 @@ pub async fn update_patient(
         Err("No record updated".to_string())
     }
 }
+
+
+/// Deletes a patient record from the system.
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+/// * `id` - Unique identifier of the patient to delete
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(PatientResponse)` - Deleted patient record
+/// * `Err(String)` - Error message if deletion fails
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// * The specified patient ID doesn't exist
+/// * Database operations fail
 
 #[tauri::command]
 pub async fn delete_patient(

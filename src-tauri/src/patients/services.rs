@@ -2,6 +2,25 @@ use super::models::{PatientRecord, PatientRequest, PatientResponse, UserResponse
 
 use scanlytics_db::{Surreal, Any};
 
+/// Creates a new patient record with associated doctor relationship.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `data` - Patient creation request data
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(PatientResponse)` - Successfully created patient record
+/// * `Err(String)` - Error message if creation fails
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// * The specified doctor doesn't exist
+/// * Patient creation fails
+/// * Relationship creation fails
 
 pub async fn create_patient_service(
     db: &Surreal<Any>,
@@ -43,11 +62,35 @@ pub async fn create_patient_service(
     Ok(created)
 }
 
+/// Retrieves all patient records from the database.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Vec<PatientResponse>)` - List of all patient records
+/// * `Err(String)` - Error message if retrieval fails
 
 pub async fn get_patient_service( db: &Surreal<Any>,) -> Result<Vec<PatientResponse>, String> {
     let records: Vec<PatientResponse> = db.select("Patient").await.map_err(|e| e.to_string())?;
     Ok(records)
 }
+/// Updates an existing patient record.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `id` - Unique identifier of the patient
+/// * `data` - Updated patient data
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Option<PatientResponse>)` - Updated patient record if found
+/// * `Err(String)` - Error message if update fails
 
 pub async fn update_patient_service(
     db: &Surreal<Any>,
@@ -75,6 +118,18 @@ pub async fn update_patient_service(
 
     Ok(updated)
 }
+/// Deletes a patient record from the database.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `id` - Unique identifier of the patient to delete
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Option<PatientResponse>)` - Deleted patient record if found
+/// * `Err(String)` - Error message if deletion fails
 
 pub async fn delete_patient_service(
     db: &Surreal<Any>,

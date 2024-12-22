@@ -3,13 +3,38 @@ use keyring::Entry;
 use reqwest::Client as HttpClient;
 use serde_json::Value;
 
+/// Authenticates a user and manages token storage.
+///
+/// This service handles:
+/// - Parsing login credentials
+/// - Making authentication requests to the backend
+/// - Processing authentication responses
+/// - Storing authentication tokens securely
+///
+/// # Arguments
+///
+/// * `login_data` - JSON string containing login credentials
+/// * `base_url` - Optional base URL for the authentication server
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(ApiResponse<LoginResponse>)` - Successful authentication with token
+/// * `Err(AuthError)` - Various authentication errors
+///
+/// # Errors
+///
+/// This function can return several types of errors:
+/// * `AuthError::Parse` - Invalid login data or response parsing failure
+/// * `AuthError::Network` - Network communication failures
+/// * `AuthError::Authentication` - Invalid credentials or server rejection
+/// * `AuthError::Keyring` - Token storage failures
 pub async fn login_service(login_data: String, base_url: Option<String>) -> Result<ApiResponse<LoginResponse>, AuthError> {
     let login_request: LoginRequest = serde_json::from_str(&login_data)
         .map_err(|_| AuthError::Parse("Invalid login data".to_string()))?;
     
     let client = HttpClient::new();
     
-
     let url = base_url.unwrap_or_else(|| "https://scanlyticsbe.fly.dev".to_string()) + "/auth/login";
 
     let response = client
@@ -66,6 +91,20 @@ pub async fn login_service(login_data: String, base_url: Option<String>) -> Resu
 }
 
 
+/// Stores authentication token in the system keyring.
+///
+/// # Arguments
+///
+/// * `user_email` - Email address associated with the token
+/// * `token` - Authentication token to store
+///
+/// # Returns
+///
+/// Returns a `Result` indicating success or failure of token storage
+///
+/// # Security
+///
+/// This function uses the system keyring for secure token storage.
 fn store_token(user_email: &str, token: &str) -> Result<(), AuthError> {
     let entry = Entry::new("com.scanlytics.dev", user_email.trim()).map_err(|e| {
         AuthError::Keyring(format!("Failed to create keyring entry: {}", e))

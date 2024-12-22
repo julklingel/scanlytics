@@ -1,8 +1,67 @@
 # Scanlytics
 
-Scanlytics aims to enhance the experience of writing medical reports for radiologists by providing a tool that automatically extracts relevant information from medical images and generates a structured report. 
+Scanlytics is an advanced medical imaging application that enhances radiologists' report writing experience by automatically analyzing medical images and generating structured reports. It combines machine learning-based image analysis with medical knowledge management.
 
-Scanlytics is a Tauri (desktop) application built with SvelteKit and TypeScript. This project uses Vite for development and build processes and integrates with a Rust backend using Tauri.
+## Features
+
+- **Authentication System**: Secure user authentication and session management
+- **User Management**: Role-based access control and user administration
+- **Patient Management**: Comprehensive patient record handling
+- **Medical Notes**: Structured medical note creation and management
+- **Report Generation**: Automated medical report generation
+- **Image Analysis**: ML-powered medical image processing and classification
+
+## Architecture
+
+### Frontend
+
+- SvelteKit with TypeScript
+- Tauri integration for desktop functionality
+- Responsive UI for medical workflows
+
+### Backend Components
+
+#### Authentication Module
+
+- User authentication and token management
+- Session handling
+- Security middleware
+
+#### Patient Management
+
+- Patient record CRUD operations
+- Medical history tracking
+- Relationship management
+
+#### Medical Notes
+
+- Structured note creation
+- Patient-note relationships
+- Note categorization
+
+#### Report Generation
+
+- Automated report structure
+- Image-text correlation
+
+## Project Structure
+
+```plaintext
+src-tauri/
+├── src/
+│   ├── auth/           # Authentication module
+│   ├── users/          # User management
+│   ├── patients/       # Patient management
+│   ├── notes/          # Medical notes
+│   ├── reports/        # Report generation
+│   └── image_analysis/ # Image processing and ML
+│       ├── image_processing/
+│       └── ml_models/
+└── db/
+    ├── src/            # Database workspace
+    └── Cargo.toml      # Rust dependencies
+```
+
 
 ## Recommended IDE Setup
 
@@ -11,14 +70,6 @@ Scanlytics is a Tauri (desktop) application built with SvelteKit and TypeScript.
   - [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode)
   - [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 
-## Project Structure
-
-- `src/`: SvelteKit frontend source code.
-- `src-tauri/`: Tauri and Rust backend source code.
-  - `src-tauri/src/`: Rust workspace source code.
-  - `src-tauri/db/src`: Database workspace.
-  - `src-tauri/Cargo.toml`: Rust dependencies.
-  - `src-tauri/tauri.conf.json`: Tauri configuration.
 
 ## Prerequisites
 
@@ -62,7 +113,7 @@ Scanlytics is a Tauri (desktop) application built with SvelteKit and TypeScript.
     ```
 
 ## Scripts
-
+- `cargo doc --open`: Generates and opens the Rust backend documentation.
 - `pnpm tauri dev`: Starts the Tauri development server.
 - `pnpm tauri build`: Builds the Tauri application.
 - `cargo build`: Builds the Rust backend.

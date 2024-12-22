@@ -6,7 +6,25 @@ use scanlytics_db::DbConnection;
 
 
 
-
+/// Creates a new patient note in the system.
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+/// * `patient_note_request` - JSON string containing note data
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(PatientNoteResponse)` - Successfully created note
+/// * `Err(String)` - Error message if creation fails
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// * The note request JSON is invalid
+/// * Database operations fail
+/// * Patient or user references are invalid
 #[tauri::command]
 pub async fn create_patient_note(
     db_connection: State<'_, DbConnection>,
@@ -23,6 +41,17 @@ pub async fn create_patient_note(
     Ok(note)
 }
 
+/// Retrieves all patient notes with associated patient information.
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Vec<PatientNoteWithPatientResponse>)` - List of notes with patient details
+/// * `Err(String)` - Error message if retrieval fails
 #[tauri::command]
 pub async fn get_patient_notes(
     db_connection: State<'_, DbConnection>
@@ -34,6 +63,27 @@ pub async fn get_patient_notes(
 
     Ok(response)
 }
+
+/// Updates an existing patient note.
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+/// * `id` - Unique identifier of the note to update
+/// * `patient_note_request` - JSON string containing updated note data
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(PatientNoteResponse)` - Updated note record
+/// * `Err(String)` - Error message if update fails
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// * The note request JSON is invalid
+/// * The specified note ID doesn't exist
+/// * Database operations fail
 
 #[tauri::command]
 pub async fn update_patient_note(
@@ -69,6 +119,20 @@ pub async fn update_patient_note(
         Err("No record updated".to_string())
     }
 }
+
+
+/// Deletes a patient note from the system.
+///
+/// # Arguments
+///
+/// * `db_connection` - Database connection state
+/// * `id` - Unique identifier of the note to delete
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(PatientNoteResponse)` - Deleted note record
+/// * `Err(String)` - Error message if deletion fails
 
 #[tauri::command]
 pub async fn delete_patient_note(

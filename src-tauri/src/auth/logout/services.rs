@@ -1,6 +1,35 @@
 use super::models::LogoutError;
 use keyring::Entry;
 
+
+/// Handles the logout process by removing stored authentication tokens.
+///
+/// This service:
+/// - Attempts to access the system keyring
+/// - Removes stored credentials if they exist
+/// - Handles various error conditions gracefully
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(String)` - Success message indicating logout status
+/// * `Err(LogoutError)` - Error details if logout fails
+///
+/// # Success Messages
+///
+/// - "Successfully logged out" - When credentials were found and removed
+/// - "No active session found" - When no credentials existed
+///
+/// # Errors
+///
+/// This function can return several types of errors:
+/// * `LogoutError::KeyringDelete` - Failed to delete existing credentials
+/// * `LogoutError::KeyringAccess` - Failed to access the system keyring
+///
+/// # Security
+///
+/// - Ensures complete removal of authentication tokens
+/// - Handles edge cases like missing credentials
 pub async fn logout_service() -> Result<String, LogoutError> {
     let service_name = "com.scanlytics.dev";
     

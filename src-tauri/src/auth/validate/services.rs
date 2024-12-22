@@ -13,6 +13,26 @@ thread_local! {
     pub static TEST_API_URL: std::cell::RefCell<Option<String>> = std::cell::RefCell::new(None);
 }
 
+/// Validates and potentially renews an authentication token.
+///
+/// # Arguments
+///
+/// * `user_email` - Email address associated with the token
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(())` - Token is valid and renewed if necessary
+/// * `Err(TokenError)` - Validation error details
+///
+/// # Errors
+///
+/// This function can return several types of errors:
+/// * `TokenError::KeyringAccess` - Failed to access stored token
+/// * `TokenError::ServerError` - Backend communication failed
+/// * `TokenError::ValidationError` - Token validation failed
+/// * `TokenError::ParseError` - Response parsing failed
+
 pub async fn validate_token_service(user_email: &str) -> Result<(), TokenError> {
     let user_email = user_email.trim();
     let stored_token = get_stored_token(user_email)?;
@@ -20,6 +40,20 @@ pub async fn validate_token_service(user_email: &str) -> Result<(), TokenError> 
     store_new_token(user_email, &token_response.access_token)?;
     Ok(())
 }
+
+
+
+/// Retrieves stored token from system keyring.
+///
+/// # Arguments
+///
+/// * `user_email` - Email address associated with the token
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(String)` - Retrieved token
+/// * `Err(TokenError)` - Access error details
 
 #[cfg_attr(test, allow(unused_variables))]
 fn get_stored_token(user_email: &str) -> Result<String, TokenError> {
@@ -37,6 +71,19 @@ fn get_stored_token(user_email: &str) -> Result<String, TokenError> {
         })
     }
 }
+
+/// Validates token with backend server.
+///
+/// # Arguments
+///
+/// * `token` - Token to validate
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(TokenResponse)` - Valid token response
+/// * `Err(TokenError)` - Validation error details
+
 
 async fn validate_token_with_api(token: &str) -> Result<TokenResponse, TokenError> {
     let client = Client::new();
@@ -101,6 +148,18 @@ async fn validate_token_with_api(token: &str) -> Result<TokenResponse, TokenErro
     Ok(token_response)
 }
 
+/// Stores new token in system keyring.
+///
+/// # Arguments
+///
+/// * `user_email` - Email address associated with the token
+/// * `new_token` - New token to store
+///
+/// # Returns
+///
+/// Returns a `Result` indicating success or failure
+
+
 #[cfg_attr(test, allow(unused_variables))]
 fn store_new_token(user_email: &str, new_token: &str) -> Result<(), TokenError> {
     #[cfg(test)]
@@ -117,6 +176,26 @@ fn store_new_token(user_email: &str, new_token: &str) -> Result<(), TokenError> 
             .map_err(|e| TokenError::KeyringStore(format!("Failed to store token: {}", e)))
     }
 }
+
+/// Authentication middleware for protected routes.
+///
+/// # Arguments
+///
+/// * `user_email` - Email address for authentication
+/// * `f` - Protected async function to execute
+///
+/// # Returns
+///
+/// Returns the result of the protected function if authentication succeeds
+///
+/// # Example
+///
+/// ```rust,no_run
+/// async fn protected_route() -> Result<String, String> {
+///     Ok("Protected data".to_string())
+/// }
+///
+/// auth_middleware("user@example.com", protected_route).await
 
 pub async fn auth_middleware<F, Fut, R>(user_email: &str, f: F) -> Result<R, String>
 where
