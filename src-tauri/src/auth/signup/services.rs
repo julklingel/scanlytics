@@ -7,6 +7,37 @@ use scanlytics_db::{Any, Surreal};
 use crate::users::models::UserRecord;
 use crate::users::services::create_user_service;
 
+/// Handles the complete user registration process.
+///
+/// This service:
+/// - Validates user input
+/// - Checks password strength
+/// - Communicates with backend server
+/// - Creates local user record
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `signup_data` - JSON string containing signup data
+/// * `base_url` - Optional base URL for the authentication server
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(SignupResponse)` - Successful registration response
+/// * `Err(SignupError)` - Detailed error information
+///
+/// # Errors
+///
+/// This function can return several types of errors:
+/// * `SignupError::ParseError` - Invalid JSON data
+/// * `SignupError::ValidationError` - Invalid input data
+/// * `SignupError::PasswordMismatch` - Password confirmation mismatch
+/// * `SignupError::WeakPassword` - Insufficient password strength
+/// * `SignupError::NetworkError` - Communication failures
+/// * `SignupError::DatabaseError` - Local database errors
+/// * `SignupError::ServerError` - Backend server errors
+
 pub async fn signup_service(
     db: &Surreal<Any>,
     signup_data: String,
@@ -40,6 +71,19 @@ pub async fn signup_service(
 
     Ok(response)
 }
+
+/// Sends registration request to the backend server.
+///
+/// # Arguments
+///
+/// * `signup_record` - Prepared signup data
+/// * `base_url` - Optional server URL
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(SignupResponse)` - Successful registration
+/// * `Err(SignupError)` - Registration error
 
 async fn send_signup_to_server(
     signup_record: &SignupServerRequest,
@@ -79,6 +123,22 @@ async fn send_signup_to_server(
         )))
     }
 }
+
+
+/// Validates password strength using zxcvbn.
+///
+/// # Arguments
+///
+/// * `password` - Password to validate
+///
+/// # Returns
+///
+/// Returns `Ok(())` if password meets strength requirements,
+/// otherwise returns `Err(SignupError::WeakPassword)`.
+///
+/// # Security
+///
+/// Requires minimum score of 3 out of 4 on the zxcvbn scale.
 
 fn validate_password_strength(password: &str) -> Result<(), SignupError> {
     let estimate = zxcvbn(password, &[]);
