@@ -4,6 +4,30 @@ use crate::image_analysis::ml_models::models::{ImageClassifier, ModelError, Mode
 use scanlytics_db::{Any, Surreal};
 use tauri::Runtime;
 
+
+/// Process images and generate medical statements
+///
+/// This service:
+/// 1. Downloads and initializes ML models
+/// 2. Processes each image
+/// 3. Generates relevant medical statements
+/// 4. Handles specialized processing based on image type
+///
+/// # Arguments
+///
+/// * `image_data` - JSON string containing image data
+/// * `user_name` - Authenticated user's name
+/// * `model_name` - ML model identifier
+/// * `app_handle` - Tauri application handle
+/// * `db` - Database connection
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(AnalysisResponse)` - Analysis results and statements
+/// * `Err(ModelError)` - Detailed error information
+
+
 pub async fn process_images_service<R: Runtime>(
     image_data: String,
     user_name: String,
@@ -72,6 +96,19 @@ pub async fn process_images_service<R: Runtime>(
         statements: all_statements,
     })
 }
+
+/// Fetch relevant medical statements from database
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `body_part` - Anatomical location
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(Vec<StatementResponse>)` - List of relevant statements
+/// * `Err(ModelError)` - Database error details
 
 async fn fetch_statements(
     db: &Surreal<Any>,

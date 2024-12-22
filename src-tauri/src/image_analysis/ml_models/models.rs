@@ -1,3 +1,12 @@
+//! # ML Model Implementation
+//! 
+//! Core implementation of machine learning model management and image classification.
+//! This module provides the fundamental structures and implementations for:
+//! - Model configuration and initialization
+//! - Image processing and classification
+//! - Model file management and downloading
+//! - Secure token handling
+
 use image::imageops::FilterType;
 use keyring::Entry;
 use ndarray::Array;
@@ -11,65 +20,105 @@ use thiserror::Error;
 use tract_onnx::prelude::*;
 use tauri::Runtime;
 
+/// Service name for keyring operations
 const SERVICE_NAME: &str = "com.scanlytics.dev";
+/// Base URL for ML model API
 const API_BASE_URL: &str = "https://scanlyticsbe.fly.dev";
 
+/// Input image data structure
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageData {
+    /// Original filename
     pub filename: String,
+    /// File extension (e.g., "jpg", "png")
     pub extension: String,
+    /// Raw image data
     pub data: Vec<u8>,
 }
 
+/// Classification result structure
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ImageResult {
+    /// Original filename
     pub filename: String,
+    /// Classified image type
     pub image_type: String,
+    /// Classification confidence score (0.0 to 1.0)
     pub confidence: f32,
 }
 
+/// ML model configuration
 #[derive(Debug)]
 #[cfg_attr(test, derive(Clone))]
 pub struct ModelConfig {
+    /// Input image dimensions (height, width)
     pub input_shape: (usize, usize),
+    /// Number of input channels (1 for grayscale, 3 for RGB)
     pub channels: usize,
+    /// Available classification categories
     pub class_mapping: Vec<&'static str>,
 }
 
+/// Image classification model wrapper
 #[derive(Debug)]
 #[cfg_attr(test, derive(Clone))]
 pub struct ImageClassifier {
+    /// ONNX model for production use
     #[cfg(not(feature = "test-utils"))]
     pub(crate) model: RunnableModel<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>,
-     #[cfg(feature = "test-utils")]
+    /// Mock model for testing
+    #[cfg(feature = "test-utils")]
     pub(crate) model: (),
+    /// Model configuration
     pub(crate) config: ModelConfig,
 }
 
+/// Model management and downloading
 #[derive(Debug)]
 pub struct ModelManager<R: Runtime> {
+    /// HTTP client for model downloading
     pub client: Client,
+    /// Tauri application handle
     app_handle: tauri::AppHandle<R>,
 }
 
+/// Possible errors during model operations
 #[derive(Debug, Error)]
 pub enum ModelError {
+    /// Authentication and token-related errors
     #[error("Authentication error: {0}")]
     Auth(String),
+    /// Network communication errors
     #[error("Network error: {0}")]
     Network(String),
+    /// File system operation errors
     #[error("File system error: {0}")]
     FileSystem(String),
+    /// Model processing and inference errors
     #[error("Model processing error: {0}")]
     Processing(String),
+    /// Database operation errors
     #[error("Database error: {0}")]
     Database(String),
+    /// Image processing errors
     #[error("Image processing error: {0}")]
     Image(String),
+    /// Data serialization errors
     #[error("Serialization error: {0}")]
     Serialization(String),
 }
 
+/// Retrieves stored authentication token
+///
+/// # Arguments
+///
+/// * `user_name` - Username for token retrieval
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(String)` - Retrieved token
+/// * `Err(ModelError)` - Authentication error details
 async fn get_stored_token(user_name: &str) -> Result<String, ModelError> {
     let entry = Entry::new(SERVICE_NAME, user_name.trim())
         .map_err(|e| ModelError::Auth(format!("Failed to access keyring: {}", e)))?;
@@ -80,6 +129,11 @@ async fn get_stored_token(user_name: &str) -> Result<String, ModelError> {
 }
 
 impl<R: Runtime> ModelManager<R> {
+    /// Creates a new model manager instance
+    ///
+    /// # Arguments
+    ///
+    /// * `app_handle` - Tauri application handle
     pub fn new(app_handle: tauri::AppHandle<R>) -> Self {
         Self {
             client: Client::new(),
@@ -108,6 +162,18 @@ impl<R: Runtime> ModelManager<R> {
         }
     }
 
+    /// Ensures model file exists, downloading if necessary
+    ///
+    /// # Arguments
+    ///
+    /// * `model_name` - Name of the model to ensure
+    /// * `user_name` - Username for authentication
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing either:
+    /// * `Ok(PathBuf)` - Path to the model file
+    /// * `Err(ModelError)` - Error details if operation fails
 
     fn get_model_path(&self, model_name: &str) -> Result<PathBuf, ModelError> {
         let app_local_data_dir = self.app_handle
@@ -121,7 +187,16 @@ impl<R: Runtime> ModelManager<R> {
 
         Ok(onnx_dir.join(format!("{}.onnx", model_name)))
     }
-
+    /// Downloads a model file
+    ///
+    /// # Arguments
+    ///
+    /// * `model_name` - Name of the model to download
+    /// * `user_name` - Username for authentication
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` indicating success or failure
     async fn download_model(&self, model_name: &str, user_name: &str) -> Result<(), ModelError> {
         let token = get_stored_token(user_name).await?;
         let url = self.get_presigned_url(model_name, &token).await?;
@@ -180,6 +255,17 @@ impl<R: Runtime> ModelManager<R> {
 
 
 impl ImageClassifier {
+    /// Creates a new image classifier instance
+    ///
+    /// # Arguments
+    ///
+    /// * `model_path` - Path to the ONNX model file
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing either:
+    /// * `Ok(Self)` - Initialized classifier
+    /// * `Err(ModelError)` - Initialization error details
     #[cfg(not(feature = "test-utils"))]
     pub fn new(model_path: &std::path::Path) -> Result<Self, ModelError> {
         let model = tract_onnx::onnx()
@@ -228,6 +314,17 @@ impl ImageClassifier {
         })
     }
 
+    /// Processes an image for classification
+    ///
+    /// # Arguments
+    ///
+    /// * `image_data` - Raw image data
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing either:
+    /// * `Ok((String, f32))` - (Image type, confidence score)
+    /// * `Err(ModelError)` - Processing error details
     #[cfg(not(feature = "test-utils"))]
     pub fn process_image(&self, image_data: &[u8]) -> Result<(String, f32), ModelError> {
         let (width, height) = self.config.input_shape;

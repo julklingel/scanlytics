@@ -3,6 +3,26 @@ use super::services;
 use tauri::State;
 use scanlytics_db::DbConnection;
 
+
+/// Process multiple medical images using ML models
+///
+/// # Arguments
+///
+/// * `image_data` - JSON string containing image data
+/// * `user_name` - Authenticated user's name
+/// * `model_name` - Name of the ML model to use
+/// * `app_handle` - Tauri application handle
+/// * `db_connection` - Database connection state
+///
+/// # Returns
+///
+/// Returns a `Result` containing either:
+/// * `Ok(AnalysisResponse)` - Analysis results and statements
+/// * `Err(String)` - Error message if processing fails
+///
+/// # Security
+///
+/// Requires valid authentication token for model access
 #[tauri::command]
 pub async fn process_images<'a>(
     image_data: String,
