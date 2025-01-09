@@ -324,7 +324,23 @@ pub async fn define_db_on_startup(db_connection: DbConnection) -> Result<(), Str
             email = 'dr.test@med.com',
             password = '911medical',
             name = 'Dr. Testo',
-            role = 'user'"
+            role = 'user'",
+
+
+        "CREATE Patient SET 
+            name = 'John Doe',
+            date_of_birth = '1990-01-01',
+            gender = 'male',
+            contact_number = '1234567890',
+            address = '1234 Test St, Test City, Test Country'",
+
+        "CREATE Patient SET 
+            name = 'Jane Doelly',
+            date_of_birth = '1990-01-01',
+            gender = 'female',
+            contact_number = '1234567890',
+            address = '1234 Test St, Test City, Test Country'",
+            
     ];
     
 
@@ -337,7 +353,7 @@ pub async fn define_db_on_startup(db_connection: DbConnection) -> Result<(), Str
 }
 
 pub async fn setup_database(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    let db_connection = init_db(Some(&app.app_handle()), true).await?;
+    let db_connection = init_db(Some(&app.app_handle()), false).await?;
     define_db_on_startup(db_connection.clone()).await?;
     app.manage(db_connection);
     println!("Database setup completed successfully");
