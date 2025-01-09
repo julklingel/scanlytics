@@ -320,11 +320,28 @@ pub async fn define_db_on_startup(db_connection: DbConnection) -> Result<(), Str
             assessment = ''",
     
         
-        "CREATE User SET 
+    "CREATE User SET 
             email = 'dr.test@med.com',
             password = '911medical',
             name = 'Dr. Testo',
-            role = 'user'"
+            role = 'user'",
+
+    "CREATE Patient SET 
+            name = 'John Doe',
+            date_of_birth = '1990-01-01',
+            gender = 'male',
+            contact_number = '1234567890',
+            address = '1234 Test St, Test City, Test Country'",
+    
+    "CREATE Patient SET 
+            name = 'Jane Doelly',
+            date_of_birth = '1990-01-01',
+            gender = 'female',
+            contact_number = '1234567890',
+            address = '1234 Test St, Test City, Test Country'",
+            
+    ",
+            
     ];
     
 
